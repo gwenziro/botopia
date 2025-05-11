@@ -1,0 +1,114 @@
+<div id="qr-app"
+     x-data="qrPage()" 
+     data-connection-state="{{.ConnectionState}}"
+     data-qr-code="{{.QRCode}}"
+     data-phone="{{.Phone}}"
+     data-name="{{.Name}}"
+     class="flex flex-col items-center justify-center animate-fadeIn">
+    
+    <div class="glass border border-slate-700/30 rounded-xl overflow-hidden max-w-md w-full">
+        <div class="card-header border-b border-slate-700/30">
+            <h2 class="text-xl font-semibold text-white text-center">WhatsApp Connection</h2>
+            <div x-data="{ status: connectionState }">
+                {{template "components/connection-status-badge" .}}
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <!-- Connected State - Enhanced UI -->
+            <div x-show="connectionState === 'connected'" class="flex flex-col items-center justify-center text-center animate-fadeIn">
+                <div class="w-20 h-20 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mb-6">
+                    <i class="fas fa-check-circle text-4xl"></i>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-white mb-2">WhatsApp Connected!</h2>
+                <p class="text-slate-400 mb-6">Your bot is now running and ready to respond to messages.</p>
+                
+                <!-- Connected Account Information -->
+                <div class="glass border border-slate-700/30 rounded-xl p-5 w-full mb-6">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-phone-alt text-primary-400 mr-3"></i>
+                        <h3 class="text-lg font-medium text-white">Connected Account</h3>
+                    </div>
+                    <div class="pl-8">
+                        <p class="text-slate-300 mb-1">
+                            <i class="fas fa-mobile-alt w-5 text-primary-300"></i>
+                            <span x-text="getDisplayPhone()"></span>
+                        </p>
+                        <p class="text-slate-300">
+                            <i class="fas fa-user w-5 text-primary-300"></i>
+                            <span x-text="getDisplayName()"></span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4">
+                    <!-- Reset Connection Button -->
+                    <button @click="refreshQR" class="btn-action-primary">
+                        <span class="flex items-center">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            <span>Reset Connection</span>
+                        </span>
+                    </button>
+                    
+                    <!-- Dashboard Button -->
+                    <a href="/dashboard" class="btn-action-secondary">
+                        <span class="flex items-center">
+                            <i class="fas fa-chart-line mr-2"></i>
+                            <span>Dashboard</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Disconnected State - QR Scanning Required -->
+            <div x-show="connectionState !== 'connected'" class="flex flex-col items-center justify-center text-center animate-fadeIn" x-cloak>
+                <div class="mb-4">
+                    <h3 class="text-lg font-medium text-white mb-1">Scan QR Code</h3>
+                    <p class="text-slate-400">To connect WhatsApp to Botopia, scan the QR code using your WhatsApp mobile app.</p>
+                </div>
+                
+                <div class="qr-container bg-white rounded-lg p-4 mb-4">
+                    <!-- Loading state -->
+                    <div x-show="loading" class="h-64 flex flex-col items-center justify-center">
+                        <div class="w-10 h-10 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p class="text-slate-600">Loading QR Code...</p>
+                    </div>
+                    
+                    <!-- QR Code display -->
+                    <div x-show="!loading && qrCode" class="w-full">
+                        <img :src="getQRImageUrl()" alt="QR Code" class="mx-auto">
+                    </div>
+                    
+                    <!-- No QR code available -->
+                    <div x-show="!loading && !qrCode" class="h-64 flex flex-col items-center justify-center text-slate-600">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-2"></i>
+                        <p>No QR code available.<br>Try restarting the bot.</p>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-slate-400 mb-4">The QR code will automatically refresh every 10 seconds.</p>
+                
+                <!-- Updated Refresh QR Button -->
+                <button 
+                    @click="refreshQR" 
+                    class="btn-action-primary"
+                    :disabled="refreshing"
+                >
+                    <span class="flex items-center">
+                        <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': refreshing}"></i>
+                        <span x-show="!refreshing">Refresh QR</span>
+                        <span x-show="refreshing">Loading...</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-slate-800/50 p-4 text-center border-t border-slate-700/30">
+            <p class="text-sm text-slate-400">
+                <i class="fas fa-info-circle mr-1 text-primary-400"></i>
+                Open WhatsApp on your phone, go to Settings > Linked Devices > Link a Device
+            </p>
+        </div>
+    </div>
+</div>

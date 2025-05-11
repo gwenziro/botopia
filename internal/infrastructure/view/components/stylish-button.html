@@ -1,0 +1,14 @@
+<button 
+    {{if .ID}}id="{{.ID}}"{{end}}
+    {{if .Disabled}}disabled{{end}}
+    @click="{{.OnClick}}" 
+    class="relative overflow-hidden rounded-lg transition-all duration-300 {{if .Small}}px-3 py-1.5 text-sm{{else}}px-4 py-2{{end}} {{if .Class}}{{.Class}}{{else}}bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-lg hover:shadow-primary-500/20{{end}}"
+>
+    <span class="relative z-10 flex items-center justify-center gap-2">
+        {{if .Icon}}
+        <i class="{{.Icon}} {{if .Spinning}}animate-spin{{end}}"></i>
+        {{end}}
+        {{.Label}}
+    </span>
+    <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-500 group-hover:scale-105 transition-transform duration-300"></div>
+</button>

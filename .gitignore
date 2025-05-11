@@ -1,0 +1,51 @@
+# Binaries and build directories
+/build/
+/tmp/
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Database files
+*.db
+*.db-journal
+*.db.bak
+
+# Log files
+*.log
+
+# Go workspace file
+go.work
+
+# Air temporary files
+.air.toml.tmp
+
+# Go sum lock file (optional, depends on your team workflow)
+# go.sum
+
+# Local environment files
+.env
+.env.local
+
+# IDE directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

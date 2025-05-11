@@ -1,0 +1,17 @@
+<!-- Stats Card Component -->
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="px-6 py-5">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full {{.IconBgClass}}">
+                <i class="fas {{.Icon}}"></i>
+            </div>
+            <div class="mx-5">
+                <h4 class="text-2xl font-semibold text-gray-700">{{.Value}}</h4>
+                <div class="text-gray-500">{{.Title}}</div>
+            </div>
+        </div>
+    </div>
+    <div class="px-6 py-2 bg-primary-700 text-center text-white">
+        <span>{{.Subtitle}}</span>
+    </div>
+</div>

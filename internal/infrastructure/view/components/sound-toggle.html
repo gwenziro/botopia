@@ -1,0 +1,13 @@
+<div x-data="{ soundEnabled: localStorage.getItem('sound-enabled') === 'true' }" class="inline-block">
+    <button 
+        @click="soundEnabled = !soundEnabled; localStorage.setItem('sound-enabled', soundEnabled)"
+        :class="soundEnabled ? 'bg-primary-600' : 'bg-slate-700'"
+        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+    >
+        <span 
+            :class="soundEnabled ? 'translate-x-6' : 'translate-x-1'"
+            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+        ></span>
+    </button>
+    <span class="ml-2 text-sm text-slate-300" x-text="soundEnabled ? 'On' : 'Off'"></span>
+</div>

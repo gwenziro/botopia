@@ -1,0 +1,16 @@
+<span 
+    class="connection-badge inline-flex items-center px-3 py-1 text-sm font-medium rounded-full"
+    :class="{
+        'bg-green-500/20 text-green-400': status === 'connected',
+        'bg-red-500/20 text-red-400': status !== 'connected'
+    }"
+>
+    <span 
+        class="w-2 h-2 rounded-full mr-2 animate-pulse"
+        :class="{
+            'bg-green-400': status === 'connected',
+            'bg-red-400': status !== 'connected'
+        }"
+    ></span>
+    <span x-text="status === 'connected' ? 'Connected' : 'Disconnected'"></span>
+</span>

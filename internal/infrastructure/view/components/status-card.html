@@ -1,0 +1,20 @@
+<div class="glass border border-slate-700/30 rounded-xl overflow-hidden animate-slideInUp" :style="{ 'animation-delay': '{{.Delay}}ms' }">
+    <div class="px-6 py-5">
+        <div class="flex items-center">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center"
+                 :class="{
+                     'bg-green-500/20 text-green-400': {{.StatusValue}} === '{{.SuccessValue}}',
+                     'bg-red-500/20 text-red-400': {{.StatusValue}} !== '{{.SuccessValue}}'
+                 }">
+                <i class="fas" :class="{{.StatusValue}} === '{{.SuccessValue}}' ? '{{.SuccessIcon}}' : '{{.FailureIcon}}'"></i>
+            </div>
+            <div class="mx-5">
+                <h4 class="text-2xl font-semibold text-white" x-text="{{.StatusValue}} === '{{.SuccessValue}}' ? '{{.SuccessText}}' : '{{.FailureText}}'"></h4>
+                <div class="text-slate-400">{{.Label}}</div>
+            </div>
+        </div>
+    </div>
+    <div class="px-6 py-3 bg-slate-800/50 border-t border-slate-700/30 text-center">
+        <span x-text="{{.SubtextExpression}}" class="text-slate-300"></span>
+    </div>
+</div>

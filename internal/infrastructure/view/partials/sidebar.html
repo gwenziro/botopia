@@ -1,0 +1,42 @@
+<!-- Sidebar partial -->
+<div id="sidebar" 
+     class="sidebar glass border-r border-slate-700/30 -translate-x-full lg:translate-x-0">
+    <!-- Logo & App Name -->
+    <div class="flex items-center justify-center h-16 border-b border-slate-700/30">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-tr from-primary-500 to-primary-300 flex items-center justify-center text-white">
+                <i class="fas fa-robot"></i>
+            </div>
+            <span class="text-white text-xl font-semibold">Botopia</span>
+        </div>
+    </div>
+    
+    <!-- Improved navigation with better spacing -->
+    <nav id="nav-links" class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+        <a href="/dashboard" 
+           class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
+            <i class="fas fa-chart-line w-5 mr-3 text-primary-400"></i>
+            Dashboard
+        </a>
+        <a href="/qr" 
+           class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
+            <i class="fas fa-qrcode w-5 mr-3 text-primary-400"></i>
+            QR Code
+        </a>
+        
+        <!-- Additional navigation items can be added here -->
+    </nav>
+    
+    <!-- User Profile - Now moved to user-menu class for better positioning -->
+    <div class="user-menu border-t border-slate-700/30">
+        <div class="glass rounded-lg p-3 flex items-center">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-700 to-primary-500 flex items-center justify-center text-white">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-white">Admin</p>
+                <p class="text-xs text-slate-400">Botopia Admin</p>
+            </div>
+        </div>
+    </div>
+</div>

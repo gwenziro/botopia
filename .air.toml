@@ -1,0 +1,32 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/main.exe ./cmd/main.go"
+  bin = "./tmp/main.exe"
+  delay = 1000
+  exclude_dir = ["tmp", "vendor", ".git"]
+  exclude_file = []
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = ""
+  include_dir = []
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  kill_delay = "5s"  # Memberikan waktu 5 detik sebelum mencoba kill proses
+  log = "build-errors.log"
+  send_interrupt = false
+  stop_on_error = true
+
+[color]
+  app = "cyan"
+  build = "yellow"
+  main = "magenta"
+  runner = "green"
+  watcher = "blue"
+
+[log]
+  time = true
+
+[misc]
+  clean_on_exit = false
