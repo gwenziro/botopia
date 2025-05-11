@@ -35,4 +35,7 @@ type FinanceService interface {
 
 	// GetRecentRecords mendapatkan record keuangan terbaru
 	GetRecentRecords(ctx context.Context, limit int) ([]*finance.FinanceRecord, error)
+
+	// UploadTransactionProof mengunggah bukti transaksi
+	UploadTransactionProof(ctx context.Context, transactionCode string, filePath string) (*finance.FinanceRecord, error)
 }

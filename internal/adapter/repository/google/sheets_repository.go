@@ -14,10 +14,10 @@ type SheetsRepository struct {
 	apiRepo        *GoogleAPIRepository
 	config         *config.GoogleSheetsConfig
 	log            *logger.Logger
-	expenseHandler *expenseHandler
-	incomeHandler  *incomeHandler
-	configHandler  *configHandler
-	seqHandler     *sequenceHandler
+	expenseHandler *ExpenseHandler
+	incomeHandler  *IncomeHandler
+	configHandler  *ConfigHandler
+	seqHandler     *SequenceHandler
 }
 
 // NewSheetsRepository membuat instance repository baru
@@ -33,10 +33,10 @@ func NewSheetsRepository(
 	}
 
 	// Inisialisasi internal handlers
-	repo.seqHandler = newSequenceHandler(apiRepo, config.GoogleSheets, log)
-	repo.expenseHandler = newExpenseHandler(apiRepo, config.GoogleSheets, repo.seqHandler, log)
-	repo.incomeHandler = newIncomeHandler(apiRepo, config.GoogleSheets, repo.seqHandler, log)
-	repo.configHandler = newConfigHandler(apiRepo, config.GoogleSheets, log)
+	repo.seqHandler = NewSequenceHandler(apiRepo, config.GoogleSheets, log)
+	repo.expenseHandler = NewExpenseHandler(apiRepo, config.GoogleSheets, repo.seqHandler, log)
+	repo.incomeHandler = NewIncomeHandler(apiRepo, config.GoogleSheets, repo.seqHandler, log)
+	repo.configHandler = NewConfigHandler(apiRepo, config.GoogleSheets, log)
 
 	return repo
 }
@@ -88,4 +88,14 @@ func (r *SheetsRepository) GetRecentRecords(ctx context.Context, limit int) ([]*
 	// Gabung dan urutkan
 	records := append(incomeRecords, expenseRecords...)
 	return r.configHandler.SortAndLimitRecords(records, limit), nil
+}
+
+// FindRecordByCode mencari record berdasarkan kode unik
+func (r *SheetsRepository) FindRecordByCode(ctx context.Context, code string) (*finance.FinanceRecord, error) {
+	return r.configHandler.FindRecordByCode(ctx, code)
+}
+
+// UpdateRecordProof memperbarui URL bukti transaksi
+func (r *SheetsRepository) UpdateRecordProof(ctx context.Context, code string, proofURL string) error {
+	return r.configHandler.UpdateRecordProof(ctx, code, proofURL)
 }

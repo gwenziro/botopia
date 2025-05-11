@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/gwenziro/botopia/internal/infrastructure/config"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
@@ -77,4 +80,37 @@ func (r *DriveRepository) GetFileURL(fileID string) string {
 // IsConfigured memeriksa apakah repository sudah dikonfigurasi
 func (r *DriveRepository) IsConfigured() bool {
 	return r.apiRepo.IsConfigured()
+}
+
+// UploadImage mengunggah file gambar ke Google Drive
+func (r *DriveRepository) UploadImage(ctx context.Context, filePath string, transactionCode string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", fmt.Errorf("gagal membuka file: %v", err)
+	}
+	defer file.Close()
+
+	// Deteksi jenis mime dari ekstensi file
+	mimeType := "image/jpeg" // Default
+	fileExt := strings.ToLower(filepath.Ext(filePath))
+	switch fileExt {
+	case ".png":
+		mimeType = "image/png"
+	case ".pdf":
+		mimeType = "application/pdf"
+	case ".mp4":
+		mimeType = "video/mp4"
+	}
+
+	// Buat nama file yang sesuai
+	fileName := fmt.Sprintf("Bukti_%s_%s", transactionCode, filepath.Base(filePath))
+
+	// Upload file dan dapatkan ID
+	fileID, err := r.UploadFile(ctx, fileName, mimeType, file)
+	if err != nil {
+		return "", fmt.Errorf("gagal mengupload file: %v", err)
+	}
+
+	// Kembalikan URL file
+	return r.GetFileURL(fileID), nil
 }

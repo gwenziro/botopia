@@ -13,20 +13,20 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-// sequenceHandler menangani operasi untuk penomoran urut
-type sequenceHandler struct {
+// SequenceHandler menangani operasi untuk penomoran urut
+type SequenceHandler struct {
 	apiRepo *GoogleAPIRepository
 	config  *config.GoogleSheetsConfig
 	log     *logger.Logger
 }
 
-// newSequenceHandler membuat instance sequence handler baru
-func newSequenceHandler(
+// NewSequenceHandler membuat instance sequence handler baru
+func NewSequenceHandler(
 	apiRepo *GoogleAPIRepository,
 	config *config.GoogleSheetsConfig,
 	log *logger.Logger,
-) *sequenceHandler {
-	return &sequenceHandler{
+) *SequenceHandler {
+	return &SequenceHandler{
 		apiRepo: apiRepo,
 		config:  config,
 		log:     log,
@@ -34,7 +34,7 @@ func newSequenceHandler(
 }
 
 // GetNextSequenceNumber mendapatkan nomor urut berikutnya dalam bulan ini (untuk kode unik)
-func (h *sequenceHandler) GetNextSequenceNumber(ctx context.Context, service *sheets.Service, sheetName string) (int, error) {
+func (h *SequenceHandler) GetNextSequenceNumber(_ context.Context, service *sheets.Service, sheetName string) (int, error) {
 	// Ambil data bulan ini
 	now := time.Now()
 	currentMonth := finance.GetMonthAbbr(now.Month())
@@ -81,7 +81,7 @@ func (h *sequenceHandler) GetNextSequenceNumber(ctx context.Context, service *sh
 }
 
 // GetGlobalRecordNumber mendapatkan nomor urut global untuk sheet tertentu
-func (h *sequenceHandler) GetGlobalRecordNumber(ctx context.Context, service *sheets.Service, sheetName string) (int, error) {
+func (h *SequenceHandler) GetGlobalRecordNumber(_ context.Context, service *sheets.Service, sheetName string) (int, error) {
 	// Ambil semua data
 	resp, err := service.Spreadsheets.Values.Get(
 		h.config.SpreadsheetID,

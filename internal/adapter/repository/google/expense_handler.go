@@ -13,22 +13,22 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-// expenseHandler menangani operasi untuk expense
-type expenseHandler struct {
+// ExpenseHandler menangani operasi untuk expense
+type ExpenseHandler struct {
 	apiRepo    *GoogleAPIRepository
 	config     *config.GoogleSheetsConfig
-	seqHandler *sequenceHandler
+	seqHandler *SequenceHandler
 	log        *logger.Logger
 }
 
-// newExpenseHandler membuat instance expense handler baru
-func newExpenseHandler(
+// NewExpenseHandler membuat instance expense handler baru
+func NewExpenseHandler(
 	apiRepo *GoogleAPIRepository,
 	config *config.GoogleSheetsConfig,
-	seqHandler *sequenceHandler,
+	seqHandler *SequenceHandler,
 	log *logger.Logger,
-) *expenseHandler {
-	return &expenseHandler{
+) *ExpenseHandler {
+	return &ExpenseHandler{
 		apiRepo:    apiRepo,
 		config:     config,
 		seqHandler: seqHandler,
@@ -37,7 +37,7 @@ func newExpenseHandler(
 }
 
 // AddRecord menambahkan record pengeluaran ke sheet
-func (h *expenseHandler) AddRecord(ctx context.Context, record *finance.FinanceRecord) error {
+func (h *ExpenseHandler) AddRecord(ctx context.Context, record *finance.FinanceRecord) error {
 	h.log.Info("Memulai penambahan record pengeluaran...")
 
 	service, err := h.apiRepo.GetSheetsService(ctx)
@@ -112,7 +112,7 @@ func (h *expenseHandler) AddRecord(ctx context.Context, record *finance.FinanceR
 }
 
 // GetRecords mendapatkan semua record pengeluaran
-func (h *expenseHandler) GetRecords(ctx context.Context) ([]*finance.FinanceRecord, error) {
+func (h *ExpenseHandler) GetRecords(ctx context.Context) ([]*finance.FinanceRecord, error) {
 	service, err := h.apiRepo.GetSheetsService(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("gagal mendapatkan sheets service: %v", err)
@@ -150,7 +150,7 @@ func (h *expenseHandler) GetRecords(ctx context.Context) ([]*finance.FinanceReco
 }
 
 // parseRow mengkonversi baris sheet menjadi FinanceRecord untuk pengeluaran
-func (h *expenseHandler) parseRow(row []interface{}) (*finance.FinanceRecord, error) {
+func (h *ExpenseHandler) parseRow(row []interface{}) (*finance.FinanceRecord, error) {
 	record := &finance.FinanceRecord{
 		Type: finance.TypeExpense,
 	}

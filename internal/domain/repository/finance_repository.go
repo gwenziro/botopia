@@ -27,5 +27,12 @@ type FinanceRepository interface {
 	GetSpreadsheetURL() string
 
 	// GetSheetsService mendapatkan akses ke service sheets
+	// Penting: menggunakan interface{} untuk fleksibilitas
 	GetSheetsService(ctx context.Context) (interface{}, error)
+
+	// FindRecordByCode mencari record berdasarkan kode unik
+	FindRecordByCode(ctx context.Context, code string) (*finance.FinanceRecord, error)
+
+	// UpdateRecordProof memperbarui URL bukti transaksi
+	UpdateRecordProof(ctx context.Context, code string, proofURL string) error
 }

@@ -49,6 +49,18 @@ func (c *MessageController) HandleMessage(msg *message.Message) {
 		return
 	}
 
+	// Gunakan caption sebagai text jika ada media dan caption
+	if msg.HasMedia() && msg.Caption != "" {
+		// Tambahkan log untuk debug
+		c.log.Info("Pesan dengan media diterima, caption: %s", msg.Caption)
+		msg.Text = msg.Caption
+	} else {
+		// Log jika pesan media tanpa caption
+		if msg.HasMedia() {
+			c.log.Info("Pesan dengan media diterima tanpa caption")
+		}
+	}
+
 	// Log pesan masuk
 	c.log.Debug("Message received: %s", msg.Text)
 
@@ -60,7 +72,11 @@ func (c *MessageController) HandleMessage(msg *message.Message) {
 	response, err := c.executeCommandUseCase.Execute(ctx, msg)
 	if err != nil {
 		if err == execute.ErrCommandNotFound {
-			// Command tidak ditemukan, abaikan
+			// Command tidak ditemukan
+			if msg.HasMedia() {
+				c.log.Info("Media diterima tanpa command yang valid")
+				c.sendReply(msg, "Untuk mengunggah bukti transaksi, gunakan format caption: !unggah <kode_transaksi>")
+			}
 			return
 		}
 		c.log.Error("Failed to execute command: %v", err)

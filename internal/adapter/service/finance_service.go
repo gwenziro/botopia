@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -100,4 +102,80 @@ func (s *FinanceService) GetConfiguration(ctx context.Context) (*finance.Configu
 	s.configErr = nil
 
 	return config, nil
+}
+
+// UploadTransactionProof mengunggah bukti transaksi
+func (s *FinanceService) UploadTransactionProof(ctx context.Context, transactionCode string, filePath string) (*finance.FinanceRecord, error) {
+	s.log.Info("Mengunggah bukti transaksi untuk kode: %s, file: %s", transactionCode, filePath)
+
+	// Validasi file
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("file bukti transaksi tidak ditemukan")
+	}
+
+	// Cari record berdasarkan kode
+	record, err := s.findRecordByCode(ctx, transactionCode)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mencari transaksi: %v", err)
+	}
+
+	// Validasi record
+	if record == nil {
+		return nil, fmt.Errorf("transaksi dengan kode %s tidak ditemukan", transactionCode)
+	}
+
+	// Cek apakah sudah ada bukti
+	if record.ProofURL != "" && record.ProofURL != "-" {
+		return nil, fmt.Errorf("transaksi dengan kode %s sudah memiliki bukti", transactionCode)
+	}
+
+	// Unggah ke Google Drive
+	fileURL, err := s.driveRepo.UploadImage(ctx, filePath, transactionCode)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengunggah bukti: %v", err)
+	}
+
+	// Update record dengan URL bukti
+	updatedRecord, err := s.updateRecordProof(ctx, record, fileURL)
+	if err != nil {
+		return nil, fmt.Errorf("gagal memperbarui record: %v", err)
+	}
+
+	// Hapus file temporary
+	os.Remove(filePath)
+
+	return updatedRecord, nil
+}
+
+// findRecordByCode mencari record berdasarkan kode unik
+func (s *FinanceService) findRecordByCode(ctx context.Context, code string) (*finance.FinanceRecord, error) {
+	// Cek tipe record dari kode (k_ untuk pengeluaran, m_ untuk pemasukan)
+	isExpense := strings.HasPrefix(code, "k_")
+	isIncome := strings.HasPrefix(code, "m_")
+
+	if !isExpense && !isIncome {
+		return nil, fmt.Errorf("format kode tidak valid")
+	}
+
+	// Cari di sheet yang sesuai
+	return s.sheetsRepo.FindRecordByCode(ctx, code)
+}
+
+// updateRecordProof memperbarui record dengan URL bukti
+func (s *FinanceService) updateRecordProof(ctx context.Context, record *finance.FinanceRecord, proofURL string) (*finance.FinanceRecord, error) {
+	// Update record dengan URL bukti
+	record.ProofURL = proofURL
+
+	// Update di Google Sheets
+	err := s.sheetsRepo.UpdateRecordProof(ctx, record.UniqueCode, proofURL)
+	if err != nil {
+		return nil, err
+	}
+
+	return record, nil
+}
+
+// GetLogger mengembalikan logger service
+func (s *FinanceService) GetLogger() *logger.Logger {
+	return s.log
 }

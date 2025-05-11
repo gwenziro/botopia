@@ -60,6 +60,7 @@ type Config struct {
 	// Direktori
 	WebViewDir   string
 	WebStaticDir string
+	DataDir      string
 
 	// Google Sheets
 	GoogleSheets *GoogleSheetsConfig
@@ -98,6 +99,7 @@ func NewConfig() *Config {
 		QRAutoRefresh:   true,
 		WebViewDir:      "./internal/infrastructure/web/view",
 		WebStaticDir:    "./internal/infrastructure/web/static",
+		DataDir:         "./data",
 
 		// Inisialisasi Google Sheets Config dengan default values
 		GoogleSheets: &GoogleSheetsConfig{
@@ -197,6 +199,10 @@ func (c *Config) LoadFromEnv() {
 		}
 	}
 
+	if v := os.Getenv("BOTOPIA_DATA_DIR"); v != "" {
+		c.DataDir = v
+	}
+
 	// Google Sheets config
 	if v := os.Getenv("BOTOPIA_GOOGLE_CREDENTIALS"); v != "" {
 		c.GoogleSheets.CredentialsFile = v
@@ -221,26 +227,19 @@ func (c *Config) IsDevMode() bool {
 	return c.DevMode
 }
 
-// EnsureDirectories memastikan semua direktori yang diperlukan tersedia
+// EnsureDirectories memastikan direktori yang diperlukan tersedia
 func (c *Config) EnsureDirectories() error {
 	dirs := []string{
-		filepath.Dir(c.DBPath),
-	}
-
-	// Hanya tambahkan direktori yang bukan merupakan direktori default Go
-	if c.WebViewDir != "" && c.WebViewDir != "." && !strings.HasPrefix(c.WebViewDir, "./") {
-		dirs = append(dirs, c.WebViewDir)
-	}
-
-	if c.WebStaticDir != "" && c.WebStaticDir != "." && !strings.HasPrefix(c.WebStaticDir, "./") {
-		dirs = append(dirs, c.WebStaticDir)
+		c.DataDir,
+		filepath.Join(c.DataDir, "store"),
+		filepath.Join(c.DataDir, "logs"),
+		filepath.Join(c.DataDir, "temp"),
+		filepath.Join(c.DataDir, "temp", "media"), // Tambahkan direktori media
 	}
 
 	for _, dir := range dirs {
-		if dir != "" && dir != "." {
-			if err := os.MkdirAll(dir, 0755); err != nil {
-				return err
-			}
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return err
 		}
 	}
 

@@ -7,7 +7,7 @@ import (
 	"github.com/gwenziro/botopia/internal/domain/user"
 )
 
-// ConnectionRepository mendefinisikan kontrak untuk koneksi WhatsApp
+// ConnectionRepository mendefinisikan kontrak untuk repository koneksi WhatsApp
 type ConnectionRepository interface {
 	// Connect menghubungkan ke WhatsApp
 	Connect(ctx context.Context) error
@@ -29,4 +29,7 @@ type ConnectionRepository interface {
 
 	// GetQRChannel mendapatkan channel untuk QR code
 	GetQRChannel() <-chan string
+
+	// DownloadMedia mengunduh media dari pesan
+	DownloadMedia(ctx context.Context, msg *message.Message) (string, error)
 }

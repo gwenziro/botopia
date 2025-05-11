@@ -75,6 +75,7 @@ func NewContainer(cfg *config.Config) *Container {
 	c.initLogger()
 	c.initDatabase()
 	c.initRepositories()
+	c.initMediaServices()
 	c.initCommandInitializer()
 	c.initUseCases()
 	c.initControllers()

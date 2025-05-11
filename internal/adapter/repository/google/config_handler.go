@@ -5,27 +5,29 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/infrastructure/config"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
+	"google.golang.org/api/sheets/v4"
 )
 
-// configHandler menangani operasi untuk konfigurasi
-type configHandler struct {
+// ConfigHandler menangani operasi untuk konfigurasi dan operasi record umum
+type ConfigHandler struct {
 	apiRepo *GoogleAPIRepository
 	config  *config.GoogleSheetsConfig
 	log     *logger.Logger
 }
 
-// newConfigHandler membuat instance config handler baru
-func newConfigHandler(
+// NewConfigHandler membuat instance config handler baru
+func NewConfigHandler(
 	apiRepo *GoogleAPIRepository,
 	config *config.GoogleSheetsConfig,
 	log *logger.Logger,
-) *configHandler {
-	return &configHandler{
+) *ConfigHandler {
+	return &ConfigHandler{
 		apiRepo: apiRepo,
 		config:  config,
 		log:     log,
@@ -33,7 +35,7 @@ func newConfigHandler(
 }
 
 // GetConfiguration mendapatkan konfigurasi dari sheet
-func (h *configHandler) GetConfiguration(ctx context.Context) (*finance.Configuration, error) {
+func (h *ConfigHandler) GetConfiguration(ctx context.Context) (*finance.Configuration, error) {
 	h.log.Info("Mengambil konfigurasi dari spreadsheet...")
 
 	service, err := h.apiRepo.GetSheetsService(ctx)
@@ -76,7 +78,7 @@ func (h *configHandler) GetConfiguration(ctx context.Context) (*finance.Configur
 }
 
 // extractConfigValues mengambil nilai-nilai konfigurasi dari data sheet
-func (h *configHandler) extractConfigValues(values [][]interface{}, config *finance.Configuration) {
+func (h *ConfigHandler) extractConfigValues(values [][]interface{}, config *finance.Configuration) {
 	// Parse year and month if available
 	if len(values[0]) > 0 && values[0][0] != nil {
 		year, err := strconv.Atoi(fmt.Sprintf("%v", values[0][0]))
@@ -145,7 +147,7 @@ func (h *configHandler) extractConfigValues(values [][]interface{}, config *fina
 }
 
 // SortAndLimitRecords mengurutkan dan membatasi jumlah record
-func (h *configHandler) SortAndLimitRecords(records []*finance.FinanceRecord, limit int) []*finance.FinanceRecord {
+func (h *ConfigHandler) SortAndLimitRecords(records []*finance.FinanceRecord, limit int) []*finance.FinanceRecord {
 	// Urutkan berdasarkan tanggal terbaru
 	sort.Slice(records, func(i, j int) bool {
 		return records[i].Date.After(records[j].Date)
@@ -157,4 +159,171 @@ func (h *configHandler) SortAndLimitRecords(records []*finance.FinanceRecord, li
 	}
 
 	return records
+}
+
+// FindRecordByCode mencari record berdasarkan kode unik
+func (h *ConfigHandler) FindRecordByCode(ctx context.Context, code string) (*finance.FinanceRecord, error) {
+	// Tentukan sheet berdasarkan awalan kode
+	sheetName := "Pengeluaran"
+	if strings.HasPrefix(code, "m_") {
+		sheetName = "Pemasukan"
+	}
+
+	// Cari di sheet yang sesuai
+	service, err := h.apiRepo.GetSheetsService(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mendapatkan sheets service: %v", err)
+	}
+
+	// Ambil semua data dari sheet
+	resp, err := service.Spreadsheets.Values.Get(
+		h.config.SpreadsheetID,
+		fmt.Sprintf("%s!A2:K", sheetName),
+	).Do()
+	if err != nil {
+		return nil, fmt.Errorf("gagal membaca data sheet: %v", err)
+	}
+
+	// Cari baris dengan kode yang cocok
+	if len(resp.Values) > 0 {
+		for _, row := range resp.Values {
+			if len(row) >= 2 && fmt.Sprintf("%v", row[1]) == code {
+				// Parse record berdasarkan jenis sheet
+				var record *finance.FinanceRecord
+				record = &finance.FinanceRecord{
+					Type: finance.TypeExpense,
+				}
+				if sheetName == "Pemasukan" {
+					record.Type = finance.TypeIncome
+				}
+
+				// Parse basic fields that exist in both sheets
+				if len(row) > 0 && row[0] != nil {
+					if num, err := strconv.Atoi(fmt.Sprintf("%v", row[0])); err == nil {
+						record.Number = num
+					}
+				}
+				if len(row) > 1 && row[1] != nil {
+					record.UniqueCode = fmt.Sprintf("%v", row[1])
+				}
+				if len(row) > 2 && row[2] != nil {
+					dateStr := fmt.Sprintf("%v", row[2])
+					date, err := time.Parse("02/01/2006", dateStr)
+					if err != nil {
+						date, err = time.Parse("2006-01-02", dateStr)
+						if err != nil {
+							return nil, fmt.Errorf("invalid date format: %s", dateStr)
+						}
+					}
+					record.Date = date
+				}
+				if len(row) > 3 && row[3] != nil {
+					record.Description = fmt.Sprintf("%v", row[3])
+				}
+				if len(row) > 5 && row[5] != nil {
+					amount, err := strconv.ParseFloat(strings.Replace(fmt.Sprintf("%v", row[5]), ",", ".", -1), 64)
+					if err == nil {
+						record.Amount = amount
+					}
+				}
+				if len(row) > 6 && row[6] != nil {
+					record.Category = fmt.Sprintf("%v", row[6])
+				}
+
+				// Sheet specific fields
+				if sheetName == "Pengeluaran" {
+					if len(row) > 7 && row[7] != nil {
+						record.PaymentMethod = fmt.Sprintf("%v", row[7])
+					}
+					if len(row) > 8 && row[8] != nil {
+						record.StorageMedia = fmt.Sprintf("%v", row[8])
+					}
+					if len(row) > 9 && row[9] != nil {
+						record.Notes = fmt.Sprintf("%v", row[9])
+					}
+					if len(row) > 10 && row[10] != nil {
+						record.ProofURL = fmt.Sprintf("%v", row[10])
+					}
+				} else { // Pemasukan
+					if len(row) > 7 && row[7] != nil {
+						record.StorageMedia = fmt.Sprintf("%v", row[7])
+					}
+					if len(row) > 8 && row[8] != nil {
+						record.Notes = fmt.Sprintf("%v", row[8])
+					}
+					if len(row) > 9 && row[9] != nil {
+						record.ProofURL = fmt.Sprintf("%v", row[9])
+					}
+				}
+
+				return record, nil
+			}
+		}
+	}
+
+	// Record tidak ditemukan
+	return nil, nil
+}
+
+// UpdateRecordProof memperbarui URL bukti transaksi
+func (h *ConfigHandler) UpdateRecordProof(ctx context.Context, code string, proofURL string) error {
+	// Tentukan sheet berdasarkan awalan kode
+	sheetName := "Pengeluaran"
+	if strings.HasPrefix(code, "m_") {
+		sheetName = "Pemasukan"
+	}
+
+	// Tentukan kolom untuk bukti transaksi
+	proofColumn := "K" // Kolom K untuk pengeluaran
+	if sheetName == "Pemasukan" {
+		proofColumn = "J" // Kolom J untuk pemasukan
+	}
+
+	// Cari baris dengan kode yang sesuai
+	service, err := h.apiRepo.GetSheetsService(ctx)
+	if err != nil {
+		return fmt.Errorf("gagal mendapatkan sheets service: %v", err)
+	}
+
+	// Ambil semua data dari sheet
+	resp, err := service.Spreadsheets.Values.Get(
+		h.config.SpreadsheetID,
+		fmt.Sprintf("%s!A2:B", sheetName),
+	).Do()
+	if err != nil {
+		return fmt.Errorf("gagal membaca data sheet: %v", err)
+	}
+
+	// Cari baris dengan kode yang cocok
+	rowIndex := -1
+	if len(resp.Values) > 0 {
+		for i, row := range resp.Values {
+			if len(row) >= 2 && fmt.Sprintf("%v", row[1]) == code {
+				rowIndex = i + 2 // +2 karena kita mulai dari A2
+				break
+			}
+		}
+	}
+
+	if rowIndex == -1 {
+		return fmt.Errorf("record dengan kode %s tidak ditemukan", code)
+	}
+
+	// Update cell dengan URL bukti
+	updateRange := fmt.Sprintf("%s!%s%d", sheetName, proofColumn, rowIndex)
+	valueRange := &sheets.ValueRange{
+		Values: [][]interface{}{{proofURL}},
+	}
+
+	_, err = service.Spreadsheets.Values.Update(
+		h.config.SpreadsheetID,
+		updateRange,
+		valueRange,
+	).ValueInputOption("USER_ENTERED").Do()
+
+	if err != nil {
+		return fmt.Errorf("gagal memperbarui sheet: %v", err)
+	}
+
+	return nil
 }

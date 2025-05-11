@@ -13,22 +13,22 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-// incomeHandler menangani operasi untuk income
-type incomeHandler struct {
+// IncomeHandler menangani operasi untuk income
+type IncomeHandler struct {
 	apiRepo    *GoogleAPIRepository
 	config     *config.GoogleSheetsConfig
-	seqHandler *sequenceHandler
+	seqHandler *SequenceHandler
 	log        *logger.Logger
 }
 
-// newIncomeHandler membuat instance income handler baru
-func newIncomeHandler(
+// NewIncomeHandler membuat instance income handler baru
+func NewIncomeHandler(
 	apiRepo *GoogleAPIRepository,
 	config *config.GoogleSheetsConfig,
-	seqHandler *sequenceHandler,
+	seqHandler *SequenceHandler,
 	log *logger.Logger,
-) *incomeHandler {
-	return &incomeHandler{
+) *IncomeHandler {
+	return &IncomeHandler{
 		apiRepo:    apiRepo,
 		config:     config,
 		seqHandler: seqHandler,
@@ -37,7 +37,7 @@ func newIncomeHandler(
 }
 
 // AddRecord menambahkan record pemasukan ke sheet
-func (h *incomeHandler) AddRecord(ctx context.Context, record *finance.FinanceRecord) error {
+func (h *IncomeHandler) AddRecord(ctx context.Context, record *finance.FinanceRecord) error {
 	h.log.Info("Memulai penambahan record pemasukan...")
 
 	service, err := h.apiRepo.GetSheetsService(ctx)
@@ -111,7 +111,7 @@ func (h *incomeHandler) AddRecord(ctx context.Context, record *finance.FinanceRe
 }
 
 // GetRecords mendapatkan semua record pemasukan
-func (h *incomeHandler) GetRecords(ctx context.Context) ([]*finance.FinanceRecord, error) {
+func (h *IncomeHandler) GetRecords(ctx context.Context) ([]*finance.FinanceRecord, error) {
 	service, err := h.apiRepo.GetSheetsService(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("gagal mendapatkan sheets service: %v", err)
@@ -149,7 +149,7 @@ func (h *incomeHandler) GetRecords(ctx context.Context) ([]*finance.FinanceRecor
 }
 
 // parseRow mengkonversi baris sheet menjadi FinanceRecord untuk pemasukan
-func (h *incomeHandler) parseRow(row []interface{}) (*finance.FinanceRecord, error) {
+func (h *IncomeHandler) parseRow(row []interface{}) (*finance.FinanceRecord, error) {
 	record := &finance.FinanceRecord{
 		Type: finance.TypeIncome,
 	}

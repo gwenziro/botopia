@@ -15,4 +15,7 @@ type DriveRepository interface {
 
 	// IsConfigured memeriksa apakah repository sudah dikonfigurasi
 	IsConfigured() bool
+
+	// UploadImage mengunggah file gambar ke Google Drive
+	UploadImage(ctx context.Context, filePath string, transactionCode string) (string, error)
 }
