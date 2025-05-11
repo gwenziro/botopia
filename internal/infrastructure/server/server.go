@@ -28,11 +28,9 @@ func NewServer(container *di.Container) *Server {
 	log := botLogger.New("WebServer", botLogger.INFO, true)
 
 	// Setup template engine - pastikan direktori view sudah benar
-	// Cek apakah direktori ada, jika tidak gunakan direktori lama
-	viewDir := "./internal/infrastructure/view"
-	staticDir := "./internal/infrastructure/static"
+	viewDir := "./internal/infrastructure/web/view"
+	staticDir := "./internal/infrastructure/web/static"
 
-	// Jika direktori baru tidak ditemukan, gunakan direktori lama
 	// Ini memberi kesempatan untuk migrasi bertahap
 	engine := html.New(viewDir, ".html")
 
