@@ -1,0 +1,28 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Otorisasi Google API</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p>Untuk menggunakan fitur pencatatan keuangan, Botopia perlu akses ke Google Sheets Anda.</p>
+                        <p>Akses ini hanya digunakan untuk:</p>
+                        <ul>
+                            <li>Membaca dan menulis data pada spreadsheet yang Anda tentukan</li>
+                            <li>Mengupload bukti transaksi ke Google Drive (opsional)</li>
+                        </ul>
+                        <p>Botopia tidak akan mengakses data Google lainnya.</p>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ .AuthURL }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-google me-2"></i> Otorisasi dengan Google
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,11 +1,36 @@
 package config
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
+
+// LoadEnv memuat variabel lingkungan dari file .env
+func LoadEnv() {
+	// Coba load dari lokasi yang berbeda untuk mendukung berbagai cara menjalankan aplikasi
+	locations := []string{".env", "../.env", "../../.env"}
+
+	for _, location := range locations {
+		err := godotenv.Load(location)
+		if err == nil {
+			// Berhasil load .env
+			log.Printf("Loaded environment from %s", location)
+			return
+		}
+	}
+
+	// Jika tidak ada yang berhasil, coba load dari working directory
+	err := godotenv.Load()
+	if err != nil {
+		// Hanya warning, bukan fatal. Mungkin env vars sudah diset di sistem
+		log.Printf("Warning: Error loading .env file: %v", err)
+	}
+}
 
 // Config menyimpan konfigurasi aplikasi
 type Config struct {
@@ -35,11 +60,29 @@ type Config struct {
 	// Direktori
 	WebViewDir   string
 	WebStaticDir string
+
+	// Google Sheets
+	GoogleSheets *GoogleSheetsConfig
+}
+
+// GoogleSheetsConfig menyimpan konfigurasi untuk Google Sheets
+type GoogleSheetsConfig struct {
+	// Path ke file kredensial service account
+	CredentialsFile string
+
+	// SpreadsheetID ID spreadsheet yang digunakan
+	SpreadsheetID string
+
+	// DriveFolderID ID folder di Google Drive untuk upload bukti
+	DriveFolderID string
 }
 
 // NewConfig membuat instance Config baru dengan nilai default
 func NewConfig() *Config {
-	return &Config{
+	// Load .env file sebelum membuat config
+	LoadEnv()
+
+	config := &Config{
 		DBPath:          "botopia.db",
 		DBBackup:        true,
 		CommandPrefix:   "!",
@@ -55,7 +98,16 @@ func NewConfig() *Config {
 		QRAutoRefresh:   true,
 		WebViewDir:      "./internal/infrastructure/web/view",
 		WebStaticDir:    "./internal/infrastructure/web/static",
+
+		// Inisialisasi Google Sheets Config dengan default values
+		GoogleSheets: &GoogleSheetsConfig{
+			CredentialsFile: "./credentials.json",
+			SpreadsheetID:   "",
+			DriveFolderID:   "",
+		},
 	}
+
+	return config
 }
 
 // LoadFromEnv memuat konfigurasi dari environment variables
@@ -122,10 +174,14 @@ func (c *Config) LoadFromEnv() {
 	// Cek direktori view dan static baru
 	if _, err := os.Stat("./internal/infrastructure/web/view"); err == nil {
 		c.WebViewDir = "./internal/infrastructure/web/view"
+	} else if _, err := os.Stat("./internal/web/view"); err == nil {
+		c.WebViewDir = "./internal/web/view"
 	}
 
 	if _, err := os.Stat("./internal/infrastructure/web/static"); err == nil {
 		c.WebStaticDir = "./internal/infrastructure/web/static"
+	} else if _, err := os.Stat("./internal/web/static"); err == nil {
+		c.WebStaticDir = "./internal/web/static"
 	}
 
 	// Cek custom direktori dari env
@@ -139,6 +195,19 @@ func (c *Config) LoadFromEnv() {
 		if _, err := os.Stat(v); err == nil {
 			c.WebStaticDir = v
 		}
+	}
+
+	// Google Sheets config
+	if v := os.Getenv("BOTOPIA_GOOGLE_CREDENTIALS"); v != "" {
+		c.GoogleSheets.CredentialsFile = v
+	}
+
+	if v := os.Getenv("BOTOPIA_SPREADSHEET_ID"); v != "" {
+		c.GoogleSheets.SpreadsheetID = v
+	}
+
+	if v := os.Getenv("BOTOPIA_DRIVE_FOLDER"); v != "" {
+		c.GoogleSheets.DriveFolderID = v
 	}
 }
 
@@ -156,8 +225,15 @@ func (c *Config) IsDevMode() bool {
 func (c *Config) EnsureDirectories() error {
 	dirs := []string{
 		filepath.Dir(c.DBPath),
-		c.WebViewDir,
-		c.WebStaticDir,
+	}
+
+	// Hanya tambahkan direktori yang bukan merupakan direktori default Go
+	if c.WebViewDir != "" && c.WebViewDir != "." && !strings.HasPrefix(c.WebViewDir, "./") {
+		dirs = append(dirs, c.WebViewDir)
+	}
+
+	if c.WebStaticDir != "" && c.WebStaticDir != "." && !strings.HasPrefix(c.WebStaticDir, "./") {
+		dirs = append(dirs, c.WebStaticDir)
 	}
 
 	for _, dir := range dirs {

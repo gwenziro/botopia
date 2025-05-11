@@ -14,6 +14,9 @@ import (
 )
 
 func main() {
+	// Load .env file terlebih dahulu
+	config.LoadEnv()
+
 	// Inisialisasi konfigurasi
 	cfg := config.NewConfig()
 	cfg.LoadFromEnv()

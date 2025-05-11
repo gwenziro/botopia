@@ -6,8 +6,10 @@ import (
 
 	"github.com/gwenziro/botopia/internal/adapter/controller/web"
 	whatsappController "github.com/gwenziro/botopia/internal/adapter/controller/whatsapp"
+	googleRepo "github.com/gwenziro/botopia/internal/adapter/repository/google"
 	"github.com/gwenziro/botopia/internal/adapter/repository/memory"
 	whatsmeowRepo "github.com/gwenziro/botopia/internal/adapter/repository/whatsmeow"
+	googleService "github.com/gwenziro/botopia/internal/adapter/service"
 	"github.com/gwenziro/botopia/internal/app/command"
 	"github.com/gwenziro/botopia/internal/domain/repository"
 	"github.com/gwenziro/botopia/internal/infrastructure/config"
@@ -35,12 +37,18 @@ type Container struct {
 	commandRepository    *memory.CommandRepository
 	connectionRepository *whatsmeowRepo.ConnectionRepository
 	statsRepository      *memory.StatsRepository
+	googleAPIRepository  *googleRepo.GoogleAPIRepository
+	sheetsRepository     *googleRepo.SheetsRepository
+	driveRepository      *googleRepo.DriveRepository
 
 	// Use cases
 	executeCommandUseCase  *execute.ExecuteCommandUseCase
 	listCommandsUseCase    *list.ListCommandsUseCase
 	connectWhatsAppUseCase *connectionUseCase.ConnectWhatsAppUseCase
 	getStatsUseCase        *stats.GetStatsUseCase
+
+	// Services
+	financeService *googleService.FinanceService
 
 	// Controllers
 	dashboardController *web.DashboardController
@@ -111,11 +119,27 @@ func (c *Container) initRepositories() {
 	c.commandRepository = memory.NewCommandRepository()
 	c.connectionRepository = whatsmeowRepo.NewConnectionRepository(client, c.log)
 	c.statsRepository = memory.NewStatsRepository()
+
+	// Inisialisasi Google API Repository
+	c.googleAPIRepository = googleRepo.NewGoogleAPIRepository(c.config, c.log)
+
+	// Inisialisasi Google Sheets Repository
+	c.sheetsRepository = googleRepo.NewSheetsRepository(c.googleAPIRepository, c.config, c.log)
+
+	// Inisialisasi Google Drive Repository
+	c.driveRepository = googleRepo.NewDriveRepository(c.googleAPIRepository, c.config, c.log)
 }
 
 // initCommandInitializer menginisialisasi dan mendaftarkan command default
 func (c *Container) initCommandInitializer() {
-	c.commandInitializer = command.NewCommandInitializer(c.commandRepository)
+	// Inisialisasi finance service terlebih dahulu
+	c.financeService = googleService.NewFinanceService(
+		c.sheetsRepository,
+		c.driveRepository, // Sekarang tidak perlu lagi nil
+		c.log,
+	)
+
+	c.commandInitializer = command.NewCommandInitializer(c.commandRepository, c.financeService)
 	c.commandInitializer.RegisterDefaultCommands()
 	c.log.Info("Command default berhasil didaftarkan. Total: %d command",
 		c.commandInitializer.GetCommandCount())
@@ -208,6 +232,11 @@ func (c *Container) GetConfig() *config.Config {
 // GetPort mengembalikan port dari konfigurasi
 func (c *Container) GetPort() int {
 	return c.config.GetWebPort()
+}
+
+// GetFinanceService mengembalikan finance service
+func (c *Container) GetFinanceService() *googleService.FinanceService {
+	return c.financeService
 }
 
 // whatsmeowLoggerAdapter adalah adapter untuk logger whatsmeow
