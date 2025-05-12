@@ -114,3 +114,8 @@ func (r *DriveRepository) UploadImage(ctx context.Context, filePath string, tran
 	// Kembalikan URL file
 	return r.GetFileURL(fileID), nil
 }
+
+// GetDriveService mendapatkan akses ke service Google Drive
+func (r *DriveRepository) GetDriveService(ctx context.Context) (*drive.Service, error) {
+	return r.apiRepo.GetDriveService(ctx)
+}
