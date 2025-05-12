@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gwenziro/botopia/internal/domain/dto"
+	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/domain/message"
 	"github.com/gwenziro/botopia/internal/domain/service"
 )
@@ -31,24 +33,74 @@ func (c *UploadProofCommand) GetName() string {
 
 // GetDescription mengembalikan deskripsi command
 func (c *UploadProofCommand) GetDescription() string {
-	return "Mengunggah bukti transaksi untuk catatan yang sudah ada. Format: !unggah <kode_transaksi> (sertakan gambar/foto bukti)"
+	return "Mengunggah bukti transaksi untuk catatan yang sudah ada. Kirim !unggah untuk mendapatkan form input data."
 }
 
 // Execute menjalankan command
 func (c *UploadProofCommand) Execute(args []string, msg *message.Message) (string, error) {
-	// Cek apakah ada gambar yang dilampirkan
-	if !msg.HasMedia() {
-		return "❌ Mohon lampirkan foto bukti transaksi untuk diunggah.", nil
-	}
-
-	// Cek apakah ada kode transaksi yang diberikan
+	// Jika tidak ada argumen, kirimkan form template
 	if len(args) == 0 {
-		return "❌ Mohon sertakan kode transaksi. Format: !unggah <kode_transaksi>", nil
+		return c.getFormTemplate(), nil
 	}
 
-	// Ambil kode transaksi
-	transactionCode := args[0]
+	// Cek apakah pesan adalah form yang diisi
+	if isFilledForm, form := c.parseFormInput(msg.Text); isFilledForm {
+		// Validasi media
+		if !msg.HasMedia() {
+			return "❌ Mohon lampirkan foto bukti transaksi untuk diunggah.", nil
+		}
 
+		// Ambil kode transaksi dari form
+		transactionCode := form["Kode unik"]
+		return c.processUpload(msg, transactionCode)
+	}
+
+	// Jika format tidak sesuai, berikan panduan penggunaan form
+	return "❌ Format tidak sesuai. Silakan gunakan format formulir yang tersedia dengan mengirim !unggah tanpa parameter tambahan.", nil
+}
+
+// getFormTemplate mengembalikan template form unggah bukti
+func (c *UploadProofCommand) getFormTemplate() string {
+	return `!unggah
+────────────────────────
+ℹ FORMAT UNGGAH BUKTI TRANSAKSI ℹ
+────────────────────────
+Kode unik: 
+
+────────────────────────
+Tolong kirim bukti transaksi dengan format di atas, ya! 🙏`
+}
+
+// parseFormInput mengecek dan mem-parsing input formulir
+func (c *UploadProofCommand) parseFormInput(text string) (bool, map[string]string) {
+	// Cek apakah dimulai dengan !unggah
+	if !strings.HasPrefix(text, "!unggah") {
+		return false, nil
+	}
+
+	// Regex untuk mengekstrak nilai dari field
+	form := make(map[string]string)
+
+	// Ekstrak kode unik
+	re := regexp.MustCompile(`Kode unik:\s*(.*?)(?:\n|$)`)
+	match := re.FindStringSubmatch(text)
+
+	if len(match) > 1 {
+		// Bersihkan nilai yang didapatkan
+		value := strings.TrimSpace(match[1])
+		form["Kode unik"] = value
+	}
+
+	// Periksa apakah field wajib terisi
+	if form["Kode unik"] == "" {
+		return false, nil
+	}
+
+	return true, form
+}
+
+// processUpload memproses unggahan bukti transaksi
+func (c *UploadProofCommand) processUpload(msg *message.Message, transactionCode string) (string, error) {
 	// Validasi format kode transaksi (k_xxx00_000 atau m_xxx00_000)
 	validCodePattern := regexp.MustCompile(`^[km]_[a-z]{3}\d{2}_\d{3}$`)
 	if !validCodePattern.MatchString(transactionCode) {
@@ -79,28 +131,50 @@ func (c *UploadProofCommand) Execute(args []string, msg *message.Message) (strin
 		return fmt.Sprintf("❌ Gagal mengunggah bukti transaksi: %v", err), nil
 	}
 
-	// Format response sukses
-	recordType := "pengeluaran"
-	if record.Type == "income" {
-		recordType = "pemasukan"
+	// Format response sukses menggunakan format baru yang lebih user-friendly
+	recordDTO := dto.FromFinanceRecord(record)
+	recordType := "PENGELUARAN"
+	if record.Type == finance.TypeIncome {
+		recordType = "PEMASUKAN"
 	}
 
-	result := fmt.Sprintf(`✅ BUKTI TRANSAKSI BERHASIL DIUNGGAH ✅
+	// Tambahkan field berdasarkan tipe transaksi
+	paymentMethodText := ""
+	if record.Type == finance.TypeExpense {
+		paymentMethodText = fmt.Sprintf("💳 Metode: %s\n", record.PaymentMethod)
+	}
 
-Detail Transaksi:
+	// Gunakan nama lengkap dari field DTO
+	storageTypeText := "Media Penyimpanan"
+	if record.Type == finance.TypeExpense {
+		storageTypeText = "Sumber Dana"
+	}
+
+	result := fmt.Sprintf(`────────────────────────
+✅ BUKTI TRANSAKSI BERHASIL DITAMBAHKAN ✅
+────────────────────────
+Hai, pengguna 👋!
+Bukti transaksi Anda berhasil diunggah.
+📌 DETAIL %s: 
+────────────────────────
 📅 Tanggal: %s
 📖 Deskripsi: %s
 💰 Nominal: Rp %s
-🏷️ Kategori: %s
-🧾 Jenis: %s
-
-🔗 Bukti transaksi telah tersimpan. Cek melalui tautan ini:
-%s`,
-		formatDateOutput(record.Date),
-		record.Description,
-		formatMoney(record.Amount),
-		record.Category,
+🏷 Kategori: %s
+%s🏦 %s: %s
+📝 Catatan: %s
+📄 Bukti Transaksi: ✅ Tersedia
+🔗 %s
+────────────────────────`,
 		recordType,
+		recordDTO.DateFormatted,
+		record.Description,
+		recordDTO.AmountText,
+		record.Category,
+		paymentMethodText,
+		storageTypeText,
+		record.StorageMedia,
+		record.Notes,
 		record.ProofURL)
 
 	return result, nil

@@ -39,7 +39,7 @@ func (c *CommandInitializer) RegisterDefaultCommands() {
 	c.log.Info("Command '%s' terdaftar", pingCmd.GetName())
 
 	// 2. Help command
-	helpCmd := help.NewCommand(c.cmdRepo)
+	helpCmd := help.NewCommand(c.cmdRepo) // Gunakan help bukan guide
 	c.cmdRepo.Register(helpCmd)
 	c.log.Info("Command '%s' terdaftar", helpCmd.GetName())
 

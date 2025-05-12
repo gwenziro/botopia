@@ -8,9 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gwenziro/botopia/internal/domain/dto"
 	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/domain/message"
 	"github.com/gwenziro/botopia/internal/domain/service"
+	"github.com/gwenziro/botopia/internal/utils"
 )
 
 // AddIncomeCommand implementasi command untuk menambahkan pemasukan
@@ -143,13 +145,13 @@ func (c *AddIncomeCommand) processForm(form map[string]string, mediaPath string)
 	defer cancel()
 
 	// Parse tanggal
-	date, err := parseFormDate(form["Tanggal"])
+	date, err := utils.ParseDateWithFormats(form["Tanggal"])
 	if err != nil {
 		return fmt.Sprintf("Format tanggal tidak valid: %v. Gunakan format seperti '15 Mei 2025'", err), nil
 	}
 
 	// Parse nominal
-	amount, err := parseFormAmount(form["Nominal"])
+	amount, err := utils.ParseMoney(form["Nominal"])
 	if err != nil {
 		return fmt.Sprintf("Nominal tidak valid: %v. Gunakan angka saja, contoh: 50000", err), nil
 	}
@@ -194,8 +196,6 @@ func (c *AddIncomeCommand) processForm(form map[string]string, mediaPath string)
 			proofStatus := fmt.Sprintf("\n\n⚠️ Gagal mengunggah bukti: %v", err)
 			return c.formatSuccessResponse(tmpRecord, false) + proofStatus, nil
 		}
-
-		proofURL = record.ProofURL
 	} else {
 		// Tanpa media, langsung simpan record
 		record, err = c.financeService.AddIncomeWithDate(
@@ -214,8 +214,9 @@ func (c *AddIncomeCommand) processForm(form map[string]string, mediaPath string)
 
 // formatSuccessResponse memformat pesan sukses
 func (c *AddIncomeCommand) formatSuccessResponse(record *finance.FinanceRecord, hasProof bool) string {
+	recordDTO := dto.FromFinanceRecord(record)
 	proofStatus := "Belum tersedia"
-	if hasProof {
+	if hasProof || recordDTO.HasProof {
 		proofStatus = "✅ Tersedia"
 	}
 
@@ -239,9 +240,9 @@ Gunakan kode ini untuk melampirkan bukti transaksi di kemudian hari.
 ────────────────────────
 💡 Ketik !ringkasan untuk melihat laporan keuanganmu! 📊
 ────────────────────────`,
-		formatDateOutput(record.Date),
+		recordDTO.DateFormatted,
 		record.Description,
-		formatMoney(record.Amount),
+		recordDTO.AmountText,
 		record.Category,
 		record.StorageMedia,
 		record.Notes,

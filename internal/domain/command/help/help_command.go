@@ -23,7 +23,7 @@ func NewCommand(cmdRepo repository.CommandRepository) *Command {
 
 // GetName mengembalikan nama command
 func (c *Command) GetName() string {
-	return "help"
+	return "panduan"
 }
 
 // GetDescription mengembalikan deskripsi command
@@ -31,7 +31,7 @@ func (c *Command) GetDescription() string {
 	return "Menampilkan daftar command yang tersedia"
 }
 
-// Execute menjalankan command help
+// Execute menjalankan command panduan
 func (c *Command) Execute(args []string, msg *message.Message) (string, error) {
 	if len(args) > 0 {
 		// Tampilkan bantuan untuk command tertentu

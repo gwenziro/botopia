@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -175,7 +176,7 @@ func (h *ConfigHandler) FindRecordByCode(ctx context.Context, code string) (*fin
 		return nil, fmt.Errorf("gagal mendapatkan sheets service: %v", err)
 	}
 
-	// Ambil semua data dari sheet
+	// Ambil semua data dari sheet dengan range yang lebih lengkap untuk mendapatkan semua kolom
 	resp, err := service.Spreadsheets.Values.Get(
 		h.config.SpreadsheetID,
 		fmt.Sprintf("%s!A2:K", sheetName),
@@ -212,7 +213,8 @@ func (h *ConfigHandler) FindRecordByCode(ctx context.Context, code string) (*fin
 					if err != nil {
 						date, err = time.Parse("2006-01-02", dateStr)
 						if err != nil {
-							return nil, fmt.Errorf("invalid date format: %s", dateStr)
+							h.log.Warn("Format tanggal tidak valid: %s, menggunakan waktu sekarang", dateStr)
+							date = time.Now()
 						}
 					}
 					record.Date = date
@@ -221,9 +223,16 @@ func (h *ConfigHandler) FindRecordByCode(ctx context.Context, code string) (*fin
 					record.Description = fmt.Sprintf("%v", row[3])
 				}
 				if len(row) > 5 && row[5] != nil {
-					amount, err := strconv.ParseFloat(strings.Replace(fmt.Sprintf("%v", row[5]), ",", ".", -1), 64)
+					amountStr := fmt.Sprintf("%v", row[5])
+					// Pastikan pengubahan string ke float64 benar
+					// Hapus format angka (titik/koma pemisah ribuan)
+					amountStr = regexp.MustCompile(`[^\d,.]`).ReplaceAllString(amountStr, "")
+					amountStr = strings.Replace(amountStr, ",", ".", -1)
+					amount, err := strconv.ParseFloat(amountStr, 64)
 					if err == nil {
 						record.Amount = amount
+					} else {
+						h.log.Warn("Format nominal tidak valid: %s, menggunakan 0", amountStr)
 					}
 				}
 				if len(row) > 6 && row[6] != nil {
@@ -256,6 +265,7 @@ func (h *ConfigHandler) FindRecordByCode(ctx context.Context, code string) (*fin
 					}
 				}
 
+				h.log.Info("Record ditemukan dengan kode %s, nominal: %.2f", code, record.Amount)
 				return record, nil
 			}
 		}
