@@ -64,7 +64,7 @@ func (c *AddExpenseCommand) Execute(args []string, msg *message.Message) (string
 func (c *AddExpenseCommand) getFormTemplate() string {
 	return `!keluar
 ────────────────────────
-💰 FORMAT INPUT DATA PENGELUARAN 💰
+💰 INPUT DATA PENGELUARAN 💰
 ────────────────────────
 Tanggal: 
 Deskripsi: 

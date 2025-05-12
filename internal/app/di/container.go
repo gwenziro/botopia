@@ -12,6 +12,7 @@ import (
 	googleService "github.com/gwenziro/botopia/internal/adapter/service"
 	"github.com/gwenziro/botopia/internal/app/command"
 	"github.com/gwenziro/botopia/internal/domain/repository"
+	"github.com/gwenziro/botopia/internal/domain/service"
 	"github.com/gwenziro/botopia/internal/infrastructure/config"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
 	"github.com/gwenziro/botopia/internal/usecase/command/execute"
@@ -200,6 +201,31 @@ func (c *Container) GetConnectionRepository() repository.ConnectionRepository {
 	return c.connectionRepository
 }
 
+// GetCommandRepository mengembalikan repository command
+func (c *Container) GetCommandRepository() repository.CommandRepository {
+	return c.commandRepository
+}
+
+// GetStatsRepository mengembalikan repository statistik
+func (c *Container) GetStatsRepository() repository.StatsRepository {
+	return c.statsRepository
+}
+
+// GetFinanceService mengembalikan finance service
+func (c *Container) GetFinanceService() service.FinanceService {
+	return c.financeService
+}
+
+// GetGoogleAPIRepository mengembalikan repository Google API
+func (c *Container) GetGoogleAPIRepository() repository.GoogleAPIRepository {
+	return c.googleAPIRepository
+}
+
+// GetDriveRepository mengembalikan repository drive
+func (c *Container) GetDriveRepository() repository.DriveRepository {
+	return c.driveRepository
+}
+
 // GetConnectWhatsAppUseCase mengembalikan use case koneksi WhatsApp
 func (c *Container) GetConnectWhatsAppUseCase() *connectionUseCase.ConnectWhatsAppUseCase {
 	return c.connectWhatsAppUseCase
@@ -233,11 +259,6 @@ func (c *Container) GetConfig() *config.Config {
 // GetPort mengembalikan port dari konfigurasi
 func (c *Container) GetPort() int {
 	return c.config.GetWebPort()
-}
-
-// GetFinanceService mengembalikan finance service
-func (c *Container) GetFinanceService() *googleService.FinanceService {
-	return c.financeService
 }
 
 // whatsmeowLoggerAdapter adalah adapter untuk logger whatsmeow

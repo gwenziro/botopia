@@ -10,6 +10,7 @@ import (
 
 	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/domain/repository"
+	"github.com/gwenziro/botopia/internal/domain/service"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
 )
 
@@ -40,6 +41,9 @@ func NewFinanceService(
 
 	return s
 }
+
+// Memastikan FinanceService mengimplementasikan interface service.FinanceService
+var _ service.FinanceService = (*FinanceService)(nil)
 
 // prefetchConfiguration mengambil konfigurasi di background saat service dibuat
 func (s *FinanceService) prefetchConfiguration() {

@@ -8,17 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gwenziro/botopia/internal/adapter/service"
 	"github.com/gwenziro/botopia/internal/domain/message"
+	"github.com/gwenziro/botopia/internal/domain/service"
 )
 
 // UploadProofCommand implementasi command untuk mengunggah bukti transaksi
 type UploadProofCommand struct {
-	financeService *service.FinanceService
+	financeService service.FinanceService
 }
 
 // NewUploadProofCommand membuat instance command baru
-func NewUploadProofCommand(financeService *service.FinanceService) *UploadProofCommand {
+func NewUploadProofCommand(financeService service.FinanceService) *UploadProofCommand {
 	return &UploadProofCommand{
 		financeService: financeService,
 	}
@@ -36,10 +36,6 @@ func (c *UploadProofCommand) GetDescription() string {
 
 // Execute menjalankan command
 func (c *UploadProofCommand) Execute(args []string, msg *message.Message) (string, error) {
-	// Log untuk debugging
-	c.financeService.GetLogger().Info("Eksekusi command upload dengan args: %v, media: %v",
-		args, msg.HasMedia())
-
 	// Cek apakah ada gambar yang dilampirkan
 	if !msg.HasMedia() {
 		return "❌ Mohon lampirkan foto bukti transaksi untuk diunggah.", nil
@@ -52,7 +48,6 @@ func (c *UploadProofCommand) Execute(args []string, msg *message.Message) (strin
 
 	// Ambil kode transaksi
 	transactionCode := args[0]
-	c.financeService.GetLogger().Info("Mengunggah bukti untuk kode: %s", transactionCode)
 
 	// Validasi format kode transaksi (k_xxx00_000 atau m_xxx00_000)
 	validCodePattern := regexp.MustCompile(`^[km]_[a-z]{3}\d{2}_\d{3}$`)
@@ -64,22 +59,17 @@ func (c *UploadProofCommand) Execute(args []string, msg *message.Message) (strin
 	defer cancel()
 
 	// Unduh media
-	c.financeService.GetLogger().Info("Mulai mengunduh media")
 	mediaPath, err := msg.DownloadMedia()
 	if err != nil {
-		c.financeService.GetLogger().Error("Gagal mengunduh media: %v", err)
 		return fmt.Sprintf("❌ Gagal mengunduh bukti transaksi: %v", err), nil
 	}
-	c.financeService.GetLogger().Info("Media berhasil diunduh ke: %s", mediaPath)
 
 	// Pastikan file akan dihapus setelah selesai
 	defer os.Remove(mediaPath)
 
 	// Unggah bukti transaksi
-	c.financeService.GetLogger().Info("Mulai mengunggah bukti transaksi")
 	record, err := c.financeService.UploadTransactionProof(ctx, transactionCode, mediaPath)
 	if err != nil {
-		c.financeService.GetLogger().Error("Gagal mengunggah bukti: %v", err)
 		if strings.Contains(err.Error(), "tidak ditemukan") {
 			return fmt.Sprintf("❌ Transaksi dengan kode %s tidak ditemukan.", transactionCode), nil
 		}
@@ -94,8 +84,6 @@ func (c *UploadProofCommand) Execute(args []string, msg *message.Message) (strin
 	if record.Type == "income" {
 		recordType = "pemasukan"
 	}
-
-	c.financeService.GetLogger().Info("Bukti transaksi berhasil diunggah: %s", record.ProofURL)
 
 	result := fmt.Sprintf(`✅ BUKTI TRANSAKSI BERHASIL DIUNGGAH ✅
 

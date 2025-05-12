@@ -62,7 +62,7 @@ func (c *AddIncomeCommand) Execute(args []string, msg *message.Message) (string,
 func (c *AddIncomeCommand) getFormTemplate() string {
 	return `!masuk
 ────────────────────────
-💰 FORMAT INPUT DATA PEMASUKAN 💰
+💰 INPUT DATA PEMASUKAN 💰
 ────────────────────────
 Tanggal: 
 Deskripsi: 

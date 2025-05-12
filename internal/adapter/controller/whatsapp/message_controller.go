@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/gwenziro/botopia/internal/domain/event"
 	"github.com/gwenziro/botopia/internal/domain/message"
 	"github.com/gwenziro/botopia/internal/domain/repository"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
@@ -16,6 +17,7 @@ type MessageController struct {
 	connectionRepo        repository.ConnectionRepository
 	statsRepo             repository.StatsRepository
 	log                   *logger.Logger
+	eventDispatcher       *event.EventDispatcher
 }
 
 // NewMessageController membuat instance message controller
@@ -29,6 +31,7 @@ func NewMessageController(
 		connectionRepo:        connectionRepo,
 		statsRepo:             statsRepo,
 		log:                   logger.New("MessageController", logger.INFO, true),
+		eventDispatcher:       event.NewEventDispatcher(),
 	}
 }
 
@@ -43,6 +46,9 @@ func (c *MessageController) Setup() {
 func (c *MessageController) HandleMessage(msg *message.Message) {
 	// Increment pesan diterima
 	c.statsRepo.IncrementMessageCount()
+
+	// Dispatch message received event
+	c.eventDispatcher.Dispatch(event.NewMessageReceivedEvent(msg))
 
 	// Abaikan pesan yang dikirim oleh kita
 	if msg.IsFromMe {
@@ -83,8 +89,10 @@ func (c *MessageController) HandleMessage(msg *message.Message) {
 		return
 	}
 
-	// Kirim balasan jika ada response
+	// Dispatch command executed event
 	if response != "" {
+		cmdName, _, _ := msg.ExtractCommand("!")
+		c.eventDispatcher.Dispatch(event.NewCommandExecutedEvent(cmdName, msg, response))
 		c.sendReply(msg, response)
 	}
 }

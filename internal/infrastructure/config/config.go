@@ -103,7 +103,7 @@ func NewConfig() *Config {
 
 		// Inisialisasi Google Sheets Config dengan default values
 		GoogleSheets: &GoogleSheetsConfig{
-			CredentialsFile: "./credentials.json",
+			CredentialsFile: "./service-account.json",
 			SpreadsheetID:   "",
 			DriveFolderID:   "",
 		},
@@ -176,14 +176,10 @@ func (c *Config) LoadFromEnv() {
 	// Cek direktori view dan static baru
 	if _, err := os.Stat("./internal/infrastructure/web/view"); err == nil {
 		c.WebViewDir = "./internal/infrastructure/web/view"
-	} else if _, err := os.Stat("./internal/web/view"); err == nil {
-		c.WebViewDir = "./internal/web/view"
 	}
 
 	if _, err := os.Stat("./internal/infrastructure/web/static"); err == nil {
 		c.WebStaticDir = "./internal/infrastructure/web/static"
-	} else if _, err := os.Stat("./internal/web/static"); err == nil {
-		c.WebStaticDir = "./internal/web/static"
 	}
 
 	// Cek custom direktori dari env
@@ -234,7 +230,7 @@ func (c *Config) EnsureDirectories() error {
 		filepath.Join(c.DataDir, "store"),
 		filepath.Join(c.DataDir, "logs"),
 		filepath.Join(c.DataDir, "temp"),
-		filepath.Join(c.DataDir, "temp", "media"), // Tambahkan direktori media
+		filepath.Join(c.DataDir, "temp", "media"),
 	}
 
 	for _, dir := range dirs {
