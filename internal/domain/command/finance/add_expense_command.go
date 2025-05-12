@@ -3,11 +3,13 @@ package finance
 import (
 	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/domain/message"
 	"github.com/gwenziro/botopia/internal/domain/service"
 )
@@ -43,7 +45,25 @@ func (c *AddExpenseCommand) Execute(args []string, msg *message.Message) (string
 
 	// Cek apakah pesan adalah form yang diisi
 	if isFilledForm, form := c.parseFormInput(msg.Text); isFilledForm {
-		return c.processForm(form)
+		// Periksa apakah ada media yang dilampirkan untuk upload bukti
+		var mediaPath string
+		var err error
+
+		if msg.HasMedia() {
+			// Download media jika ada
+			mediaPath, err = msg.DownloadMedia()
+			if err != nil {
+				return fmt.Sprintf("Gagal mengunduh media: %v", err), nil
+			}
+			// Pastikan file akan dihapus setelah selesai
+			defer func() {
+				if mediaPath != "" {
+					os.Remove(mediaPath)
+				}
+			}()
+		}
+
+		return c.processForm(form, mediaPath)
 	}
 
 	// Jika bukan form dan ada argument, tampilkan panduan
@@ -121,7 +141,7 @@ func (c *AddExpenseCommand) parseFormInput(text string) (bool, map[string]string
 }
 
 // processForm memproses form yang sudah diisi
-func (c *AddExpenseCommand) processForm(form map[string]string) (string, error) {
+func (c *AddExpenseCommand) processForm(form map[string]string, mediaPath string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -153,24 +173,54 @@ func (c *AddExpenseCommand) processForm(form map[string]string) (string, error) 
 		return fmt.Sprintf("Validasi gagal: %v", err), nil
 	}
 
-	// Tambahkan pengeluaran dengan tanggal custom
-	record, err := c.financeService.AddExpenseWithDate(
-		ctx,
-		date,
-		description,
-		amount,
-		category,
-		paymentMethod,
-		storageMedia,
-		notes, // Pastikan notes sudah diproses dengan benar
-		"",    // ProofURL kosong
-	)
+	var record *finance.FinanceRecord
 
-	if err != nil {
-		return fmt.Sprintf("Gagal mencatat pengeluaran: %v", err), nil
+	// Jika ada media path, unggah terlebih dahulu sebelum menyimpan record
+	if mediaPath != "" {
+		// Buat record dengan URL kosong terlebih dahulu
+		tmpRecord, err := c.financeService.AddExpenseWithDate(
+			ctx, date, description, amount, category,
+			paymentMethod, storageMedia, notes, "",
+		)
+
+		if err != nil {
+			return fmt.Sprintf("Gagal mencatat pengeluaran: %v", err), nil
+		}
+
+		// Unggah bukti menggunakan kode transaksi yang dihasilkan
+		uploadCtx, uploadCancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer uploadCancel()
+
+		record, err = c.financeService.UploadTransactionProof(uploadCtx, tmpRecord.UniqueCode, mediaPath)
+		if err != nil {
+			// Transaksi sudah tersimpan tapi gagal upload bukti
+			proofStatus := fmt.Sprintf("\n\n⚠️ Gagal mengunggah bukti: %v", err)
+			return c.formatSuccessResponse(tmpRecord, false) + proofStatus, nil
+		}
+
+	} else {
+		// Tanpa media, langsung simpan record
+		record, err = c.financeService.AddExpenseWithDate(
+			ctx, date, description, amount, category,
+			paymentMethod, storageMedia, notes, "", // Tambahkan koma di sini
+		)
+
+		if err != nil {
+			return fmt.Sprintf("Gagal mencatat pengeluaran: %v", err), nil
+		}
 	}
 
-	// Format response sukses dengan urutan parameter yang benar
+	// Format response sukses
+	return c.formatSuccessResponse(record, mediaPath != ""), nil
+}
+
+// formatSuccessResponse memformat pesan sukses
+func (c *AddExpenseCommand) formatSuccessResponse(record *finance.FinanceRecord, hasProof bool) string {
+	proofStatus := "Belum tersedia"
+	if hasProof {
+		proofStatus = "✅ Tersedia"
+	}
+
 	result := fmt.Sprintf(`────────────────────────
 ✅ DATA PENGELUARAN BERHASIL DITAMBAHKAN ✅
 ────────────────────────
@@ -185,23 +235,24 @@ Data pengeluaran kamu berhasil dicatat.
 💳 Metode: %s
 🏦 Sumber Dana: %s
 📝 Catatan: %s
-⚠ Bukti Transaksi: Belum tersedia
+🧾 Bukti Transaksi: %s
 ────────────────────────
 ℹ Kode Transaksi: %s
 Gunakan kode ini untuk melampirkan bukti transaksi di kemudian hari.
 ────────────────────────
 💡 Ketik !ringkasan untuk melihat laporan keuanganmu! 📊
 ────────────────────────`,
-		formatDateOutput(date),
-		description,
-		formatMoney(amount),
-		category,
-		paymentMethod,
-		storageMedia,
-		notes,
+		formatDateOutput(record.Date),
+		record.Description,
+		formatMoney(record.Amount),
+		record.Category,
+		record.PaymentMethod,
+		record.StorageMedia,
+		record.Notes,
+		proofStatus,
 		record.UniqueCode)
 
-	return result, nil
+	return result
 }
 
 // Helper functions
