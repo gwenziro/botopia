@@ -28,9 +28,9 @@ func NewDashboardController(
 // HandleIndex menangani halaman index
 func (c *DashboardController) HandleIndex(ctx *fiber.Ctx) error {
 	return ctx.Render("pages/index", fiber.Map{
-		"Title": "Botopia - WhatsApp Bot",
-		"Page":  "index",
-	}, "layouts/main")
+		"Title": "Botopia - WhatsApp Bot untuk Keuangan",
+		"Page":  "home",
+	}, "layouts/home_layout")
 }
 
 // HandleDashboard menangani halaman dashboard

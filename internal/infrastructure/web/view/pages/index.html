@@ -1,28 +1,265 @@
-<div class="flex flex-col items-center justify-center">
-    <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-primary-700 mb-4">Botopia WhatsApp Bot</h1>
-        <p class="text-xl text-gray-600">Selamat datang di dashboard admin Botopia</p>
-    </div>
+<link rel="stylesheet" href="/static/css/home.css">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
-        <a href="/dashboard" class="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
-            <div class="flex items-center mb-4">
-                <div class="p-3 rounded-full bg-primary-100 text-primary-700 mr-4">
-                    <i class="fas fa-chart-line text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
-            </div>
-            <p class="text-gray-600">Lihat statistik dan performa bot WhatsApp Anda</p>
-        </a>
-
-        <a href="/qr" class="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
-            <div class="flex items-center mb-4">
-                <div class="p-3 rounded-full bg-primary-100 text-primary-700 mr-4">
-                    <i class="fas fa-qrcode text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-semibold text-gray-800">QR Code</h2>
-            </div>
-            <p class="text-gray-600">Hubungkan WhatsApp dengan memindai QR code</p>
-        </a>
+<!-- Hero Section -->
+<section class="hero-section flex items-center relative">
+    <div class="hero-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
     </div>
-</div>
+    
+    <div class="container mx-auto px-6 py-24 pt-32 hero-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="fade-in" style="animation-delay: 0.1s">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white leading-tight">
+                    Kelola Keuangan dengan WhatsApp Bot
+                </h1>
+                
+                <p class="text-xl text-gray-300 mb-8">
+                    Botopia membantu Anda mencatat pemasukan dan pengeluaran dengan mudah melalui WhatsApp. Tidak perlu aplikasi tambahan, cukup kirim pesan dan dapatkan laporan keuangan kapan saja.
+                </p>
+                
+                <div class="flex flex-wrap gap-4">
+                    <a href="/qr" class="button-primary">
+                        <i class="fas fa-rocket mr-2"></i>
+                        <span>Mulai Sekarang</span>
+                    </a>
+                    
+                    <a href="#how-it-works" class="button-secondary">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span>Pelajari Lebih Lanjut</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-image fade-in text-center" style="animation-delay: 0.3s">
+                <img src="/static/img/hero-image.png" alt="Botopia WhatsApp Bot" class="max-w-full rounded-lg shadow-2xl mx-auto" onerror="this.src='/static/img/hero-placeholder.svg'; this.onerror=null;">
+            </div>
+        </div>
+    </div>
+    
+    <div class="animated-wave">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+            <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+            <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- Pengenalan Section -->
+<section class="py-20 bg-slate-900 text-center">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6 fade-in">WhatsApp Bot untuk Pencatatan Keuangan</h2>
+        <p class="text-xl text-gray-300 max-w-3xl mx-auto fade-in">
+            Botopia mengubah cara Anda mencatat keuangan. Tidak perlu aplikasi khusus, tidak perlu login rumit.
+            Cukup kirim pesan WhatsApp dan semua tercatat otomatis ke spreadsheet pribadi Anda.
+        </p>
+        
+        <div class="mt-12 rounded-lg overflow-hidden shadow-2xl fade-in">
+            <img src="/static/img/bot-preview.png" alt="Botopia Bot Preview" class="w-full max-w-3xl mx-auto" onerror="this.src='/static/img/chat-placeholder.svg'; this.onerror=null;">
+        </div>
+    </div>
+</section>
+
+<!-- Fitur Section -->
+<section id="features" class="py-20 bg-slate-900">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">Fitur Utama Botopia</h2>
+            <p class="text-gray-300 max-w-2xl mx-auto fade-in">
+                Botopia menyediakan berbagai fitur untuk memudahkan pengelolaan keuangan melalui platform WhatsApp yang Anda gunakan sehari-hari.
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Fitur 1 -->
+            <div class="feature-card rounded-xl p-6 fade-in" style="animation-delay: 0.1s">
+                <div class="feature-icon">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Pencatatan Mudah</h3>
+                <p class="text-gray-400">Catat pemasukan dan pengeluaran langsung dari WhatsApp dengan format pesan sederhana, tanpa perlu aplikasi tambahan.</p>
+            </div>
+            
+            <!-- Fitur 2 -->
+            <div class="feature-card rounded-xl p-6 fade-in" style="animation-delay: 0.2s">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Laporan Keuangan</h3>
+                <p class="text-gray-400">Dapatkan laporan lengkap pengeluaran dan pemasukan bulanan dengan kategori yang jelas dan ringkas.</p>
+            </div>
+            
+            <!-- Fitur 3 -->
+            <div class="feature-card rounded-xl p-6 fade-in" style="animation-delay: 0.3s">
+                <div class="feature-icon">
+                    <i class="fas fa-images"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Simpan Bukti Transaksi</h3>
+                <p class="text-gray-400">Unggah dan simpan foto bukti transaksi untuk keperluan administrasi dan pajak dengan mudah.</p>
+            </div>
+            
+            <!-- Fitur 4 -->
+            <div class="feature-card rounded-xl p-6 fade-in" style="animation-delay: 0.4s">
+                <div class="feature-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Kategorisasi Otomatis</h3>
+                <p class="text-gray-400">Botopia secara otomatis mengategorikan pengeluaran dan pemasukan, memudahkan pelacakan aliran uang Anda.</p>
+            </div>
+            
+            <!-- Fitur 5 -->
+            <div class="feature-card rounded-xl p-6 fade-in" style="animation-delay: 0.5s">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Integrasi Google Sheets</h3>
+                <p class="text-gray-400">Data keuangan Anda tersimpan dengan aman dan terorganisir di Google Sheets, mudah diakses dari mana saja.</p>
+            </div>
+            
+            <!-- Fitur 6 -->
+            <div class="feature-card rounded-xl p-6 fade-in" style="animation-delay: 0.6s">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Pengingat & Notifikasi</h3>
+                <p class="text-gray-400">Terima pengingat untuk tagihan bulanan dan notifikasi saat pola pengeluaran melebihi batas yang ditetapkan.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cara Kerja Section -->
+<section id="how-it-works" class="py-20 bg-slate-950">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">Bagaimana Cara Kerjanya</h2>
+            <p class="text-gray-300 max-w-2xl mx-auto fade-in">
+                Mulai menggunakan Botopia dalam 3 langkah mudah
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Langkah 1 -->
+            <div class="text-center fade-in" style="animation-delay: 0.1s">
+                <div class="w-20 h-20 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center text-3xl font-bold mx-auto mb-6">1</div>
+                <h3 class="text-xl font-semibold text-white mb-3">Scan QR Code</h3>
+                <p class="text-gray-400">Hubungkan Botopia dengan WhatsApp Anda dengan memindai QR code melalui fitur Perangkat Tertaut.</p>
+            </div>
+            
+            <!-- Langkah 2 -->
+            <div class="text-center fade-in" style="animation-delay: 0.2s">
+                <div class="w-20 h-20 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center text-3xl font-bold mx-auto mb-6">2</div>
+                <h3 class="text-xl font-semibold text-white mb-3">Setting Google Sheets</h3>
+                <p class="text-gray-400">Izinkan Botopia mengakses Google Sheets untuk menyimpan dan mengelola data keuangan Anda.</p>
+            </div>
+            
+            <!-- Langkah 3 -->
+            <div class="text-center fade-in" style="animation-delay: 0.3s">
+                <div class="w-20 h-20 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center text-3xl font-bold mx-auto mb-6">3</div>
+                <h3 class="text-xl font-semibold text-white mb-3">Catat Transaksi</h3>
+                <p class="text-gray-400">Mulai catat pemasukan dan pengeluaran Anda dengan mengirimkan pesan ke Botopia melalui WhatsApp.</p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 fade-in">
+            <a href="/qr" class="button-primary">
+                <i class="fas fa-rocket mr-2"></i>
+                <span>Mulai Sekarang</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonial Section -->
+<section id="testimonials" class="py-20 bg-slate-900">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">Apa Kata Pengguna</h2>
+            <p class="text-gray-300 max-w-2xl mx-auto fade-in">
+                Pendapat dari pengguna yang telah merasakan manfaat Botopia
+            </p>
+        </div>
+        
+        <div class="max-w-3xl mx-auto testimonial-container relative">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-item fade-in glass rounded-xl p-8 border border-gray-800">
+                <div class="flex items-center mb-4">
+                    <div class="w-14 h-14 rounded-full bg-primary-600/20 flex items-center justify-center text-primary-400 mr-4">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold">Budi Santoso</h4>
+                        <p class="text-gray-400 text-sm">Wirausaha, Jakarta</p>
+                    </div>
+                </div>
+                <p class="text-gray-300">
+                    "Botopia sangat membantu bisnis saya. Saya tidak perlu lagi mencatat pengeluaran secara manual karena semua bisa langsung dicatat lewat WhatsApp. Laporan bulanan juga sangat membantu untuk evaluasi keuangan bisnis."
+                </p>
+            </div>
+            
+            <!-- Testimonial 2 -->
+            <div class="testimonial-item hidden fade-in glass rounded-xl p-8 border border-gray-800">
+                <div class="flex items-center mb-4">
+                    <div class="w-14 h-14 rounded-full bg-primary-600/20 flex items-center justify-center text-primary-400 mr-4">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold">Dewi Lestari</h4>
+                        <p class="text-gray-400 text-sm">Ibu Rumah Tangga, Bandung</p>
+                    </div>
+                </div>
+                <p class="text-gray-300">
+                    "Sebagai ibu rumah tangga, Botopia membuat pengelolaan keuangan keluarga lebih tertata. Saya sekarang tahu persis kemana uang belanja digunakan dan bisa mengatur anggaran dengan lebih baik."
+                </p>
+            </div>
+            
+            <!-- Testimonial 3 -->
+            <div class="testimonial-item hidden fade-in glass rounded-xl p-8 border border-gray-800">
+                <div class="flex items-center mb-4">
+                    <div class="w-14 h-14 rounded-full bg-primary-600/20 flex items-center justify-center text-primary-400 mr-4">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold">Ahmad Fauzi</h4>
+                        <p class="text-gray-400 text-sm">Mahasiswa, Yogyakarta</p>
+                    </div>
+                </div>
+                <p class="text-gray-300">
+                    "Sebagai mahasiswa dengan uang jajan terbatas, Botopia membantu saya melacak pengeluaran harian dan membuat saya lebih sadar dengan pola belanja. Sekarang saya lebih bisa menabung!"
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-primary-900 relative overflow-hidden">
+    <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6 fade-in">Siap Untuk Mengelola Keuangan Dengan Lebih Mudah?</h2>
+            <p class="text-xl text-primary-100 mb-8 fade-in">
+                Mulai gunakan Botopia sekarang dan rasakan perbedaannya. Tidak ada lagi kerepotan mencatat pengeluaran dan pemasukan.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 fade-in">
+                <a href="/qr" class="button-primary bg-white text-primary-900">
+                    <i class="fas fa-qrcode mr-2"></i>
+                    <span>Hubungkan WhatsApp</span>
+                </a>
+                
+                <a href="/dashboard" class="button-secondary border-white">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    <span>Lihat Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background Shapes -->
+    <div class="absolute top-0 right-0 w-64 h-64 bg-primary-800 rounded-full opacity-20" style="transform: translate(30%, -30%)"></div>
+    <div class="absolute bottom-0 left-0 w-80 h-80 bg-primary-800 rounded-full opacity-20" style="transform: translate(-40%, 40%)"></div>
+</section>
+
+<script src="/static/js/home/animation.js"></script>
