@@ -12,6 +12,7 @@ import (
 	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/infrastructure/config"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
+	"github.com/gwenziro/botopia/internal/utils" // Added utils package import
 	"google.golang.org/api/sheets/v4"
 )
 
@@ -190,8 +191,7 @@ func (h *ConfigHandler) FindRecordByCode(ctx context.Context, code string) (*fin
 		for _, row := range resp.Values {
 			if len(row) >= 2 && fmt.Sprintf("%v", row[1]) == code {
 				// Parse record berdasarkan jenis sheet
-				var record *finance.FinanceRecord
-				record = &finance.FinanceRecord{
+				record := &finance.FinanceRecord{
 					Type: finance.TypeExpense,
 				}
 				if sheetName == "Pemasukan" {
@@ -224,15 +224,39 @@ func (h *ConfigHandler) FindRecordByCode(ctx context.Context, code string) (*fin
 				}
 				if len(row) > 5 && row[5] != nil {
 					amountStr := fmt.Sprintf("%v", row[5])
-					// Pastikan pengubahan string ke float64 benar
-					// Hapus format angka (titik/koma pemisah ribuan)
-					amountStr = regexp.MustCompile(`[^\d,.]`).ReplaceAllString(amountStr, "")
-					amountStr = strings.Replace(amountStr, ",", ".", -1)
-					amount, err := strconv.ParseFloat(amountStr, 64)
+					h.log.Debug("Parsing amount from raw value: '%s'", amountStr)
+
+					// Use our utility function to parse money value
+					amount, err := utils.ParseMoney(amountStr)
 					if err == nil {
 						record.Amount = amount
+						h.log.Debug("Successfully parsed amount: %.2f", amount)
 					} else {
-						h.log.Warn("Format nominal tidak valid: %s, menggunakan 0", amountStr)
+						h.log.Warn("Failed to parse with utils.ParseMoney: %v, trying manual parsing", err)
+
+						// Fallback to additional methods for robustness
+
+						// Remove any non-numeric character except dots and commas
+						cleanStr := regexp.MustCompile(`[^\d,.]`).ReplaceAllString(amountStr, "")
+
+						// Try various number formats
+						formats := []string{
+							cleanStr,                                // As is
+							strings.Replace(cleanStr, ",", ".", -1), // Replace comma with dot
+							strings.Replace(strings.Replace(cleanStr, ".", "", -1), ",", ".", -1), // 1.234,56 -> 1234.56
+						}
+
+						for i, format := range formats {
+							if format == "" {
+								continue
+							}
+							amount, err := strconv.ParseFloat(format, 64)
+							if err == nil {
+								record.Amount = amount
+								h.log.Debug("Successfully parsed amount with format #%d: %.2f", i+1, amount)
+								break
+							}
+						}
 					}
 				}
 				if len(row) > 6 && row[6] != nil {

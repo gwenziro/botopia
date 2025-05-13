@@ -26,8 +26,27 @@ func ParseMoney(amountStr string) (float64, error) {
 	// Bersihkan string dari karakter non-numerik kecuali titik dan koma
 	numericStr := regexp.MustCompile(`[^0-9.,]`).ReplaceAllString(amountStr, "")
 
-	// Ganti koma dengan titik untuk format float
-	numericStr = strings.Replace(numericStr, ",", ".", -1)
+	// Handle both international and Indonesian formats
+	if strings.Contains(numericStr, ",") && strings.Contains(numericStr, ".") {
+		// Check which is the decimal separator based on position
+		lastCommaPos := strings.LastIndex(numericStr, ",")
+		lastDotPos := strings.LastIndex(numericStr, ".")
+
+		if lastCommaPos > lastDotPos {
+			// Format like "1.234,56" - comma is decimal separator
+			// Remove dots first (thousand separators)
+			numericStr = strings.Replace(numericStr, ".", "", -1)
+			// Then replace comma with dot for decimal
+			numericStr = strings.Replace(numericStr, ",", ".", -1)
+		} else {
+			// Format like "1,234.56" - dot is decimal separator
+			// Just remove commas
+			numericStr = strings.Replace(numericStr, ",", "", -1)
+		}
+	} else if strings.Contains(numericStr, ",") {
+		// Only commas, replace with dot
+		numericStr = strings.Replace(numericStr, ",", ".", -1)
+	}
 
 	return strconv.ParseFloat(numericStr, 64)
 }
