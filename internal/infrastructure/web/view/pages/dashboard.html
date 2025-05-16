@@ -7,7 +7,7 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-semibold">Dashboard</h1>
 
-            <button @click="refreshStats()" class="refresh-btn" :disabled="isLoading">
+            <button @click="refreshStats()" class="refresh-btn flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-all" :disabled="isLoading">
                 <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': isLoading}"></i>
                 <span x-text="isRefreshing ? 'Memperbarui...' : 'Perbarui Data'"></span>
             </button>

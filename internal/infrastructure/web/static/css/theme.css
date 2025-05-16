@@ -443,7 +443,7 @@ body {
   display: flex;
   align-items: center;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: 0 12px 12px 0;
   margin-bottom: 0;
   min-width: 300px;
   max-width: 420px;
