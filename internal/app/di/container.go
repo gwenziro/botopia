@@ -9,7 +9,7 @@ import (
 	googleRepo "github.com/gwenziro/botopia/internal/adapter/repository/google"
 	"github.com/gwenziro/botopia/internal/adapter/repository/memory"
 	whatsmeowRepo "github.com/gwenziro/botopia/internal/adapter/repository/whatsmeow"
-	googleService "github.com/gwenziro/botopia/internal/adapter/service"
+	adapterService "github.com/gwenziro/botopia/internal/adapter/service"
 	"github.com/gwenziro/botopia/internal/app/command"
 	"github.com/gwenziro/botopia/internal/domain/repository"
 	"github.com/gwenziro/botopia/internal/domain/service"
@@ -41,6 +41,7 @@ type Container struct {
 	googleAPIRepository  *googleRepo.GoogleAPIRepository
 	sheetsRepository     *googleRepo.SheetsRepository
 	driveRepository      *googleRepo.DriveRepository
+	contactRepository    *memory.ContactRepository
 
 	// Use cases
 	executeCommandUseCase  *execute.ExecuteCommandUseCase
@@ -49,7 +50,8 @@ type Container struct {
 	getStatsUseCase        *stats.GetStatsUseCase
 
 	// Services
-	financeService *googleService.FinanceService
+	financeService service.FinanceService
+	contactService service.ContactService
 
 	// Controllers
 	dashboardController  *web.DashboardController
@@ -58,6 +60,7 @@ type Container struct {
 	messageController    *whatsappController.MessageController
 	configController     *web.ConfigController
 	dataMasterController *web.DataMasterController
+	contactController    *web.ContactController
 
 	// Command initializer
 	commandInitializer *command.CommandInitializer
@@ -78,8 +81,8 @@ func NewContainer(cfg *config.Config) *Container {
 	c.initLogger()
 	c.initDatabase()
 	c.initRepositories()
-	c.initMediaServices()
-	c.initCommandInitializer()
+	c.initServices()           // Menggunakan initServices sebagai pengganti initMediaServices
+	c.initCommandInitializer() // Tambahkan fungsi yang hilang
 	c.initUseCases()
 	c.initControllers()
 
@@ -132,17 +135,31 @@ func (c *Container) initRepositories() {
 
 	// Inisialisasi Google Drive Repository
 	c.driveRepository = googleRepo.NewDriveRepository(c.googleAPIRepository, c.config, c.log)
+
+	// Tambahkan contact repository
+	c.contactRepository = memory.NewContactRepository(c.log)
 }
 
-// initCommandInitializer menginisialisasi dan mendaftarkan command default
-func (c *Container) initCommandInitializer() {
-	// Inisialisasi finance service terlebih dahulu
-	c.financeService = googleService.NewFinanceService(
+// initServices menginisialisasi layanan
+func (c *Container) initServices() {
+	// Inisialisasi finance service
+	c.financeService = adapterService.NewFinanceService(
 		c.sheetsRepository,
-		c.driveRepository, // Sekarang tidak perlu lagi nil
+		c.driveRepository,
 		c.log,
 	)
 
+	// Inisialisasi contact service
+	c.contactService = adapterService.NewContactService(
+		c.contactRepository,
+		c.log,
+	)
+
+	c.log.Info("Services berhasil diinisialisasi")
+}
+
+// initCommandInitializer menginisialisasi command initializer
+func (c *Container) initCommandInitializer() {
 	c.commandInitializer = command.NewCommandInitializer(c.commandRepository, c.financeService)
 	c.commandInitializer.RegisterDefaultCommands()
 	c.log.Info("Command default berhasil didaftarkan. Total: %d command",
@@ -184,10 +201,15 @@ func (c *Container) initControllers() {
 		c.config.WebAuthEnabled,
 	)
 
+	// Tambahkan controller kontak
+	c.contactController = web.NewContactController(c.contactService)
+
+	// Perbarui message controller dengan contactService
 	c.messageController = whatsappController.NewMessageController(
 		c.executeCommandUseCase,
 		c.connectionRepository,
 		c.statsRepository,
+		c.contactService,
 	)
 
 	c.configController = web.NewConfigController(c.config)
@@ -266,6 +288,16 @@ func (c *Container) GetConfigController() *web.ConfigController {
 // GetDataMasterController mengembalikan controller data master
 func (c *Container) GetDataMasterController() *web.DataMasterController {
 	return c.dataMasterController
+}
+
+// GetContactService mengembalikan service kontak
+func (c *Container) GetContactService() service.ContactService {
+	return c.contactService
+}
+
+// GetContactController mengembalikan controller kontak
+func (c *Container) GetContactController() interface{} {
+	return c.contactController
 }
 
 // GetConfig mengembalikan konfigurasi

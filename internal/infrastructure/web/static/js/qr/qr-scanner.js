@@ -171,43 +171,48 @@ document.addEventListener('alpine:init', () => {
     
     // Manually request new QR code
     refreshQR() {
-      if (this.isRefreshing) return;
+      if (this.isDisconnecting) return;
       
-      this.isRefreshing = true;
-      this.qrCode = '';
-      this.statusMessage = 'Memperbarui QR code...';
+      this.loading = true;
       
-      // Force refresh with cache-busting parameter
-      fetch('/api/qr?refresh=' + new Date().getTime())
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to refresh QR code');
-          }
-          return response.json();
-        })
-        .then(data => {
-          if (data.qrCode) {
-            this.qrCode = data.qrCode;
-            this.renderQRCode();
-            this.statusMessage = 'QR code berhasil diperbarui';
+      if (this.isConnected) {
+        // Jika terhubung, hanya perbarui status tanpa meminta QR baru
+        showToast('info', 'Memperbarui status koneksi...');
+        
+        fetch('/api/qr?refresh=status')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Update data perangkat dan status
+            if (data.deviceInfo) {
+              this.deviceInfo = data.deviceInfo;
+            }
+            if (data.name) {
+              this.name = data.name;
+            }
+            if (data.phone) {
+              this.phone = data.phone;
+            }
             
-            // Show success toast
-            showToast('success', 'QR code berhasil diperbarui');
-          } else {
-            throw new Error('No QR code received');
-          }
-        })
-        .catch(error => {
-          console.error('Error refreshing QR:', error);
-          this.errorMessage = 'Gagal memperbarui QR code: ' + error.message;
-          this.statusMessage = 'Gagal memperbarui QR code';
-          
-          // Show error toast
-          showToast('error', 'Gagal memperbarui QR code');
-        })
-        .finally(() => {
-          this.isRefreshing = false;
-        });
+            showToast('success', 'Status koneksi berhasil diperbarui');
+          })
+          .catch(error => {
+            console.error('Error fetching connection status:', error);
+            showToast('error', 'Gagal memperbarui status koneksi');
+          })
+          .finally(() => {
+            this.loading = false;
+          });
+        
+      } else {
+        // Jika terputus, minta QR baru seperti biasa
+        showToast('info', 'Memperbarui kode QR...');
+        this.fetchQRStatus();
+      }
     },
     
     // Disconnect WhatsApp session

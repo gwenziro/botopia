@@ -81,14 +81,8 @@
     {{if eq .Page "data-master"}}
     <link rel="stylesheet" href="/static/css/data-master.css">
     {{end}}
-
-    <!-- QR Code Library (hanya dimuat saat di halaman QR) -->
-    {{if eq .Page "qr"}}
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    {{end}}
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 min-h-screen text-white">
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 min-h-screen text-white" data-page="{{ .Page }}">
     <!-- Toast notifications container -->
     {{template "components/toast" .}}
 
@@ -109,30 +103,47 @@
         </div>
     </div>
     
-    <!-- Common JS -->
+    <!-- Base Scripts -->
     <script src="/static/js/toast.js"></script>
+    <script src="/static/js/main.js"></script>
     <script src="/static/js/sidebar-controller.js"></script>
-    <script src="/static/js/sidebar-menu.js"></script>
-    
-    <!-- Page-specific JavaScript -->
-    {{if eq .Page "dashboard"}}
+    <script src="/static/js/loader-debug.js"></script>
+
+    <!-- Page Specific Scripts -->
+    {{ if eq .Page "dashboard" }}
     <script src="/static/js/dashboard/dashboard-app.js"></script>
-    {{end}}
+    <script src="/static/js/dashboard/stats-cards.js"></script>
+    <script src="/static/js/dashboard/command-list.js"></script>
+    {{ end }}
     
-    {{if eq .Page "qr"}}
+    {{ if eq .Page "qr" }}
     <script src="/static/js/qr/qr-scanner.js"></script>
-    {{end}}
+    {{ end }}
     
-    {{if eq .Page "konfigurasi"}}
-    <script src="/static/js/configuration/config-app.js"></script>
-    {{end}}
-    
-    {{if eq .Page "data-master"}}
+    {{ if eq .Page "data-master" }}
     <script src="/static/js/data-master/data-master-app.js"></script>
-    {{end}}
+    {{ end }}
     
-    {{if eq .Page "home"}}
-    <script src="/static/js/home/animation.js"></script>
-    {{end}}
+    <!-- Tambahkan script untuk halaman contacts -->
+    {{ if eq .Page "contacts" }}
+    <script src="/static/js/contacts/contacts-app.js"></script>
+    <script>
+        // Debugging untuk halaman kontak
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ Contacts page loaded');
+            console.log('✅ contacts-app.js script reference is added to the page');
+            
+            if (window.Alpine) {
+                console.log('✅ Alpine.js is available');
+                setTimeout(() => {
+                    const hasContactsApp = document.querySelector('[x-data="contactsApp"]');
+                    console.log(`${hasContactsApp ? '✅' : '❌'} contactsApp component found`);
+                }, 100);
+            } else {
+                console.error('❌ Alpine.js is not available!');
+            }
+        });
+    </script>
+    {{ end }}
 </body>
 </html>

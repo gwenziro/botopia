@@ -133,6 +133,11 @@ document.addEventListener('alpine:init', () => {
             } else {
                 return `${seconds}s`;
             }
+        },
+
+        // Update teks tombol refresh berdasarkan status koneksi
+        get refreshButtonText() {
+            return this.isConnected ? 'Perbarui Data' : 'Perbarui Status';
         }
     }));
 });

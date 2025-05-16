@@ -369,6 +369,26 @@ body {
   overflow: hidden;
 }
 
+/* Logo icon */
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Profile icon in sidebar */
+.profile-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Collapsed sidebar */
 .sidebar-collapsed {
   width: 70px;

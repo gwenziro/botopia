@@ -7,6 +7,7 @@ import (
 	"github.com/gwenziro/botopia/internal/domain/event"
 	"github.com/gwenziro/botopia/internal/domain/message"
 	"github.com/gwenziro/botopia/internal/domain/repository"
+	"github.com/gwenziro/botopia/internal/domain/service"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
 	"github.com/gwenziro/botopia/internal/usecase/command/execute"
 )
@@ -16,8 +17,10 @@ type MessageController struct {
 	executeCommandUseCase *execute.ExecuteCommandUseCase
 	connectionRepo        repository.ConnectionRepository
 	statsRepo             repository.StatsRepository
+	contactService        service.ContactService
 	log                   *logger.Logger
 	eventDispatcher       *event.EventDispatcher
+	UseWhitelist          bool // Diubah menjadi exported (huruf kapital)
 }
 
 // NewMessageController membuat instance message controller
@@ -25,14 +28,23 @@ func NewMessageController(
 	executeUC *execute.ExecuteCommandUseCase,
 	connectionRepo repository.ConnectionRepository,
 	statsRepo repository.StatsRepository,
+	contactService service.ContactService,
 ) *MessageController {
 	return &MessageController{
 		executeCommandUseCase: executeUC,
 		connectionRepo:        connectionRepo,
 		statsRepo:             statsRepo,
+		contactService:        contactService,
 		log:                   logger.New("MessageController", logger.INFO, true),
 		eventDispatcher:       event.NewEventDispatcher(),
+		UseWhitelist:          false, // Default: nonaktif
 	}
+}
+
+// SetUseWhitelist mengatur apakah menggunakan whitelist
+func (c *MessageController) SetUseWhitelist(value bool) {
+	c.log.Info("Pengaturan whitelist diubah: %v", value)
+	c.UseWhitelist = value
 }
 
 // Setup menyiapkan controller
@@ -42,7 +54,7 @@ func (c *MessageController) Setup() {
 	c.log.Info("Message handler registered")
 }
 
-// HandleMessage menangani pesan masuk
+// HandleMessage menangani pesan masuk dengan validasi whitelist
 func (c *MessageController) HandleMessage(msg *message.Message) {
 	// Increment pesan diterima
 	c.statsRepo.IncrementMessageCount()
@@ -53,6 +65,23 @@ func (c *MessageController) HandleMessage(msg *message.Message) {
 	// Abaikan pesan yang dikirim oleh kita
 	if msg.IsFromMe {
 		return
+	}
+
+	// Validasi whitelist jika diaktifkan
+	if c.UseWhitelist {
+		// Cek apakah pengirim ada dalam whitelist
+		senderPhone := msg.Sender.Phone
+		isWhitelisted, err := c.contactService.IsWhitelisted(context.Background(), senderPhone)
+
+		if err != nil {
+			c.log.Error("Gagal memeriksa whitelist untuk %s: %v", senderPhone, err)
+			// Lanjutkan proses pesannya, jangan blokir karena error teknis
+		} else if !isWhitelisted {
+			c.log.Info("Pesan dari nomor yang tidak dalam whitelist ditolak: %s", senderPhone)
+			// Opsional: kirim respons bahwa nomor tidak diizinkan
+			// c.sendReply(msg, "Maaf, nomor Anda tidak terdaftar untuk menggunakan layanan ini.")
+			return
+		}
 	}
 
 	// Gunakan caption sebagai text jika ada media dan caption

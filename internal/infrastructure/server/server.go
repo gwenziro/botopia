@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -96,7 +97,7 @@ func (s *Server) SetupRoutes() {
 	if authCtrl.IsAuthEnabled() {
 		s.setupAuthenticatedRoutes(dashboardCtrl, qrCtrl, authCtrl, configCtrl)
 	} else {
-		s.setupUnauthenticatedRoutes(dashboardCtrl, qrCtrl, configCtrl, dataMasterCtrl)
+		s.setupUnauthenticatedRoutes(dashboardCtrl, qrCtrl, configCtrl, dataMasterCtrl, s.container.GetContactController())
 	}
 
 	s.log.Info("Routes set up successfully")
@@ -175,7 +176,7 @@ func (s *Server) setupAuthenticatedRoutes(
 
 // setupUnauthenticatedRoutes mengatur route tanpa auth
 func (s *Server) setupUnauthenticatedRoutes(
-	dashboardCtrl, qrCtrl, configCtrl, dataMasterCtrl interface{},
+	dashboardCtrl, qrCtrl, configCtrl, dataMasterCtrl, contactCtrl interface{},
 ) {
 	// Cast to correct types
 	dashboard := dashboardCtrl.(interface {
@@ -202,12 +203,23 @@ func (s *Server) setupUnauthenticatedRoutes(
 		HandleGetMasterData(ctx *fiber.Ctx) error
 	})
 
+	contact := contactCtrl.(interface {
+		HandleContactPage(ctx *fiber.Ctx) error
+		HandleGetContacts(ctx *fiber.Ctx) error
+		HandleGetWhitelistedContacts(ctx *fiber.Ctx) error
+		HandleAddContact(ctx *fiber.Ctx) error
+		HandleUpdateContact(ctx *fiber.Ctx) error
+		HandleDeleteContact(ctx *fiber.Ctx) error
+		HandleSetWhitelistStatus(ctx *fiber.Ctx) error
+	})
+
 	// Public routes
 	s.app.Get("/", dashboard.HandleIndex)
 	s.app.Get("/dashboard", dashboard.HandleDashboard)
 	s.app.Get("/qr", qr.HandleQRPage)
 	s.app.Get("/konfigurasi", config.HandleConfigPage)
 	s.app.Get("/data-master", dataMaster.HandleDataMasterPage) // Tambahkan route data master
+	s.app.Get("/contacts", contact.HandleContactPage)
 
 	// API routes
 	api := s.app.Group("/api")
@@ -220,4 +232,40 @@ func (s *Server) setupUnauthenticatedRoutes(
 
 	// Data Master API routes - hanya route GET yang diperlukan
 	api.Get("/data-master", dataMaster.HandleGetMasterData)
+
+	// Contact API routes
+	api.Get("/contacts", contact.HandleGetContacts)
+	api.Get("/contacts/whitelist", contact.HandleGetWhitelistedContacts)
+	api.Post("/contacts/add", contact.HandleAddContact)
+	api.Post("/contacts/update", contact.HandleUpdateContact)
+	api.Post("/contacts/delete", contact.HandleDeleteContact)
+	api.Post("/whitelist/status", contact.HandleSetWhitelistStatus)
+
+	// Whitelist Toggle API
+	api.Get("/whitelist/status", func(ctx *fiber.Ctx) error {
+		// Dapatkan status whitelist dari MessageController
+		return ctx.JSON(fiber.Map{
+			"enabled": s.container.GetMessageController().UseWhitelist,
+		})
+	})
+
+	api.Post("/whitelist/toggle", func(ctx *fiber.Ctx) error {
+		var input struct {
+			Enabled bool `json:"enabled"`
+		}
+
+		if err := ctx.BodyParser(&input); err != nil {
+			return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "Format data tidak valid",
+			})
+		}
+
+		// Update status whitelist di message controller
+		s.container.GetMessageController().SetUseWhitelist(input.Enabled)
+
+		return ctx.JSON(fiber.Map{
+			"success": true,
+			"enabled": input.Enabled,
+		})
+	})
 }
