@@ -53,9 +53,19 @@ func (r *StatsRepository) GetStats() (*repository.BotStats, error) {
 	// Buat salinan untuk menghindari race condition
 	stats := r.stats
 
+	// Hitung uptime sistem (berbeda dari uptime koneksi)
+	stats.SystemUptime = int64(time.Since(r.startTime).Seconds())
+
 	// Hitung uptime jika terhubung
 	if stats.ConnectionState == "connected" {
-		stats.Uptime = int64(time.Since(time.Unix(stats.ConnectedSince, 0)).Seconds())
+		if stats.ConnectedSince > 0 {
+			stats.Uptime = int64(time.Since(time.Unix(stats.ConnectedSince, 0)).Seconds())
+		} else {
+			// Fallback ke system uptime jika ConnectedSince tidak diset tapi state connected
+			stats.Uptime = stats.SystemUptime
+			// Setel ConnectedSince ke waktu sekarang dikurangi SystemUptime
+			stats.ConnectedSince = time.Now().Unix() - stats.SystemUptime
+		}
 	} else {
 		stats.Uptime = 0
 	}
@@ -70,9 +80,14 @@ func (r *StatsRepository) SetConnectionState(isConnected bool) error {
 
 	if isConnected {
 		r.stats.ConnectionState = "connected"
-		r.stats.ConnectedSince = time.Now().Unix()
+		// Hanya set ConnectedSince jika sebelumnya tidak connected
+		if r.stats.ConnectedSince == 0 {
+			r.stats.ConnectedSince = time.Now().Unix()
+		}
 	} else {
 		r.stats.ConnectionState = "disconnected"
+		r.stats.ConnectedSince = 0
+		r.stats.Uptime = 0
 	}
 
 	return nil

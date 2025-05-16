@@ -1,0 +1,41 @@
+<!-- Add Modal -->
+<div x-show="showAddModal" class="modal-backdrop" x-cloak>
+    <div @click.away="showAddModal = false" class="modal-content max-w-md">
+        <div class="modal-header">
+            <h3 class="text-lg font-semibold text-white">
+                <span x-text="getModalTitle('add', currentType)"></span>
+            </h3>
+            <button @click="showAddModal = false" class="text-slate-400 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form @submit.prevent="addItem()">
+                <div class="mb-4">
+                    <label for="newItemValue" class="form-label">
+                        <span x-text="getFieldLabel(currentType)"></span>
+                    </label>
+                    <input type="text" id="newItemValue" x-model="newItemValue"
+                           class="form-control" 
+                           :class="{'is-invalid': addError}"
+                           placeholder="Masukkan nama">
+                    <div x-show="addError" class="invalid-feedback" x-text="addError"></div>
+                </div>
+                <div class="text-right">
+                    <button type="button" @click="showAddModal = false" 
+                            class="btn btn-secondary mr-2">
+                        Batal
+                    </button>
+                    <button type="submit" 
+                            class="btn btn-primary" 
+                            :disabled="isProcessing">
+                        <span x-show="isProcessing" class="inline-block animate-spin mr-1">
+                            <i class="fas fa-circle-notch"></i>
+                        </span>
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

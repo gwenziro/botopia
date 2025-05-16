@@ -1,26 +1,44 @@
 /* QR Code page specific styles */
 
-.qr-container {
-  aspect-ratio: 1/1;
-  max-width: 300px;
-  margin: 0 auto;
-  border: 2px solid #182282;
-  border-radius: 0.5rem;
-  padding: 1rem;
+.qr-page {
+  min-height: calc(100vh - 80px); /* Mengurangi padding untuk memanfaatkan ruang lebih baik */
 }
 
-.qr-container img {
-  max-width: 100%;
+/* QR Container & Display */
+.qr-container {
+  width: 100%;
+  min-height: 450px; /* Diperbesar untuk lebih proporsional */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-code-wrapper {
+  width: 250px;
+  height: 250px;
+  margin: 0 auto;
+}
+
+.qr-code-wrapper img {
+  width: 100%;
   height: auto;
   display: block;
 }
 
+/* Connection Status */
 .connection-status {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   margin-bottom: 2rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .status-icon {
@@ -31,6 +49,30 @@
   justify-content: center;
   border-radius: 9999px;
   margin-bottom: 1rem;
+}
+
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-circle.connected {
+  background-color: rgba(74, 222, 128, 0.15);
+  color: rgb(74, 222, 128);
+}
+
+.icon-circle.disconnected {
+  background-color: rgba(248, 113, 113, 0.15);
+  color: rgb(248, 113, 113);
+}
+
+.icon-circle.loading {
+  background-color: rgba(56, 189, 248, 0.15);
+  color: rgb(56, 189, 248);
 }
 
 .status-icon i {
@@ -47,10 +89,7 @@
   color: #ef4444;
 }
 
-.qr-refresh-button {
-  margin-top: 1rem;
-}
-
+/* Loading Animation */
 .qr-loading {
   display: flex;
   flex-direction: column;
@@ -69,7 +108,189 @@
   margin-bottom: 1rem;
 }
 
+.loader-ring {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(56, 189, 248, 0.3);
+  border-radius: 50%;
+  border-top-color: rgb(56, 189, 248);
+  animation: spin 1s linear infinite;
+}
+
 @keyframes qr-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Connected State */
+.connected-icon-container {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connected-state {
+  width: 100%;
+  max-width: 100%; /* Diperbesar dari sebelumnya */
+  margin: 0 auto;
+}
+
+.connected-animation {
+  position: relative;
+  width: 120px; /* Diperbesar */
+  height: 120px; /* Diperbesar */
+  margin: 0 auto;
+}
+
+.connection-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(22, 30, 46, 0.8);
+  border-radius: 50%;
+  width: 100px; /* Diperbesar */
+  height: 100px; /* Diperbesar */
+  margin: 10px;
+}
+
+.connection-icon i {
+  font-size: 48px; /* Diperbesar */
+}
+
+.connection-pulse-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(74, 222, 128, 0.5);
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+.connection-details {
+  font-size: 0.9rem;
+  margin-top: 2rem; /* Ditambahkan spacing */
+  padding: 1.25rem;    /* Padding diperbesar */
+  width: 100%;
+}
+
+/* Waiting state styles */
+.waiting-state {
+  width: 100%;
+  max-width: 100%;
+  padding: 2rem;
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  border-radius: 9999px;
+}
+
+.badge.connected {
+  background-color: rgba(74, 222, 128, 0.2);
+  color: rgb(74, 222, 128);
+}
+
+.badge.disconnected {
+  background-color: rgba(248, 113, 113, 0.2);
+  color: rgb(248, 113, 113);
+}
+
+.badge.loading {
+  background-color: rgba(56, 189, 248, 0.2);
+  color: rgb(56, 189, 248);
+}
+
+/* Step by step guide */
+.steps-container {
+  counter-reset: step-counter;
+}
+
+.step-number {
+  font-weight: 600;
+}
+
+/* QR refresh button */
+.refresh-btn {
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:disabled {
+  cursor: not-allowed;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background-color: #0891b2; /* primary-700 */
+}
+
+/* Connection history */
+.stat-item {
+  padding: 0.5rem 0;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .qr-container {
+    min-height: 400px;
+  }
+  
+  .connection-details {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .qr-container {
+    min-height: 300px;
+  }
+  
+  .qr-code-wrapper {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .loader-ring {
+    width: 40px;
+    height: 40px;
+  }
 }

@@ -38,4 +38,7 @@ type FinanceService interface {
 
 	// UploadTransactionProof mengunggah bukti transaksi
 	UploadTransactionProof(ctx context.Context, transactionCode string, filePath string) (*finance.FinanceRecord, error)
+
+	// UpdateConfiguration memperbarui konfigurasi keuangan
+	UpdateConfiguration(ctx context.Context, config *finance.Configuration) error
 }

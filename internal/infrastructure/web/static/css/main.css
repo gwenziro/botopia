@@ -18,34 +18,44 @@ body {
 
 /* Fixed header styling */
 .header {
-  position: fixed;
+  height: 64px;
+  position: sticky;
   top: 0;
-  right: 0;
-  left: var(--sidebar-width);
-  height: var(--header-height);
   z-index: 40;
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
 }
 
 /* Fixed sidebar styling */
 .sidebar {
+  width: 280px;
+  height: 100vh;
+  overflow-y: auto;
   position: fixed;
   top: 0;
   left: 0;
-  width: var(--sidebar-width);
-  height: 100vh;
-  z-index: 50;
   transition: transform 0.3s ease;
-  display: flex;
-  flex-direction: column;
+  transform: translateX(-100%);
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    transform: translateX(0);
+  }
 }
 
 /* Add padding to main content to account for fixed header */
 .main-content {
-  margin-left: var(--sidebar-width);
-  padding-top: var(--header-height);
-  min-height: 100vh;
+  padding-left: 0;
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding-left: 280px; /* Sidebar width */
+  }
 }
 
 /* Modified navigation links with non-rounded left borders */
@@ -62,8 +72,9 @@ body {
 }
 
 .nav-link.active {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-left-color: var(--primary-400);
+  background-color: rgba(6, 182, 212, 0.2);
+  border-left: 4px solid #06b6d4;
+  padding-left: calc(1rem - 4px);
 }
 
 /* User menu in sidebar */
@@ -379,4 +390,52 @@ body {
   aspect-ratio: 1/1;
   max-width: 300px;
   margin: 0 auto;
+}
+
+/* Fix untuk container utama - menghilangkan padding berlebih */
+main.overflow-x-hidden {
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+main.overflow-x-hidden .container {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Home page header - sticky */
+#main-nav {
+  position: sticky;
+  top: 0;
+  background-color: transparent;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#main-nav.scrolled {
+  background-color: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations for dropdowns */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu {
+  animation: fadeInDown 0.2s ease-out;
 }

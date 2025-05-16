@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gwenziro/botopia/internal/domain/message"
+	"github.com/gwenziro/botopia/internal/domain/repository"
 	"github.com/gwenziro/botopia/internal/domain/user"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
 	"go.mau.fi/whatsmeow"
@@ -26,6 +27,7 @@ type ConnectionRepository struct {
 	qrChan          chan string
 	messageHandlers []func(*message.Message)
 	handlersMutex   sync.RWMutex
+	statsRepo       repository.StatsRepository
 }
 
 // Maps untuk menyimpan referensi pesan untuk akses media
@@ -35,12 +37,17 @@ var (
 )
 
 // NewConnectionRepository membuat repository koneksi baru
-func NewConnectionRepository(client *whatsmeow.Client, log *logger.Logger) *ConnectionRepository {
+func NewConnectionRepository(
+	client *whatsmeow.Client,
+	log *logger.Logger,
+	statsRepo repository.StatsRepository,
+) *ConnectionRepository {
 	repo := &ConnectionRepository{
 		client:          client,
 		log:             log,
 		qrChan:          make(chan string, 5),
 		messageHandlers: make([]func(*message.Message), 0),
+		statsRepo:       statsRepo,
 	}
 
 	// Daftarkan event handler
@@ -102,7 +109,10 @@ func (r *ConnectionRepository) IsConnected() bool {
 
 // GetCurrentUser mendapatkan informasi user yang terhubung
 func (r *ConnectionRepository) GetCurrentUser() (*user.User, error) {
-	if !r.IsConnected() || r.client == nil || r.client.Store == nil || r.client.Store.ID == nil {
+	r.connMutex.RLock()
+	defer r.connMutex.RUnlock()
+
+	if !r.isConnected || r.client == nil || r.client.Store == nil || r.client.Store.ID == nil {
 		return nil, nil
 	}
 
@@ -112,11 +122,61 @@ func (r *ConnectionRepository) GetCurrentUser() (*user.User, error) {
 		return nil, nil
 	}
 
-	return &user.User{
-		ID:    jid.User,
-		Phone: "+" + jid.User,
-		Name:  "WhatsApp User", // Default name
-	}, nil
+	// Buat user object dengan informasi dasar
+	userInfo := &user.User{
+		ID:       jid.User,
+		Phone:    "+" + jid.User,
+		Name:     r.getPushName(),
+		PushName: r.getPushName(),
+		DeviceDetails: &user.DeviceDetails{
+			Platform:     r.getDevicePlatform(),
+			BusinessName: r.getBusinessName(),
+			DeviceID:     r.getDeviceIDString(),
+			Connected:    time.Now().Format(time.RFC3339),
+		},
+	}
+
+	return userInfo, nil
+}
+
+// getPushName mendapatkan push name dari device
+func (r *ConnectionRepository) getPushName() string {
+	if r.client != nil && r.client.Store != nil {
+		// Mencoba mendapatkan push name dari info device
+		pushName := r.client.Store.PushName
+		if pushName != "" {
+			return pushName
+		}
+	}
+	return "WhatsApp User"
+}
+
+// Fungsi helper untuk mendapatkan detail perangkat
+func (r *ConnectionRepository) getDevicePlatform() string {
+	if r.client != nil && r.client.Store != nil {
+		// Mencoba mendapatkan informasi dari client
+		// Whatsmeow tidak selalu memiliki informasi platform spesifik yang mudah diakses
+		// Gunakan informasi yang tersedia
+		return "WhatsApp Web"
+	}
+	return "WhatsApp Device"
+}
+
+// Mendapatkan business name jika ada
+func (r *ConnectionRepository) getBusinessName() string {
+	// Whatsmeow tidak menyimpan business name secara langsung dalam format yang mudah diakses
+	// Kita perlu mengimplementasikan cara lain jika diperlukan
+	return ""
+}
+
+// Mendapatkan device ID dalam bentuk string
+func (r *ConnectionRepository) getDeviceIDString() string {
+	if r.client == nil || r.client.Store == nil || r.client.Store.ID == nil {
+		return ""
+	}
+
+	// Menggunakan device ID dalam bentuk string yang aman
+	return fmt.Sprintf("%d", r.client.Store.ID.Device)
 }
 
 // SendMessage mengirim pesan
@@ -330,11 +390,21 @@ func (r *ConnectionRepository) handleEvent(evt interface{}) {
 		r.connMutex.Unlock()
 		r.log.Info("WhatsApp terhubung!")
 
+		// Update stats repository if available
+		if r.statsRepo != nil {
+			r.statsRepo.SetConnectionState(true)
+		}
+
 	case *events.Disconnected:
 		r.connMutex.Lock()
 		r.isConnected = false
 		r.connMutex.Unlock()
 		r.log.Info("WhatsApp terputus")
+
+		// Update stats repository if available
+		if r.statsRepo != nil {
+			r.statsRepo.SetConnectionState(false)
+		}
 	}
 }
 

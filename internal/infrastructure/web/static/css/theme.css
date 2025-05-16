@@ -59,9 +59,9 @@
 
 /* Utility classes untuk glassmorphism */
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   transition: all var(--transition-normal);
@@ -207,6 +207,50 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes toast-in {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-in-bottom {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out-bottom {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out forwards;
 }
@@ -295,5 +339,445 @@
   transition: all 0.2s ease;
   border-left: 3px solid transparent;
   margin-bottom: var(--sidebar-item-spacing);
-  border-radius: 0 0.375rem 0.375rem 0; /* Only round the right corners */
+  border-radius: 0 6px 6px 0;
+  white-space: nowrap;
+}
+
+.nav-link.active, .nav-link:hover {
+  border-left-color: var(--primary-color, #06b6d4);
+}
+
+/* Base theme styles */
+
+/* General typography */
+body {
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Sidebar styles */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  z-index: 40;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Collapsed sidebar */
+.sidebar-collapsed {
+  width: 70px;
+}
+
+.sidebar-collapsed .sidebar-text,
+.sidebar-collapsed .sidebar-user-info {
+  display: none;
+}
+
+.sidebar-collapsed .toggle-collapse i {
+  transform: rotate(180deg);
+}
+
+.sidebar-collapsed .nav-link {
+  padding-left: 22px;
+  padding-right: 22px;
+  justify-content: center;
+}
+
+/* Toggle button for sidebar */
+.toggle-collapse {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.toggle-collapse:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar content area */
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Fix for configuration icon to be perfectly circular */
+.flex-center-icon {
+  width: 1em !important;
+  height: 1em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.fa-cog {
+  font-size: 0.95em;
+}
+
+/* Toast notifications */
+.toast-container {
+  position: fixed;
+  z-index: 9999;
+  bottom: 24px;            /* Changed from top to bottom */
+  right: 24px;             /* Changed from left: 50% to right: 24px */
+  transform: none;         /* Removed translateX(-50%) */
+  width: auto;
+  max-width: 420px;        /* Adjusted max width */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);  /* Enhanced shadow */
+  margin-bottom: 8px;
+  min-width: 250px;
+  max-width: 420px;
+  width: 100%;
+  animation: toast-in-bottom 0.3s ease-out forwards;  /* Updated animation */
+}
+
+.toast.toast-success {
+  background-color: rgba(16, 185, 129, 0.95);
+  border-left: 4px solid rgb(16, 185, 129);
+  color: white;
+}
+
+.toast.toast-error {
+  background-color: rgba(239, 68, 68, 0.95);
+  border-left: 4px solid rgb(239, 68, 68);
+  color: white;
+}
+
+.toast.toast-info {
+  background-color: rgba(59, 130, 246, 0.95);
+  border-left: 4px solid rgb(59, 130, 246);
+  color: white;
+}
+
+.toast.toast-warning {
+  background-color: rgba(245, 158, 11, 0.95);
+  border-left: 4px solid rgb(245, 158, 11);
+  color: white;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.toast-message {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: white;
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 18px;
+  transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-in-bottom {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out-bottom {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .toast-container {
+    width: calc(100% - 32px);
+  }
+  
+  .toast {
+    min-width: unset;
+    width: 100%;
+    padding: 10px 12px;
+  }
+  
+  .toast-title {
+    font-size: 14px;
+  }
+  
+  .toast-message {
+    font-size: 12px;
+  }
+}
+
+/* Main content area adjustments for sticky header */
+@media (min-width: 1024px) {
+  .flex-1 {
+    margin-left: 260px;
+  }
+  .main-content {
+    margin-left: 260px;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar-collapsed ~ .main-content {
+    margin-left: 70px;
+  }
+}
+
+/* Sticky header styles */
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  transition: all 0.3s ease;
+}
+
+/* Active state for nav links */
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-weight: 500;
+  box-shadow: inset 3px 0 0 #06b6d4;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-left-color: rgba(6, 182, 212, 0.5);
+}
+
+/* Tooltip for icons in collapsed mode */
+.sidebar-collapsed .nav-link:hover::after {
+  content: attr(data-title);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 23, 42, 0.9);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-size: 12px;
+  pointer-events: none;
+  margin-left: 10px;
+  z-index: 50;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+/* Modal styles for consistency */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background-color: rgb(15, 23, 42);
+  border-radius: 0.5rem;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+/* Layout specific adjustments */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-area {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Badge styling */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+/* Import component CSS files */
+@import url('components/icons.css');
+@import url('components/tables.css');
+@import url('components/forms.css');
+
+/* Stats Card Styling */
+.stats-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stats-card-icon i {
+  font-size: 1rem;
+}
+
+/* Variations for different stats cards can be added here */
+.stats-card-icon.blue {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.stats-card-icon.blue i {
+  color: rgb(59, 130, 246);
+}
+
+.stats-card-icon.green {
+  background-color: rgba(16, 185, 129, 0.2);
+}
+
+.stats-card-icon.green i {
+  color: rgb(16, 185, 129);
+}
+
+.stats-card-icon.purple {
+  background-color: rgba(139, 92, 246, 0.2);
+}
+
+.stats-card-icon.purple i {
+  color: rgb(139, 92, 246);
+}
+
+.stats-card-icon.amber {
+  background-color: rgba(245, 158, 11, 0.2);
+}
+
+.stats-card-icon.amber i {
+  color: rgb(245, 158, 11);
+}
+
+.stats-card-icon.red {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.stats-card-icon.red i {
+  color: rgb(239, 68, 68);
+}
+
+/* Responsive styling */
+@media (max-width: 640px) {
+  .stats-card-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .stats-card-icon i {
+    font-size: 0.875rem;
+  }
 }

@@ -2,9 +2,18 @@ package user
 
 // User merepresentasikan pengguna WhatsApp
 type User struct {
-	ID       string
-	Name     string
-	Phone    string
-	PushName string
-	IsBot    bool
+	ID            string
+	Name          string
+	Phone         string
+	PushName      string
+	IsBot         bool
+	DeviceDetails *DeviceDetails
+}
+
+// DeviceDetails berisi informasi detail perangkat yang terhubung
+type DeviceDetails struct {
+	Platform     string // OS/Platform perangkat
+	BusinessName string // Nama bisnis jika akun bisnis
+	DeviceID     string // ID perangkat
+	Connected    string // Waktu terhubung dalam format RFC3339
 }

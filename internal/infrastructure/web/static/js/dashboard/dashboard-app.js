@@ -1,240 +1,138 @@
 /**
- * Main dashboard application logic
+ * Dashboard Application
+ * 
+ * Mengelola data dan logika untuk dashboard Botopia
  */
 
-// Define the Alpine component function globally
-window.dashboardApp = function() {
-    return {
-        connectionState: "disconnected",
-        commandCount: 0,
-        messageCount: 0,
-        commandsRun: 0,
-        uptime: 0,
-        commands: {}, 
-        initialized: false,
-        isRefreshing: false,
-        refreshTimer: null,
-        phone: "",  // Add phone field
-        name: "",   // Add name field
-
-        init() {
-            // Load initial values from HTML data attributes
-            const dashboardEl = document.getElementById('dashboard-app');
-            if (dashboardEl) {
-                this.connectionState = dashboardEl.dataset.connectionState || "disconnected";
-                this.commandCount = parseInt(dashboardEl.dataset.commandCount || "0");
-                this.messageCount = parseInt(dashboardEl.dataset.messageCount || "0");
-                this.commandsRun = parseInt(dashboardEl.dataset.commandsRun || "0");
-                this.phone = dashboardEl.dataset.phone || "";
-                this.name = dashboardEl.dataset.name || "";
-            }
-            
-            // Load commands
-            this.loadCommands();
-            
-            // Start polling for updates
-            this.fetchLatestStats();
-            this.refreshTimer = setInterval(() => this.fetchLatestStats(), 5000);
-            
-            this.initialized = true;
+document.addEventListener('alpine:init', () => {
+    Alpine.data('dashboardApp', () => ({
+        isConnected: false,
+        connectedPhone: '',
+        stats: {
+            messageCount: 0,
+            commandsRun: 0,
+            commandCount: 0,
+            uptime: 0
         },
-        
-        loadCommands() {
-            try {
-                const commandsData = document.getElementById('commands-data');
-                if (!commandsData) {
-                    console.warn("Commands data element not found");
-                    return;
-                }
-                
-                const rawData = commandsData.textContent.trim();
-                if (!rawData) {
-                    console.warn("Commands data is empty");
-                    return;
-                }
-                
-                let parsed;
-                try {
-                    parsed = JSON.parse(rawData);
-                } catch (e) {
-                    console.error("Failed to parse JSON:", e);
-                    return;
-                }
-                
-                // Use helper function for consistent formatting
-                this.commands = getFormattedCommands(parsed);
-                console.log(`Loaded ${Object.keys(this.commands).length} commands:`, 
-                    Object.keys(this.commands));
-            } catch (error) {
-                console.error('Error in loadCommands:', error);
-            }
+        commands: {},
+        loadingCommands: true,
+        pollingInterval: null,
+
+        initialize() {
+            console.log('Initializing dashboard app');
+            // Ambil data statistik dan status koneksi
+            this.fetchStats();
+            
+            // Parse commands data dari element script
+            this.fetchCommands();
+            
+            // Setup polling untuk memperbarui data secara berkala
+            this.pollingInterval = setInterval(() => {
+                this.fetchStats();
+            }, 10000); // Update every 10 seconds
+
+            // Bersihkan interval saat komponen dihapus
+            this.$cleanup = () => {
+                clearInterval(this.pollingInterval);
+            };
         },
 
-        refreshStats() {
-            if (this.isRefreshing) return;
-            
-            this.isRefreshing = true;
-            
-            // Call fetchLatestStats and ensure isRefreshing is reset after completion
-            this.fetchLatestStats(true)
-                .catch(error => console.error("Error during refresh:", error))
-                .finally(() => {
-                    // Reset isRefreshing after a short delay for better UX
-                    setTimeout(() => {
-                        this.isRefreshing = false;
-                    }, 800);
-                });
-        },
-
-        fetchLatestStats(showNotification = false) {
-            // Return the promise so we can chain .finally() to it
-            return fetch('/api/stats')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
+        fetchStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
                 .then(data => {
-                    // Check if connection state changed
-                    const wasConnected = this.connectionState === 'connected';
-                    const isNowConnected = data.connectionState === 'connected';
-                    
-                    // Update data
-                    this.connectionState = data.connectionState;
-                    this.messageCount = data.messageCount;
-                    this.commandsRun = data.commandsRun;
-                    this.uptime = data.uptime;
-                    
-                    // Update contact info
-                    if (data.phone) this.phone = data.phone;
-                    if (data.name) this.name = data.name;
-                    
-                    // Show notification if connection state changed
-                    if (wasConnected !== isNowConnected) {
-                        window.showToast({
-                            title: isNowConnected ? 'Connected' : 'Disconnected',
-                            message: isNowConnected 
-                                ? 'Bot is now connected to WhatsApp' 
-                                : 'Bot has been disconnected from WhatsApp',
-                            type: isNowConnected ? 'success' : 'error'
-                        });
-                    }
-                    
-                    // Optional notification when manually refreshed
-                    if (showNotification) {
-                        window.showToast({
-                            title: 'Stats Updated',
-                            message: 'Dashboard statistics have been refreshed',
-                            type: 'info',
-                            duration: 3000
-                        });
-                    }
+                    console.log('Stats loaded:', data);
+                    this.isConnected = data.isConnected;
+                    this.connectedPhone = data.phone || '';
+                    this.stats = {
+                        messageCount: data.messageCount || 0,
+                        commandsRun: data.commandsRun || 0,
+                        commandCount: data.commandCount || 0,
+                        uptime: data.uptime || 0
+                    };
                 })
                 .catch(error => {
                     console.error('Error fetching stats:', error);
-                    
-                    if (showNotification) {
-                        window.showToast({
-                            title: 'Error',
-                            message: 'Failed to update dashboard statistics',
-                            type: 'error'
-                        });
+                    if (typeof showToast === 'function') {
+                        showToast('error', 'Gagal memuat data statistik');
                     }
-                    
-                    // Re-throw to propagate to caller
-                    throw error;
                 });
         },
 
-        formatDuration(seconds) {
-            if (!seconds) return "Just now";
+        fetchCommands() {
+            this.loadingCommands = true;
+            console.log('Fetching commands data');
             
+            try {
+                // Get commands from embedded JSON data
+                const commandsDataElement = document.getElementById('commands-data');
+                if (commandsDataElement && commandsDataElement.textContent) {
+                    const jsonText = commandsDataElement.textContent.trim();
+                    console.log('Raw commands JSON snippet:', jsonText.substring(0, 100));
+                    
+                    try {
+                        const commandsData = JSON.parse(jsonText);
+                        console.log('Commands parsed successfully');
+                        
+                        if (commandsData && typeof commandsData === 'object' && Object.keys(commandsData).length > 0) {
+                            this.commands = commandsData;
+                            console.log('Commands loaded, count:', Object.keys(this.commands).length);
+                            console.log('First command:', Object.keys(this.commands)[0]);
+                        } else {
+                            console.warn('Commands data is empty or invalid, falling back to API');
+                            this.fetchCommandsFromApi();
+                        }
+                    } catch (parseError) {
+                        console.error('Failed to parse commands JSON:', parseError);
+                        this.fetchCommandsFromApi();
+                    }
+                } else {
+                    console.warn('Commands data element not found or empty');
+                    this.fetchCommandsFromApi();
+                }
+            } catch (error) {
+                console.error('Error in fetchCommands:', error);
+                this.commands = {};
+            } finally {
+                this.loadingCommands = false;
+            }
+        },
+
+        fetchCommandsFromApi() {
+            console.log('Fetching commands from API');
+            // Fallback option: fetch commands from API
+            fetch('/api/commands')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Commands loaded from API:', Object.keys(data).length);
+                    this.commands = data;
+                })
+                .catch(error => {
+                    console.error('Error fetching commands from API:', error);
+                    this.commands = {};
+                })
+                .finally(() => {
+                    this.loadingCommands = false;
+                });
+        },
+
+        formatUptime(seconds) {
+            if (!seconds || seconds <= 0) return 'Tidak aktif';
+            
+            // Konversi detik ke format yang lebih ramah
             const days = Math.floor(seconds / 86400);
-            seconds %= 86400;
-            const hours = Math.floor(seconds / 3600);
-            seconds %= 3600;
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            
-            let result = "";
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
             
             if (days > 0) {
-                result += `${days}d `;
-            }
-            
-            if (hours > 0 || days > 0) {
-                result += `${hours}h `;
-            }
-            
-            if (minutes > 0 || hours > 0 || days > 0) {
-                result += `${minutes}m `;
-            }
-            
-            // Only show seconds if less than 1 hour total duration
-            if ((days === 0 && hours === 0) || remainingSeconds > 0) {
-                result += `${remainingSeconds}s`;
-            }
-            
-            return result.trim();
-        },
-
-        // Helper functions for displaying contact info
-        getDisplayPhone() {
-            return this.phone || "Unknown number";
-        },
-        
-        getDisplayName() {
-            return "WhatsApp User"; // Selalu tampilkan nilai default
-        }
-    };
-};
-
-// Additional function to ensure proper command processing
-function getFormattedCommands(commandsData) {
-    // Ensure data exists
-    if (!commandsData) {
-        return {};
-    }
-    
-    // Log for debugging
-    console.log("Raw commands data:", typeof commandsData, commandsData);
-    
-    // If already an object, return directly
-    if (typeof commandsData === 'object' && commandsData !== null && !Array.isArray(commandsData)) {
-        return commandsData;
-    }
-    
-    // If string, parse JSON
-    if (typeof commandsData === 'string') {
-        try {
-            return JSON.parse(commandsData);
-        } catch (e) {
-            console.error("Failed to parse commands JSON:", e);
-            return {};
-        }
-    }
-    
-    // If array, convert to object
-    if (Array.isArray(commandsData)) {
-        console.warn("Commands data is an array, converting to object");
-        const result = {};
-        commandsData.forEach((cmd, index) => {
-            if (cmd && typeof cmd === 'object' && cmd.name) {
-                result[cmd.name] = cmd;
+                return `${days}d ${hours}h ${minutes}m`;
+            } else if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else if (minutes > 0) {
+                return `${minutes}m`;
             } else {
-                result[`command-${index}`] = cmd;
+                return `${seconds}s`;
             }
-        });
-        return result;
-    }
-    
-    // Fallback
-    console.error("Unexpected command data format:", commandsData);
-    return {};
-}
-
-// Report script loaded
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Dashboard app script loaded");
+        }
+    }));
 });

@@ -89,19 +89,47 @@ func (c *QRController) HandleGetQR(ctx *fiber.Ctx) error {
 	// Get connection status
 	isConnected := c.connectWhatsAppUseCase.IsConnected()
 
-	// Get phone number if connected
-	var phone string
-	if isConnected {
-		// In a real implementation, we would get this from the use case
-		phone = ""
-	}
-
-	return ctx.JSON(fiber.Map{
+	// Inisialisasi response
+	response := fiber.Map{
 		"qrCode":          qrCode,
 		"connectionState": isConnected,
-		"phone":           phone,
-		"name":            "WhatsApp User",
-	})
+	}
+
+	// Get phone number and device info if connected
+	if isConnected {
+		// Get detailed user info
+		userInfo, err := c.connectWhatsAppUseCase.GetCurrentUser()
+		if err != nil {
+			c.log.Warn("Error getting user info: %v", err)
+		}
+
+		if userInfo != nil {
+			response["phone"] = userInfo.Phone
+			response["name"] = userInfo.Name
+			if userInfo.Name == "" {
+				response["name"] = "WhatsApp User"
+			}
+
+			// Add device details if available
+			if userInfo.DeviceDetails != nil {
+				response["deviceInfo"] = userInfo.DeviceDetails
+				response["platform"] = userInfo.DeviceDetails.Platform
+				response["deviceID"] = userInfo.DeviceDetails.DeviceID
+				response["connectedSince"] = userInfo.DeviceDetails.Connected
+				response["clientIP"] = ctx.IP()
+
+				if userInfo.DeviceDetails.BusinessName != "" {
+					response["businessName"] = userInfo.DeviceDetails.BusinessName
+				}
+			}
+		} else {
+			response["phone"] = ""
+			response["name"] = "WhatsApp User"
+			response["clientIP"] = ctx.IP()
+		}
+	}
+
+	return ctx.JSON(response)
 }
 
 // UpdateQRCode memperbarui kode QR tersimpan
@@ -122,4 +150,28 @@ func (c *QRController) UpdateQRCode(code string) {
 
 	c.qrCode = code
 	c.log.Info("Updated QR code (length: %d characters)", len(code))
+}
+
+// HandleDisconnect menangani API untuk memutuskan koneksi
+func (c *QRController) HandleDisconnect(ctx *fiber.Ctx) error {
+	c.log.Info("Memutuskan koneksi WhatsApp via API")
+
+	err := c.connectWhatsAppUseCase.Disconnect()
+	if err != nil {
+		c.log.Error("Gagal memutuskan koneksi: %v", err)
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	// Reset QR code
+	c.qrMutex.Lock()
+	c.qrCode = ""
+	c.qrMutex.Unlock()
+
+	return ctx.JSON(fiber.Map{
+		"success": true,
+		"message": "Koneksi berhasil diputuskan",
+	})
 }

@@ -1,6 +1,8 @@
 package web
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -51,15 +53,37 @@ func (c *DashboardController) HandleDashboard(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// Render dashboard
+	// Debugging: cetak commands untuk melihat strukturnya
+	for name, cmd := range commands {
+		fmt.Printf("Command: %s, Description: %s\n", name, cmd.Description)
+	}
+
+	// Serialize commands dengan format yang pasti cocok dengan yang diperlukan oleh Alpine.js
+	commandMap := make(map[string]map[string]interface{})
+	for name, cmd := range commands {
+		commandMap[name] = map[string]interface{}{
+			"description": cmd.Description,
+			"name":        name,
+		}
+	}
+
+	commandsJSON, err := json.Marshal(commandMap)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to serialize commands: " + err.Error(),
+		})
+	}
+
+	// Render dashboard dengan data yang lengkap
 	return ctx.Render("pages/dashboard", fiber.Map{
 		"Title":           "Dashboard | Botopia",
 		"Page":            "dashboard",
 		"ConnectionState": stats.ConnectionState,
+		"IsConnected":     stats.IsConnected,
 		"CommandCount":    stats.CommandCount,
 		"MessageCount":    stats.MessageCount,
 		"CommandsRun":     stats.CommandsRun,
-		"Commands":        commands,
+		"CommandsJSON":    string(commandsJSON),
 		"Phone":           stats.Phone,
 		"Name":            stats.Name,
 	}, "layouts/main")
@@ -77,4 +101,18 @@ func (c *DashboardController) HandleGetStats(ctx *fiber.Ctx) error {
 
 	// Return JSON
 	return ctx.JSON(stats)
+}
+
+// HandleGetCommands menangani API untuk mendapatkan daftar command
+func (c *DashboardController) HandleGetCommands(ctx *fiber.Ctx) error {
+	// Dapatkan command
+	commands, err := c.listCommandsUseCase.Execute(ctx.Context())
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to list commands: " + err.Error(),
+		})
+	}
+
+	// Return JSON
+	return ctx.JSON(commands)
 }

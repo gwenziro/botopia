@@ -34,4 +34,7 @@ type FinanceRepository interface {
 
 	// UpdateRecordProof memperbarui URL bukti transaksi
 	UpdateRecordProof(ctx context.Context, code string, proofURL string) error
+
+	// UpdateConfiguration memperbarui konfigurasi
+	UpdateConfiguration(ctx context.Context, config *finance.Configuration) error
 }

@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize mobile menu toggle functionality
     const mobileMenuBtn = document.getElementById('mobile-menu-button');
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.querySelector('.main-content');
-
+    
     if (mobileMenuBtn && sidebar) {
         mobileMenuBtn.addEventListener('click', function() {
             if (sidebar.classList.contains('-translate-x-full')) {
@@ -39,27 +38,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', function(event) {
-        if (
-            sidebar && 
-            window.innerWidth < 1024 && 
-            !sidebar.contains(event.target) && 
-            !mobileMenuBtn.contains(event.target) &&
-            !sidebar.classList.contains('-translate-x-full')
-        ) {
-            closeSidebar();
-        }
-    });
-    
     // Initialize current page in navigation
     highlightCurrentPage();
     
-    // Add scroll event listener for subtle header effects
+    // Add scroll event listener for header effects
     const header = document.querySelector('.header');
-    if (header && mainContent) {
-        mainContent.addEventListener('scroll', function() {
-            if (mainContent.scrollTop > 10) {
+    const mainNav = document.getElementById('main-nav');
+    
+    if (header) {
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 10) {
                 header.classList.add('shadow-md');
                 header.style.backgroundColor = 'rgba(15, 23, 42, 0.8)';
             } else {
@@ -68,25 +56,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Sticky navigation for homepage
+    if (mainNav) {
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                mainNav.classList.add('scrolled');
+            } else {
+                mainNav.classList.remove('scrolled');
+            }
+        });
+    }
 });
 
 function highlightCurrentPage() {
-    // Get current page from URL path
+    // Get current page path
     const path = window.location.pathname;
     
     // Find all nav links
-    const navLinks = document.querySelectorAll('#nav-links a');
+    const navLinks = document.querySelectorAll('#sidebar .nav-link');
     
+    // Remove active class from all links
     navLinks.forEach(link => {
-        // Remove active class from all links
-        link.classList.remove('bg-primary-600', 'active');
+        link.classList.remove('active');
         
         // Add active class to current page link
-        if (
-            (path === '/' && link.getAttribute('href') === '/dashboard') ||
-            (link.getAttribute('href') === path)
-        ) {
-            link.classList.add('bg-primary-600', 'active');
+        const href = link.getAttribute('href');
+        if (href === path || 
+            (path === '/' && href === '/dashboard') ||
+            (href !== '/' && path.startsWith(href))) {
+            link.classList.add('active');
         }
     });
 }

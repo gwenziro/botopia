@@ -52,10 +52,12 @@ type Container struct {
 	financeService *googleService.FinanceService
 
 	// Controllers
-	dashboardController *web.DashboardController
-	qrController        *web.QRController
-	authController      *web.AuthController
-	messageController   *whatsappController.MessageController
+	dashboardController  *web.DashboardController
+	qrController         *web.QRController
+	authController       *web.AuthController
+	messageController    *whatsappController.MessageController
+	configController     *web.ConfigController
+	dataMasterController *web.DataMasterController
 
 	// Command initializer
 	commandInitializer *command.CommandInitializer
@@ -119,8 +121,8 @@ func (c *Container) initRepositories() {
 
 	// Inisialisasi repositories
 	c.commandRepository = memory.NewCommandRepository()
-	c.connectionRepository = whatsmeowRepo.NewConnectionRepository(client, c.log)
 	c.statsRepository = memory.NewStatsRepository()
+	c.connectionRepository = whatsmeowRepo.NewConnectionRepository(client, c.log, c.statsRepository)
 
 	// Inisialisasi Google API Repository
 	c.googleAPIRepository = googleRepo.NewGoogleAPIRepository(c.config, c.log)
@@ -188,6 +190,11 @@ func (c *Container) initControllers() {
 		c.statsRepository,
 	)
 
+	c.configController = web.NewConfigController(c.config)
+
+	// Data Master controller
+	c.dataMasterController = web.NewDataMasterController(c.financeService)
+
 	c.log.Info("Controllers berhasil diinisialisasi")
 }
 
@@ -249,6 +256,16 @@ func (c *Container) GetAuthController() *web.AuthController {
 // GetMessageController mengembalikan controller pesan
 func (c *Container) GetMessageController() *whatsappController.MessageController {
 	return c.messageController
+}
+
+// GetConfigController mengembalikan controller konfigurasi
+func (c *Container) GetConfigController() *web.ConfigController {
+	return c.configController
+}
+
+// GetDataMasterController mengembalikan controller data master
+func (c *Container) GetDataMasterController() *web.DataMasterController {
+	return c.dataMasterController
 }
 
 // GetConfig mengembalikan konfigurasi

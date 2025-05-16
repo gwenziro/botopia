@@ -179,6 +179,51 @@ func (s *FinanceService) updateRecordProof(ctx context.Context, record *finance.
 	return record, nil
 }
 
+// UpdateConfiguration memperbarui konfigurasi keuangan
+func (s *FinanceService) UpdateConfiguration(ctx context.Context, config *finance.Configuration) error {
+	s.log.Info("Memperbarui konfigurasi keuangan...")
+
+	// Validasi konfigurasi
+	if config == nil {
+		return fmt.Errorf("konfigurasi tidak boleh kosong")
+	}
+
+	// Validasi bahwa slice tidak nil
+	if config.ExpenseCategories == nil {
+		config.ExpenseCategories = []string{}
+	}
+	if config.IncomeCategories == nil {
+		config.IncomeCategories = []string{}
+	}
+	if config.PaymentMethods == nil {
+		config.PaymentMethods = []string{}
+	}
+	if config.StorageMedias == nil {
+		config.StorageMedias = []string{}
+	}
+
+	// Dalam implementasi sebenarnya, kita perlu menyimpan konfigurasi ke penyimpanan data
+	// Untuk sekarang, kita hanya update cache lokal
+	s.config = config
+	s.configErr = nil
+
+	s.log.Info("Konfigurasi keuangan berhasil diperbarui")
+	s.log.Info("- %d kategori pemasukan", len(config.IncomeCategories))
+	s.log.Info("- %d kategori pengeluaran", len(config.ExpenseCategories))
+	s.log.Info("- %d media penyimpanan", len(config.StorageMedias))
+	s.log.Info("- %d metode pembayaran", len(config.PaymentMethods))
+
+	// Untuk implementasi nyata, kita perlu menyimpan ke repository
+	// Misalnya:
+	// err := s.sheetsRepo.UpdateConfiguration(ctx, config)
+	// if err != nil {
+	//     s.log.Error("Gagal menyimpan konfigurasi: %v", err)
+	//     return err
+	// }
+
+	return nil
+}
+
 // GetLogger mengembalikan logger service
 func (s *FinanceService) GetLogger() *logger.Logger {
 	return s.log

@@ -18,8 +18,10 @@ type StatsRepository interface {
 // BotStats berisi statistik bot
 type BotStats struct {
 	ConnectionState string
+	IsConnected     bool
 	MessageCount    int
 	CommandsRun     int
 	Uptime          int64
+	SystemUptime    int64
 	ConnectedSince  int64
 }

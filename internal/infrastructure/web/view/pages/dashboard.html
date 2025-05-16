@@ -1,150 +1,198 @@
-<div id="dashboard-app" 
-     x-data="dashboardApp()"
-     x-init="init()"
-     data-connection-state="{{.ConnectionState}}"
-     data-command-count="{{.CommandCount}}"
-     data-message-count="{{.MessageCount}}"
-     data-commands-run="{{.CommandsRun}}"
-     data-phone="{{.Phone}}"
-     data-name="{{.Name}}"
-     class="animate-fadeIn pb-24">
-    
+<div id="dashboard-app" x-data="dashboardApp" x-init="initialize()" data-connection-state="{{.ConnectionState}}"
+    data-command-count="{{.CommandCount}}" data-message-count="{{.MessageCount}}" data-commands-run="{{.CommandsRun}}"
+    data-phone="{{.Phone}}" data-name="{{.Name}}" class="animate-fadeIn pb-24">
+
     <div class="content-wrapper">
-        <div class="mb-8 flex flex-wrap justify-between items-center">
-            <h1 class="text-2xl font-semibold text-white mb-4 sm:mb-0">Dashboard Overview</h1>
-            <button @click="refreshStats" class="btn-action-primary" :disabled="isRefreshing">
-                <span class="flex items-center">
-                    <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': isRefreshing}"></i>
-                    <span>Refresh</span>
-                </span>
+        <!-- Di bagian header utama dashboard -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Dashboard</h1>
+
+            <button @click="refreshStats()" class="refresh-btn" :disabled="isLoading">
+                <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': isLoading}"></i>
+                <span x-text="isRefreshing ? 'Memperbarui...' : 'Perbarui Data'"></span>
             </button>
+
+
         </div>
-        
-        <!-- Tampilkan alert jika tidak terhubung -->
-        <div x-show="connectionState !== 'connected'" class="animate-slideInUp">
-            {{if ne .ConnectionState "connected"}}
-            {{template "components/alert" dict "Type" "warning" "Message" "Bot tidak terhubung ke WhatsApp. Silakan scan QR code di halaman QR."}}
-            {{end}}
-        </div>
-        
-        <!-- Connected Account Info (only shown when connected) -->
-        <div x-show="connectionState === 'connected'" class="glass border border-slate-700/30 rounded-xl p-5 mb-8 animate-slideInUp">
-            <div class="flex items-center justify-between flex-wrap">
-                <div class="flex items-center mb-2 sm:mb-0">
-                    <div class="w-12 h-12 rounded-lg bg-primary-500/20 text-primary-400 flex items-center justify-center mr-4">
-                        <i class="fas fa-user text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium text-white">Connected WhatsApp</h3>
-                        <p class="text-slate-400" x-text="getDisplayPhone()"></p>
-                    </div>
+
+        <!-- Connection Status Alert -->
+        <div class="mb-6" x-show="!isConnected">
+            <div class="bg-yellow-900/60 text-yellow-100 p-4 rounded-lg border border-yellow-800 flex items-start">
+                <div class="text-yellow-500 mr-3">
+                    <i class="fas fa-exclamation-triangle text-xl"></i>
                 </div>
-                
-                <div class="flex items-center">
-                    <div x-data="{ status: connectionState }">
-                        {{template "components/connection-status-badge" .}}
-                    </div>
-                    <a href="/qr" class="btn-action-secondary ml-4 py-2 px-3 text-sm">
-                        <i class="fas fa-qrcode mr-2"></i>
-                        <span>Manage Connection</span>
-                    </a>
+                <div>
+                    <h3 class="font-semibold text-yellow-200">WhatsApp Belum Terhubung</h3>
+                    <p class="text-yellow-100/80 text-sm mt-1">
+                        Botopia belum terhubung dengan WhatsApp.
+                        <a href="/qr" class="text-primary-300 underline">Pindai kode QR</a>
+                        untuk menghubungkan WhatsApp Web.
+                    </p>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Connected Success Alert -->
+        <div class="mb-6" x-show="isConnected" x-cloak>
+            <div class="bg-green-900/60 text-green-100 p-4 rounded-lg border border-green-800 flex items-start">
+                <div class="text-green-500 mr-3">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-green-200">WhatsApp Terhubung</h3>
+                    <p class="text-green-100/80 text-sm mt-1">
+                        Botopia telah terhubung dengan WhatsApp dan siap digunakan.
+                        <span x-text="connectedPhone ? `Nomor terhubung: ${connectedPhone}` : ''"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Connection Status Card -->
-            {{template "components/status-card" dict 
-                "StatusValue" "connectionState" 
-                "SuccessValue" "connected" 
-                "SuccessIcon" "fa-plug" 
-                "FailureIcon" "fa-plug-circle-xmark" 
-                "SuccessText" "Active" 
-                "FailureText" "Offline" 
-                "Label" "WhatsApp Status" 
-                "SubtextExpression" "connectionState === 'connected' ? 'Connected for ' + formatDuration(uptime) : 'Disconnected'"
-                "Delay" "0"
-            }}
-
-            <!-- Commands Card -->
-            <div class="glass border border-slate-700/30 rounded-xl overflow-hidden animate-slideInUp" style="animation-delay: 100ms;">
-                <div class="px-6 py-5">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-lg bg-primary-500/20 text-primary-400 flex items-center justify-center">
-                            <i class="fas fa-terminal"></i>
-                        </div>
-                        <div class="mx-5">
-                            <h4 class="text-2xl font-semibold text-white" x-text="commandCount"></h4>
-                            <div class="text-slate-400">Total Commands</div>
-                        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Connection Status -->
+            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
+                <div class="flex justify-between items-start">
+                    <div class="overflow-hidden max-w-[70%]">
+                        <p class="text-slate-400 text-sm">Status Koneksi</p>
+                        <h3 class="text-2xl font-semibold mt-1"
+                            :class="isConnected ? 'text-green-400' : 'text-red-400'">
+                            <span x-text="isConnected ? 'Terhubung' : 'Terputus'"></span>
+                        </h3>
+                        <p x-show="isConnected" class="text-sm mt-1 text-slate-400 truncate">
+                            <span x-text="connectedPhone || 'WhatsApp'" class="truncate"></span>
+                        </p>
+                    </div>
+                    <div class="stats-card-icon" :class="isConnected ? 'bg-green-400/10' : 'bg-red-400/10'">
+                        <i class="fas" :class="isConnected ? 'fa-link text-green-400' : 'fa-unlink text-red-400'"></i>
                     </div>
                 </div>
-                <div class="px-6 py-3 bg-slate-800/50 border-t border-slate-700/30 text-center text-slate-300">
-                    <span>Available Commands</span>
-                </div>
+                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full"
+                    :class="isConnected ? 'bg-green-500/5' : 'bg-red-500/5'"></div>
             </div>
 
-            <!-- Messages Card -->
-            <div class="glass border border-slate-700/30 rounded-xl overflow-hidden animate-slideInUp" style="animation-delay: 200ms;">
-                <div class="px-6 py-5">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-lg bg-yellow-500/20 text-yellow-400 flex items-center justify-center">
-                            <i class="fas fa-message"></i>
-                        </div>
-                        <div class="mx-5">
-                            <h4 class="text-2xl font-semibold text-white" x-text="messageCount"></h4>
-                            <div class="text-slate-400">Messages Received</div>
-                        </div>
+            <!-- Message Count -->
+            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
+                <div class="flex justify-between items-start">
+                    <div class="overflow-hidden max-w-[70%]">
+                        <p class="text-slate-400 text-sm">Pesan Diterima</p>
+                        <h3 class="text-2xl font-semibold mt-1 text-white truncate">
+                            <span x-text="stats.messageCount">0</span>
+                        </h3>
+                        <p class="text-sm mt-1 text-slate-400 truncate">Total pesan</p>
+                    </div>
+                    <div class="stats-card-icon bg-blue-400/10">
+                        <i class="fas fa-envelope text-blue-400"></i>
                     </div>
                 </div>
-                <div class="px-6 py-3 bg-slate-800/50 border-t border-slate-700/30 text-center text-slate-300">
-                    <span>Since Bot Started</span>
+                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-blue-500/5"></div>
+            </div>
+
+            <!-- Commands Run -->
+            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
+                <div class="flex justify-between items-start">
+                    <div class="overflow-hidden max-w-[70%]">
+                        <p class="text-slate-400 text-sm">Commands Dijalankan</p>
+                        <h3 class="text-2xl font-semibold mt-1 text-white truncate">
+                            <span x-text="stats.commandsRun">0</span>
+                        </h3>
+                        <p class="text-sm mt-1 text-slate-400 truncate">Total eksekusi</p>
+                    </div>
+                    <div class="stats-card-icon bg-purple-400/10">
+                        <i class="fas fa-terminal text-purple-400"></i>
+                    </div>
                 </div>
+                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-purple-500/5"></div>
+            </div>
+
+            <!-- Uptime -->
+            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
+                <div class="flex justify-between items-start">
+                    <div class="overflow-hidden max-w-[70%]">
+                        <p class="text-slate-400 text-sm">Uptime</p>
+                        <h3 class="text-2xl font-semibold mt-1 text-white truncate">
+                            <span x-text="formatUptime(stats.uptime)">-</span>
+                        </h3>
+                        <p class="text-sm mt-1 text-slate-400 truncate">Waktu aktif</p>
+                    </div>
+                    <div class="stats-card-icon bg-primary-400/10">
+                        <i class="fas fa-clock text-primary-400"></i>
+                    </div>
+                </div>
+                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-primary-500/5"></div>
             </div>
         </div>
 
-        <!-- Command List -->
-        <div class="glass border border-slate-700/30 rounded-xl animate-slideInUp" style="animation-delay: 300ms;">
-            <div class="card-header">
-                <h2 class="text-xl font-semibold text-white">Command List</h2>
-                <span class="text-sm bg-primary-500/20 text-primary-300 px-2 py-1 rounded">
-                    <i class="fas fa-terminal mr-1"></i>
-                    <span x-text="commandCount"></span> Commands
+        <!-- Commands Section -->
+        <div class="mt-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-white">Daftar Command</h2>
+                <span class="badge glass px-3 py-1 text-xs rounded-full text-primary-300 border border-primary-800/50">
+                    <i class="fas fa-terminal mr-1"></i> <span x-text="Object.keys(commands).length">0</span> Commands
                 </span>
             </div>
-            <div class="p-4 overflow-x-auto">
-                <table class="min-w-full table">
-                    <thead>
-                        <tr>
-                            <th class="rounded-l-lg w-1/4">Command</th>
-                            <th class="rounded-r-lg">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody id="commands-list">
-                        <template x-for="(cmd, name) in commands" :key="name">
-                            <tr class="hover:bg-white/5">
-                                <td class="border-b border-slate-700/30">
-                                    <code class="bg-slate-700/30 text-primary-300 px-2 py-1 rounded font-mono"
-                                          x-text="'!' + name"></code>
-                                </td>
-                                <td class="border-b border-slate-700/30 text-slate-300" 
-                                    x-text="cmd.Description || 'No description available'"></td>
+
+            <!-- Commands List -->
+            <div class="glass rounded-lg p-6 border border-slate-700/30">
+                <div x-show="loadingCommands" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-3xl mb-3 text-primary-400"></i>
+                    <p class="text-gray-400">Memuat daftar command...</p>
+                </div>
+
+                <div x-show="!loadingCommands && Object.keys(commands).length === 0"
+                    class="text-center py-8 text-gray-400">
+                    <i class="fas fa-terminal text-3xl mb-3"></i>
+                    <p>Belum ada command yang terdaftar.</p>
+                </div>
+
+                <div x-show="!loadingCommands && Object.keys(commands).length > 0" class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-slate-700/30">
+                                <th class="py-3 pl-6 pr-6 text-sm font-medium text-slate-300">Command</th>
+                                <th class="py-3 px-3 text-sm font-medium text-slate-300">Deskripsi</th>
                             </tr>
-                        </template>
-                        <!-- Fallback for empty command list -->
-                        <tr x-show="Object.keys(commands).length === 0">
-                            <td colspan="2" class="text-center p-4 text-slate-400">
-                                No commands available
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <template x-for="(command, cmdName) in commands" :key="cmdName">
+                                <tr class="border-b border-slate-700/30 hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-3 pl-4 pr-3">
+                                        <code class="text-primary-300 bg-primary-900/20 px-2 py-1 rounded">
+                                            <span class="text-white">!</span><span x-text="cmdName"></span>
+                                        </code>
+                                    </td>
+                                    <td class="py-3 px-3 text-slate-300">
+                                        <span x-text="command.description || 'Tidak ada deskripsi'"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Command Usage Info -->
+                <div class="mt-6 bg-slate-800/50 rounded p-4 text-slate-300 text-sm">
+                    <h3 class="font-semibold text-primary-300 mb-2">
+                        <i class="fas fa-info-circle mr-1"></i> Cara Menggunakan Command
+                    </h3>
+                    <p class="mb-2">
+                        Kirim pesan ke bot WhatsApp dengan format: <code
+                            class="bg-slate-700/70 px-1 py-0.5 rounded">!nama_command parameter</code>
+                    </p>
+                    <p>
+                        Contoh: <code class="bg-slate-700/70 px-1 py-0.5 rounded">!keluar</code> untuk mencatat
+                        pengeluaran baru
+                        atau <code class="bg-slate-700/70 px-1 py-0.5 rounded">!masuk</code> untuk mencatat pemasukan.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-    
-    <script type="application/json" id="commands-data">
-        {{json .Commands}}
+
+    <!-- Hidden script element to store command data with CDATA protection -->
+    <script id="commands-data" type="application/json">
+    /*<![CDATA[*/
+    {{.CommandsJSON}}
+    /*]]>*/
     </script>
 </div>

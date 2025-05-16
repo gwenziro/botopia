@@ -1,0 +1,53 @@
+<!-- Data Master Table Component -->
+<div class="data-master-table">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-medium text-white">{{.Title}}</h2>
+        <button @click="openAddModal('{{.Type}}')" 
+                class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-2">
+            <i class="fas fa-plus"></i> Tambah
+        </button>
+    </div>
+    
+    <!-- Data Table -->
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="pl-4">Nama</th>
+                    <th class="text-right w-32">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-if="!getItems('{{.Type}}').length">
+                    <tr>
+                        <td colspan="2" class="text-center py-6 text-slate-400">
+                            <i class="fas fa-database text-slate-500 text-3xl mb-3 block opacity-30"></i>
+                            <p>Belum ada data {{.Title}} yang tersedia.</p>
+                            <button @click="openAddModal('{{.Type}}')" 
+                                    class="mt-3 text-primary-400 hover:text-primary-300 underline text-sm">
+                                Tambah {{.Title}}
+                            </button>
+                        </td>
+                    </tr>
+                </template>
+                <template x-for="(item, index) in getItems('{{.Type}}')" :key="index">
+                    <tr class="hover:bg-slate-800/30 transition-colors">
+                        <td class="pl-4 py-3" x-text="item"></td>
+                        <td class="py-3 px-3 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button @click="openEditModal('{{.Type}}', item)" 
+                                        class="text-primary-400 hover:text-primary-300 p-1">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button @click="openDeleteModal('{{.Type}}', item)" 
+                                        class="text-red-400 hover:text-red-300 p-1">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>

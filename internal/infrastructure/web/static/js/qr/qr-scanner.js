@@ -1,187 +1,308 @@
 /**
- * QR Code page functionality
- * Digunakan oleh halaman QR untuk menampilkan dan memperbarui kode QR
+ * QR Scanner Module for Botopia
+ * 
+ * Handles QR code generation, display and connection management
  */
 
-// Define the Alpine component function globally
-window.qrPage = function() {
-    return {
-        qrCode: '',
-        connectionState: 'disconnected',
-        loading: false,
-        refreshing: false,
-        pollingInterval: null,
-        lastQrCode: '',
-        qrRetryCount: 0,
-        phone: '', // Phone number of connected account
-        name: '',  // Name of connected account
-        
-        init() {
-            console.log("QR Page initialized");
-            
-            // Get initial values from data attributes
-            const qrApp = document.getElementById('qr-app');
-            if (qrApp) {
-                this.connectionState = qrApp.dataset.connectionState || 'disconnected';
-                this.qrCode = qrApp.dataset.qrCode || '';
-                this.lastQrCode = this.qrCode;
-                this.phone = qrApp.dataset.phone || '';
-                this.name = qrApp.dataset.name || '';
-                
-                console.log("Initial QR data loaded:", { 
-                    hasQR: !!this.qrCode, 
-                    state: this.connectionState,
-                    phone: this.phone,
-                    name: this.name
-                });
-            }
-            
-            // Start polling for QR code updates
-            this.startPolling();
-        },
-        
-        startPolling() {
-            // Fetch immediately on first load
-            this.fetchQRCode();
-            
-            // Then poll every 10 seconds
-            this.pollingInterval = setInterval(() => {
-                this.fetchQRCode();
-            }, 10000);
-            
-            console.log("QR polling started");
-        },
-        
-        stopPolling() {
-            if (this.pollingInterval) {
-                clearInterval(this.pollingInterval);
-                this.pollingInterval = null;
-                console.log("QR polling stopped");
-            }
-        },
-        
-        fetchQRCode() {
-            // Don't fetch if we're already refreshing
-            if (this.refreshing) return;
-            
-            this.loading = true;
-            this.refreshing = true;
-            
-            fetch('/api/qr')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response error');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Track connection state changes
-                    const wasConnected = this.connectionState === 'connected';
-                    const isNowConnected = data.connectionState === true;
-                    
-                    console.log("QR API response:", { 
-                        hasQRCode: !!data.qrCode, 
-                        connectionState: data.connectionState,
-                        phone: data.phone,
-                        name: data.name
-                    });
-                    
-                    // Only update QR code if we receive a non-empty one
-                    if (data.qrCode) {
-                        // Check if this is a new QR code
-                        const isNewQr = this.lastQrCode !== data.qrCode;
-                        this.qrCode = data.qrCode;
-                        
-                        // If it's a new QR code, show notification and reset retry count
-                        if (isNewQr) {
-                            this.lastQrCode = data.qrCode;
-                            this.qrRetryCount = 0;
-                            
-                            window.showToast({
-                                title: 'New QR Code',
-                                message: 'A new QR code is available for scanning',
-                                type: 'info',
-                                duration: 5000
-                            });
-                        }
-                    } else {
-                        // If no QR code but we're disconnected, increment retry count
-                        if (!isNowConnected && this.qrRetryCount < 3) {
-                            this.qrRetryCount++;
-                            console.log(`No QR code received, retry ${this.qrRetryCount}/3`);
-                        }
-                    }
-                    
-                    // Update contact information if available
-                    if (data.phone) this.phone = data.phone;
-                    if (data.name) this.name = data.name;
-                    
-                    // Update connection state
-                    this.connectionState = isNowConnected ? 'connected' : 'disconnected';
-                    
-                    // If connection state changed, show notification
-                    if (wasConnected !== isNowConnected) {
-                        window.showToast({
-                            title: isNowConnected ? 'Connected!' : 'Disconnected',
-                            message: isNowConnected 
-                                ? 'Successfully connected to WhatsApp'
-                                : 'Connection to WhatsApp has been lost',
-                            type: isNowConnected ? 'success' : 'error',
-                            duration: 5000
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching QR code:', error);
-                    window.showToast({
-                        title: 'Error',
-                        message: 'Failed to fetch QR code from server',
-                        type: 'error'
-                    });
-                })
-                .finally(() => {
-                    this.loading = false;
-                    setTimeout(() => {
-                        this.refreshing = false;
-                    }, 1000);
-                });
-        },
-        
-        refreshQR() {
-            if (this.refreshing) return;
-            this.fetchQRCode();
-            
-            // Show a notification that we're refreshing
-            window.showToast({
-                title: 'Refreshing QR Code',
-                message: 'Fetching a fresh QR code from the server',
-                type: 'info',
-                duration: 3000
-            });
-        },
-        
-        getQRImageUrl() {
-            if (!this.qrCode) return '';
-            return `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(this.qrCode)}&size=300x300`;
-        },
+document.addEventListener('alpine:init', () => {
+  Alpine.data('qrHandler', () => ({
+    qrCode: '',
+    isConnected: false,
+    isRefreshing: false,
+    connectionStatus: 'Terputus',
+    statusTitle: 'Koneksi WhatsApp',
+    statusMessage: 'Menunggu koneksi...',
+    connectedPhone: '',
+    deviceName: '',
+    platform: '',
+    businessName: '',
+    deviceID: '',
+    connectedSince: '',
+    formattedConnectedTime: '',
+    errorMessage: '',
+    pollInterval: null,
+    
+    // Computed properties for UI
+    get connectionClass() {
+      if (this.isConnected) return 'connected';
+      if (this.isRefreshing) return 'loading';
+      return 'disconnected';
+    },
+    
+    get connectionIcon() {
+      if (this.isConnected) return 'fa-check';
+      if (this.isRefreshing) return 'fa-spinner fa-spin';
+      return 'fa-times';
+    },
+    
+    get connectionBadgeClass() {
+      if (this.isConnected) return 'connected';
+      if (this.isRefreshing) return 'loading';
+      return 'disconnected';
+    },
+    
+    get displayName() {
+      if (this.businessName) {
+        return this.businessName;
+      }
+      return this.deviceName || 'WhatsApp User';
+    },
 
-        // Ensure a safe display for phone value
-        getDisplayPhone() {
-            if (!this.phone || this.phone === "") {
-                return "Unknown number";
-            }
-            return this.phone;
-        },
-
-        // Tetap tampilkan nama default
-        getDisplayName() {
-            return "WhatsApp User";
+    get deviceDescription() {
+      let parts = [];
+      if (this.platform) parts.push(this.platform);
+      if (this.deviceID) parts.push(`ID: ${this.deviceID}`);
+      return parts.join(' • ');
+    },
+    
+    // Initialize QR handling
+    initQR() {
+      console.log('Initializing QR handler');
+      this.fetchQRStatus();
+      
+      // Set up polling
+      this.pollInterval = setInterval(() => {
+        this.fetchQRStatus();
+      }, 5000);
+      
+      // Clean up on page leave
+      window.addEventListener('beforeunload', () => {
+        if (this.pollInterval) {
+          clearInterval(this.pollInterval);
         }
-    };
-};
+      });
+    },
+    
+    // Fetch QR code and connection status
+    fetchQRStatus() {
+      fetch('/api/qr')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('QR status fetched:', data);
+          
+          // Update connection state
+          this.isConnected = data.connectionState;
+          
+          // Update connection info
+          if (this.isConnected) {
+            this.connectionStatus = 'Terhubung';
+            this.statusTitle = 'WhatsApp Terhubung';
+            this.connectedPhone = data.phone || '';
+            
+            // Olah data perangkat dengan lebih baik
+            this.deviceName = data.name || 'WhatsApp User';
+            
+            // Determine best platform display name
+            if (data.deviceInfo && data.deviceInfo.platform) {
+              this.platform = data.deviceInfo.platform;
+            } else if (data.platform) {
+              this.platform = data.platform;
+            } else {
+              // Fallback platform info with client detection
+              const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+              const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+              
+              if (isMobile && !isTablet) {
+                this.platform = 'WhatsApp Mobile';
+              } else if (isTablet) {
+                this.platform = 'WhatsApp Tablet';
+              } else {
+                this.platform = 'WhatsApp Web';
+              }
+            }
+            
+            this.businessName = data.businessName || '';
+            this.deviceID = data.deviceID || '';
 
-// Make sure the component gets initialized when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Add debugging message to help diagnose issues
-    console.log("QR Scanner script loaded");
+            // Format the connected time if available
+            if (data.connectedSince) {
+              this.connectedSince = data.connectedSince;
+              this.formattedConnectedTime = this.formatConnectedTime(data.connectedSince);
+            } else {
+              // Jika tidak ada connectedSince dari server, gunakan waktu lokal
+              if (!this.formattedConnectedTime) {
+                this.formattedConnectedTime = this.formatTimestamp();
+              }
+            }
+
+            // Create message with phone number if available
+            if (this.connectedPhone) {
+              this.statusMessage = `Terhubung ke ${this.connectedPhone}`;
+            } else {
+              this.statusMessage = 'WhatsApp terhubung';
+            }
+          } else {
+            this.connectionStatus = 'Terputus';
+            this.statusTitle = 'WhatsApp Terputus';
+            this.statusMessage = 'Scan QR code untuk menghubungkan';
+            this.connectedPhone = '';
+            this.deviceName = '';
+            this.platform = '';
+            this.businessName = '';
+            this.deviceID = '';
+            this.connectedSince = '';
+            this.formattedConnectedTime = '';
+          }
+          
+          // Handle QR code
+          if (data.qrCode && !this.isConnected) {
+            if (this.qrCode !== data.qrCode) {
+              this.qrCode = data.qrCode;
+              this.renderQRCode();
+            }
+          } else {
+            this.qrCode = '';
+          }
+          
+          this.isRefreshing = false;
+          this.errorMessage = '';
+        })
+        .catch(error => {
+          console.error('Error fetching QR status:', error);
+          this.errorMessage = 'Gagal memuat QR code: ' + error.message;
+          this.isRefreshing = false;
+        });
+    },
+    
+    // Manually request new QR code
+    refreshQR() {
+      if (this.isRefreshing) return;
+      
+      this.isRefreshing = true;
+      this.qrCode = '';
+      this.statusMessage = 'Memperbarui QR code...';
+      
+      // Force refresh with cache-busting parameter
+      fetch('/api/qr?refresh=' + new Date().getTime())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to refresh QR code');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.qrCode) {
+            this.qrCode = data.qrCode;
+            this.renderQRCode();
+            this.statusMessage = 'QR code berhasil diperbarui';
+            
+            // Show success toast
+            showToast('success', 'QR code berhasil diperbarui');
+          } else {
+            throw new Error('No QR code received');
+          }
+        })
+        .catch(error => {
+          console.error('Error refreshing QR:', error);
+          this.errorMessage = 'Gagal memperbarui QR code: ' + error.message;
+          this.statusMessage = 'Gagal memperbarui QR code';
+          
+          // Show error toast
+          showToast('error', 'Gagal memperbarui QR code');
+        })
+        .finally(() => {
+          this.isRefreshing = false;
+        });
+    },
+    
+    // Disconnect WhatsApp session
+    disconnectWhatsApp() {
+      if (!confirm('Yakin ingin memutuskan koneksi WhatsApp?')) {
+        return;
+      }
+      
+      fetch('/api/disconnect', {
+        method: 'POST'
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to disconnect');
+          }
+          return response.json();
+        })
+        .then(data => {
+          this.isConnected = false;
+          this.connectionStatus = 'Terputus';
+          this.statusTitle = 'WhatsApp Terputus';
+          this.statusMessage = 'Koneksi terputus';
+          this.connectedPhone = '';
+          this.qrCode = '';
+          this.deviceName = '';
+          this.platform = '';
+          this.businessName = '';
+          this.deviceID = '';
+          this.connectedSince = '';
+          this.formattedConnectedTime = '';
+          
+          // Show success toast
+          showToast('success', 'WhatsApp berhasil diputuskan');
+          
+          // Request new QR code after short delay
+          setTimeout(() => {
+            this.refreshQR();
+          }, 1500);
+        })
+        .catch(error => {
+          console.error('Error disconnecting:', error);
+          showToast('error', 'Gagal memutuskan koneksi: ' + error.message);
+        });
+    },
+    
+    // Format the connected time from ISO string
+    formatConnectedTime(isoString) {
+      try {
+        const date = new Date(isoString);
+        return date.toLocaleString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      } catch (e) {
+        console.error('Error formatting date:', e);
+        return this.formatTimestamp();
+      }
+    },
+    
+    // Render QR code using qrcode.js library
+    renderQRCode() {
+      if (!this.qrCode) return;
+      
+      const container = document.getElementById('qrcode');
+      if (!container) return;
+      
+      // Clear previous QR code
+      container.innerHTML = '';
+      
+      // Create new QR code
+      new QRCode(container, {
+        text: this.qrCode,
+        width: 250,
+        height: 250,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      
+      console.log('QR code rendered');
+    },
+    
+    // Helper for timestamp formatting
+    formatTimestamp() {
+      const now = new Date();
+      return now.toLocaleString('id-ID', { 
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+  }));
 });

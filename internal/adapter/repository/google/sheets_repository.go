@@ -99,3 +99,16 @@ func (r *SheetsRepository) FindRecordByCode(ctx context.Context, code string) (*
 func (r *SheetsRepository) UpdateRecordProof(ctx context.Context, code string, proofURL string) error {
 	return r.configHandler.UpdateRecordProof(ctx, code, proofURL)
 }
+
+// UpdateConfiguration memperbarui konfigurasi
+func (r *SheetsRepository) UpdateConfiguration(ctx context.Context, config *finance.Configuration) error {
+	// Untuk sementara, kita hanya implementasikan metode kosong yang mengembalikan nil
+	// Pada implementasi sebenarnya, ini akan menyimpan konfigurasi ke Google Sheets
+	r.log.Info("Menyimpan perubahan konfigurasi (simulasi)")
+
+	// Jika configHandler sudah memiliki method ini, kita bisa delegasikan ke sana
+	// return r.configHandler.UpdateConfiguration(ctx, config)
+
+	// Untuk sementara, hanya simulasikan sukses
+	return nil
+}

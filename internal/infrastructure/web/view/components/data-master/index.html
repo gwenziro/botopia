@@ -1,0 +1,75 @@
+<div x-data="dataMasterApp" 
+     x-init="initializeDataMaster()" 
+     class="data-master-container">
+  <!-- Tab Navigation -->
+  <div class="tab-navigation mb-6">
+    <button @click="activeTab = 'expense-categories'"
+            :class="{'tab-button': true, 'active': activeTab === 'expense-categories'}"
+            class="px-4 py-2 font-medium">
+      <i class="fas fa-tags"></i> Kategori Pengeluaran
+    </button>
+    <button @click="activeTab = 'income-categories'"
+            :class="{'tab-button': true, 'active': activeTab === 'income-categories'}"
+            class="px-4 py-2 font-medium">
+      <i class="fas fa-money-bill-wave"></i> Kategori Pemasukan
+    </button>
+    <button @click="activeTab = 'payment-methods'"
+            :class="{'tab-button': true, 'active': activeTab === 'payment-methods'}"
+            class="px-4 py-2 font-medium">
+      <i class="fas fa-credit-card"></i> Metode Pembayaran
+    </button>
+    <button @click="activeTab = 'storage-media'"
+            :class="{'tab-button': true, 'active': activeTab === 'storage-media'}"
+            class="px-4 py-2 font-medium">
+      <i class="fas fa-vault"></i> Media Penyimpanan
+    </button>
+  </div>
+
+  <!-- Content Container -->
+  <div class="data-table-container">
+    <!-- Loading State -->
+    <div x-show="loading" class="p-6 text-center">
+      <div class="loading-spinner mb-4"></div>
+      <p class="text-slate-300">Memuat data master...</p>
+    </div>
+
+    <!-- Tab Content -->
+    <template x-if="!loading">
+      <!-- Expense Categories -->
+      <div x-show="activeTab === 'expense-categories'" class="w-full">
+        {{template "components/data-master/table" dict "Type" "expense-categories" "Title" "Kategori Pengeluaran"}}
+      </div>
+    </template>
+
+    <template x-if="!loading">
+      <!-- Income Categories -->
+      <div x-show="activeTab === 'income-categories'" class="w-full">
+        {{template "components/data-master/table" dict "Type" "income-categories" "Title" "Kategori Pemasukan"}}
+      </div>
+    </template>
+
+    <template x-if="!loading">
+      <!-- Payment Methods -->
+      <div x-show="activeTab === 'payment-methods'" class="w-full">
+        {{template "components/data-master/table" dict "Type" "payment-methods" "Title" "Metode Pembayaran"}}
+      </div>
+    </template>
+
+    <template x-if="!loading">
+      <!-- Storage Media -->
+      <div x-show="activeTab === 'storage-media'" class="w-full">
+        {{template "components/data-master/table" dict "Type" "storage-media" "Title" "Media Penyimpanan"}}
+      </div>
+    </template>
+  </div>
+
+  <!-- Modals -->
+  {{template "components/data-master/add-modal"}}
+  {{template "components/data-master/edit-modal"}}
+  {{template "components/data-master/delete-modal"}}
+</div>
+
+<!-- Initialize data -->
+<script id="master-data" type="application/json">
+  {{.ConfigJSON}}
+</script>

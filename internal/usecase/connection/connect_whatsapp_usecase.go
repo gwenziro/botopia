@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/gwenziro/botopia/internal/domain/repository"
+	"github.com/gwenziro/botopia/internal/domain/user"
 	"github.com/gwenziro/botopia/internal/usecase/dto"
 )
 
@@ -72,4 +73,9 @@ func (uc *ConnectWhatsAppUseCase) GetQRChannel() <-chan string {
 // IsConnected memeriksa status koneksi
 func (uc *ConnectWhatsAppUseCase) IsConnected() bool {
 	return uc.connectionRepo.IsConnected()
+}
+
+// GetCurrentUser mendapatkan informasi user yang terhubung
+func (uc *ConnectWhatsAppUseCase) GetCurrentUser() (*user.User, error) {
+	return uc.connectionRepo.GetCurrentUser()
 }

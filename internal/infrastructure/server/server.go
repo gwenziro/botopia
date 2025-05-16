@@ -86,23 +86,43 @@ func (s *Server) SetupRoutes() {
 	dashboardCtrl := s.container.GetDashboardController()
 	qrCtrl := s.container.GetQRController()
 	authCtrl := s.container.GetAuthController()
+	configCtrl := s.container.GetConfigController()
+	dataMasterCtrl := s.container.GetDataMasterController()
 
 	// Setup message controller untuk WhatsApp
 	s.container.GetMessageController().Setup()
 
 	// Setup routes based on auth status
 	if authCtrl.IsAuthEnabled() {
-		s.setupAuthenticatedRoutes(dashboardCtrl, qrCtrl, authCtrl)
+		s.setupAuthenticatedRoutes(dashboardCtrl, qrCtrl, authCtrl, configCtrl)
 	} else {
-		s.setupUnauthenticatedRoutes(dashboardCtrl, qrCtrl)
+		s.setupUnauthenticatedRoutes(dashboardCtrl, qrCtrl, configCtrl, dataMasterCtrl)
 	}
 
 	s.log.Info("Routes set up successfully")
 }
 
+// Start memulai web server
+func (s *Server) Start() error {
+	// Setup routes
+	s.SetupRoutes()
+
+	addr := fmt.Sprintf("%s:%d", s.container.GetConfig().WebHost, s.port)
+	s.log.Info("Starting web server on %s", addr)
+
+	// Jalankan server secara non-blocking
+	return s.app.Listen(addr)
+}
+
+// Shutdown menghentikan web server secara graceful
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.log.Info("Shutting down web server")
+	return s.app.ShutdownWithContext(ctx)
+}
+
 // setupAuthenticatedRoutes mengatur route dengan auth
 func (s *Server) setupAuthenticatedRoutes(
-	dashboardCtrl, qrCtrl, authCtrl interface{},
+	dashboardCtrl, qrCtrl, authCtrl, configCtrl interface{},
 ) {
 	// Cast to correct types
 	dashboard := dashboardCtrl.(interface {
@@ -121,6 +141,12 @@ func (s *Server) setupAuthenticatedRoutes(
 		HandleLoginPost(ctx *fiber.Ctx) error
 	})
 
+	config := configCtrl.(interface {
+		HandleConfigPage(ctx *fiber.Ctx) error
+		HandleGetConfig(ctx *fiber.Ctx) error
+		HandleUpdateConfig(ctx *fiber.Ctx) error
+	})
+
 	// Auth routes
 	s.app.Get("/login", auth.HandleLogin)
 	s.app.Post("/login", auth.HandleLoginPost)
@@ -137,52 +163,61 @@ func (s *Server) setupAuthenticatedRoutes(
 	s.app.Get("/", authMiddleware, dashboard.HandleIndex)
 	s.app.Get("/dashboard", authMiddleware, dashboard.HandleDashboard)
 	s.app.Get("/qr", authMiddleware, qr.HandleQRPage)
+	s.app.Get("/konfigurasi", authMiddleware, config.HandleConfigPage)
 
 	// API routes
 	api := s.app.Group("/api", authMiddleware)
 	api.Get("/stats", dashboard.HandleGetStats)
 	api.Get("/qr", qr.HandleGetQR)
+	api.Get("/config", config.HandleGetConfig)
+	api.Post("/config", config.HandleUpdateConfig)
 }
 
 // setupUnauthenticatedRoutes mengatur route tanpa auth
 func (s *Server) setupUnauthenticatedRoutes(
-	dashboardCtrl, qrCtrl interface{},
+	dashboardCtrl, qrCtrl, configCtrl, dataMasterCtrl interface{},
 ) {
 	// Cast to correct types
 	dashboard := dashboardCtrl.(interface {
 		HandleIndex(ctx *fiber.Ctx) error
 		HandleDashboard(ctx *fiber.Ctx) error
 		HandleGetStats(ctx *fiber.Ctx) error
+		HandleGetCommands(ctx *fiber.Ctx) error // Tambahkan ini
 	})
 
 	qr := qrCtrl.(interface {
 		HandleQRPage(ctx *fiber.Ctx) error
 		HandleGetQR(ctx *fiber.Ctx) error
+		HandleDisconnect(ctx *fiber.Ctx) error
+	})
+
+	config := configCtrl.(interface {
+		HandleConfigPage(ctx *fiber.Ctx) error
+		HandleGetConfig(ctx *fiber.Ctx) error
+		HandleUpdateConfig(ctx *fiber.Ctx) error
+	})
+
+	dataMaster := dataMasterCtrl.(interface {
+		HandleDataMasterPage(ctx *fiber.Ctx) error
+		HandleGetMasterData(ctx *fiber.Ctx) error
 	})
 
 	// Public routes
 	s.app.Get("/", dashboard.HandleIndex)
 	s.app.Get("/dashboard", dashboard.HandleDashboard)
 	s.app.Get("/qr", qr.HandleQRPage)
+	s.app.Get("/konfigurasi", config.HandleConfigPage)
+	s.app.Get("/data-master", dataMaster.HandleDataMasterPage) // Tambahkan route data master
 
 	// API routes
 	api := s.app.Group("/api")
 	api.Get("/stats", dashboard.HandleGetStats)
 	api.Get("/qr", qr.HandleGetQR)
-}
+	api.Post("/disconnect", qr.HandleDisconnect)
+	api.Get("/config", config.HandleGetConfig)
+	api.Post("/config", config.HandleUpdateConfig)
+	api.Get("/commands", dashboard.HandleGetCommands)
 
-// Start memulai server web
-func (s *Server) Start() error {
-	// Setup routes
-	s.SetupRoutes()
-
-	// Start server
-	s.log.Info("Starting web server on port %d", s.port)
-	return s.app.Listen(fmt.Sprintf(":%d", s.port))
-}
-
-// Shutdown menghentikan server
-func (s *Server) Shutdown(ctx context.Context) error {
-	s.log.Info("Shutting down web server")
-	return s.app.ShutdownWithContext(ctx)
+	// Data Master API routes - hanya route GET yang diperlukan
+	api.Get("/data-master", dataMaster.HandleGetMasterData)
 }

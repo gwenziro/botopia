@@ -1,0 +1,153 @@
+<div class="container mx-auto px-4 py-8" x-data="dataMasterApp" x-init="initializeDataMaster">
+  <!-- Header Section -->
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-semibold text-white mb-2">Data Master</h1>
+      <p class="text-slate-300">Daftar data kategori, metode pembayaran, dan penyimpanan.</p>
+    </div>
+    
+    <!-- Tombol Refresh yang konsisten dengan halaman lain -->
+    <button 
+      @click="refreshData()" 
+      class="refresh-btn flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-all" 
+      :disabled="loading">
+      <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': loading}"></i>
+      <span x-text="loading ? 'Memuat...' : 'Perbarui Data'"></span>
+    </button>
+  </div>
+
+  <!-- Content Section -->
+  <div class="glass rounded-lg border border-slate-700/30 p-6">
+    <!-- Tabs -->
+    <div class="tabs border-b border-slate-700/40 mb-6">
+      <button @click="activeTab = 'expense-categories'" 
+              :class="{'text-primary-400 border-primary-400': activeTab === 'expense-categories'}" 
+              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
+        Kategori Pengeluaran
+      </button>
+      <button @click="activeTab = 'income-categories'" 
+              :class="{'text-primary-400 border-primary-400': activeTab === 'income-categories'}"
+              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
+        Kategori Pemasukan
+      </button>
+      <button @click="activeTab = 'payment-methods'" 
+              :class="{'text-primary-400 border-primary-400': activeTab === 'payment-methods'}"
+              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
+        Metode Pembayaran
+      </button>
+      <button @click="activeTab = 'storage-media'" 
+              :class="{'text-primary-400 border-primary-400': activeTab === 'storage-media'}" 
+              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
+        Media Penyimpanan
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Loading State -->
+      <template x-if="loading">
+        <div class="py-6 text-center">
+          <div class="loader-ring mx-auto mb-4"></div>
+          <p class="text-slate-300">Memuat data...</p>
+        </div>
+      </template>
+
+      <!-- Content for Each Tab -->
+      <template x-if="!loading">
+        <div>
+          <!-- Expense Categories -->
+          <div x-show="activeTab === 'expense-categories'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold">Kategori Pengeluaran</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <template x-for="(item, index) in masterData.expenseCategories" :key="index">
+                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
+                  <span x-text="item"></span>
+                </div>
+              </template>
+              <template x-if="masterData.expenseCategories.length === 0">
+                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
+                  Tidak ada data kategori pengeluaran
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Income Categories -->
+          <div x-show="activeTab === 'income-categories'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold">Kategori Pemasukan</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <template x-for="(item, index) in masterData.incomeCategories" :key="index">
+                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
+                  <span x-text="item"></span>
+                </div>
+              </template>
+              <template x-if="masterData.incomeCategories.length === 0">
+                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
+                  Tidak ada data kategori pemasukan
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Payment Methods -->
+          <div x-show="activeTab === 'payment-methods'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold">Metode Pembayaran</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <template x-for="(item, index) in masterData.paymentMethods" :key="index">
+                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
+                  <span x-text="item"></span>
+                </div>
+              </template>
+              <template x-if="masterData.paymentMethods.length === 0">
+                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
+                  Tidak ada data metode pembayaran
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Storage Media -->
+          <div x-show="activeTab === 'storage-media'">
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold">Media Penyimpanan</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <template x-for="(item, index) in masterData.storageMedias" :key="index">
+                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
+                  <span x-text="item"></span>
+                </div>
+              </template>
+              <template x-if="masterData.storageMedias.length === 0">
+                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
+                  Tidak ada data media penyimpanan
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+  
+  <!-- Script tag untuk data JSON -->
+  <script id="config-data" type="application/json">{{.ConfigJSON}}</script>
+  
+  <!-- Script untuk inisialisasi data global -->
+  <script>
+    // Inisialisasi objek global Botopia config
+    window.botopiaConfig = {
+      masterData: {
+        expenseCategories: JSON.parse('{{json .ExpenseCategories}}'),
+        incomeCategories: JSON.parse('{{json .IncomeCategories}}'),
+        paymentMethods: JSON.parse('{{json .PaymentMethods}}'),
+        storageMedias: JSON.parse('{{json .StorageMedias}}')
+      }
+    };
+  </script>
+</div>
