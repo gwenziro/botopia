@@ -61,7 +61,7 @@ function createToast(type, message, options = {}) {
 
 // Remove a toast with animation
 function removeToast(toast) {
-  toast.style.animation = 'toast-out-bottom 0.3s forwards';  // Changed from toast-out to toast-out-bottom
+  toast.style.animation = 'toast-out-bottom 0.3s forwards';
   setTimeout(() => {
     if (toast.parentNode) {
       toast.parentNode.removeChild(toast);
