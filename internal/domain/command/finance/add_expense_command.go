@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gwenziro/botopia/internal/domain/command/common"
 	"github.com/gwenziro/botopia/internal/domain/dto"
 	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/domain/message"
@@ -17,24 +18,20 @@ import (
 
 // AddExpenseCommand implementasi command untuk menambahkan pengeluaran
 type AddExpenseCommand struct {
+	common.BaseCommand
 	financeService service.FinanceService
 }
 
 // NewAddExpenseCommand membuat instance command baru
 func NewAddExpenseCommand(financeService service.FinanceService) *AddExpenseCommand {
-	return &AddExpenseCommand{
+	cmd := &AddExpenseCommand{
 		financeService: financeService,
 	}
-}
-
-// GetName mengembalikan nama command
-func (c *AddExpenseCommand) GetName() string {
-	return "keluar"
-}
-
-// GetDescription mengembalikan deskripsi command
-func (c *AddExpenseCommand) GetDescription() string {
-	return "Mencatat pengeluaran baru. Kirim !keluar untuk mendapatkan form input data."
+	cmd.Name = "keluar"
+	cmd.Description = "Mencatat pengeluaran baru. Kirim !keluar untuk mendapatkan form input data."
+	cmd.Category = "Keuangan"
+	cmd.Usage = "!keluar"
+	return cmd
 }
 
 // Execute menjalankan command

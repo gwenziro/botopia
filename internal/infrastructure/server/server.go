@@ -221,6 +221,12 @@ func (s *Server) setupUnauthenticatedRoutes(
 	s.app.Get("/data-master", dataMaster.HandleDataMasterPage) // Tambahkan route data master
 	s.app.Get("/contacts", contact.HandleContactPage)
 
+	// Cast Commands controller
+	commands := s.container.GetCommandsController()
+
+	// Tambahkan route baru untuk commands
+	s.app.Get("/commands", commands.HandleCommandsPage)
+
 	// API routes
 	api := s.app.Group("/api")
 	api.Get("/stats", dashboard.HandleGetStats)
@@ -228,7 +234,7 @@ func (s *Server) setupUnauthenticatedRoutes(
 	api.Post("/disconnect", qr.HandleDisconnect)
 	api.Get("/config", config.HandleGetConfig)
 	api.Post("/config", config.HandleUpdateConfig)
-	api.Get("/commands", dashboard.HandleGetCommands)
+	api.Get("/commands", commands.HandleGetCommands)
 
 	// Data Master API routes - hanya route GET yang diperlukan
 	api.Get("/data-master", dataMaster.HandleGetMasterData)

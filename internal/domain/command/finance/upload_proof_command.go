@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gwenziro/botopia/internal/domain/command/common"
 	"github.com/gwenziro/botopia/internal/domain/dto"
 	"github.com/gwenziro/botopia/internal/domain/finance"
 	"github.com/gwenziro/botopia/internal/domain/message"
@@ -16,24 +17,20 @@ import (
 
 // UploadProofCommand implementasi command untuk mengunggah bukti transaksi
 type UploadProofCommand struct {
+	common.BaseCommand
 	financeService service.FinanceService
 }
 
 // NewUploadProofCommand membuat instance command baru
 func NewUploadProofCommand(financeService service.FinanceService) *UploadProofCommand {
-	return &UploadProofCommand{
+	cmd := &UploadProofCommand{
 		financeService: financeService,
 	}
-}
-
-// GetName mengembalikan nama command
-func (c *UploadProofCommand) GetName() string {
-	return "unggah"
-}
-
-// GetDescription mengembalikan deskripsi command
-func (c *UploadProofCommand) GetDescription() string {
-	return "Mengunggah bukti transaksi untuk catatan yang sudah ada. Kirim !unggah untuk mendapatkan form input data."
+	cmd.Name = "unggah"
+	cmd.Description = "Mengunggah bukti transaksi untuk catatan yang sudah ada. Kirim !unggah untuk mendapatkan form input data."
+	cmd.Category = "Keuangan"
+	cmd.Usage = "!unggah <kode_transaksi>"
+	return cmd
 }
 
 // Execute menjalankan command

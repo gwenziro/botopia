@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
-	"strings"
+	"regexp"
 	"time"
 
 	"github.com/gwenziro/botopia/internal/domain/contact"
@@ -126,11 +126,20 @@ func (s *ContactService) SetWhitelistStatus(ctx context.Context, phone string, i
 
 // normalizePhone menormalisasi format nomor telepon
 func normalizePhone(phone string) string {
-	// Implementasi sederhana, bisa diganti dengan library khusus
+	// Hilangkan spasi atau karakter non-digit lainnya kecuali '+'
+	phone = regexp.MustCompile(`[^\d+]`).ReplaceAllString(phone, "")
+
+	// Jika sudah dimulai dengan '+', maka sudah dalam format internasional
 	if len(phone) > 0 && phone[0] == '+' {
 		return phone
 	}
 
-	// Tambahkan + jika belum ada
-	return "+" + strings.TrimPrefix(phone, "0")
+	// Jika dimulai dengan '0', itu adalah format Indonesia, ubah menjadi +62
+	if len(phone) > 0 && phone[0] == '0' {
+		return "+62" + phone[1:]
+	}
+
+	// Jika tidak dimulai dengan '+' atau '0', anggap sebagai nomor tanpa kode negara
+	// dan tambahkan prefix '+'
+	return "+" + phone
 }

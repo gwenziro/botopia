@@ -6,6 +6,7 @@ import (
 
 	"github.com/gwenziro/botopia/internal/adapter/controller/web"
 	whatsappController "github.com/gwenziro/botopia/internal/adapter/controller/whatsapp"
+	"github.com/gwenziro/botopia/internal/adapter/repository/file"
 	googleRepo "github.com/gwenziro/botopia/internal/adapter/repository/google"
 	"github.com/gwenziro/botopia/internal/adapter/repository/memory"
 	whatsmeowRepo "github.com/gwenziro/botopia/internal/adapter/repository/whatsmeow"
@@ -41,7 +42,7 @@ type Container struct {
 	googleAPIRepository  *googleRepo.GoogleAPIRepository
 	sheetsRepository     *googleRepo.SheetsRepository
 	driveRepository      *googleRepo.DriveRepository
-	contactRepository    *memory.ContactRepository
+	contactRepository    repository.ContactRepository // Ubah dari *memory.ContactRepository ke repository.ContactRepository
 
 	// Use cases
 	executeCommandUseCase  *execute.ExecuteCommandUseCase
@@ -61,6 +62,7 @@ type Container struct {
 	configController     *web.ConfigController
 	dataMasterController *web.DataMasterController
 	contactController    *web.ContactController
+	commandsController   *web.CommandsController // Tambahkan controller baru
 
 	// Command initializer
 	commandInitializer *command.CommandInitializer
@@ -136,8 +138,8 @@ func (c *Container) initRepositories() {
 	// Inisialisasi Google Drive Repository
 	c.driveRepository = googleRepo.NewDriveRepository(c.googleAPIRepository, c.config, c.log)
 
-	// Tambahkan contact repository
-	c.contactRepository = memory.NewContactRepository(c.log)
+	// Gunakan file repository untuk kontak (persisten)
+	c.contactRepository = file.NewContactRepository(c.config.DataDir, c.log)
 }
 
 // initServices menginisialisasi layanan
@@ -216,6 +218,9 @@ func (c *Container) initControllers() {
 
 	// Data Master controller
 	c.dataMasterController = web.NewDataMasterController(c.financeService)
+
+	// Tambahkan commands controller
+	c.commandsController = web.NewCommandsController(c.commandRepository)
 
 	c.log.Info("Controllers berhasil diinisialisasi")
 }
@@ -298,6 +303,11 @@ func (c *Container) GetContactService() service.ContactService {
 // GetContactController mengembalikan controller kontak
 func (c *Container) GetContactController() interface{} {
 	return c.contactController
+}
+
+// GetCommandsController mengembalikan controller commands
+func (c *Container) GetCommandsController() *web.CommandsController {
+	return c.commandsController
 }
 
 // GetConfig mengembalikan konfigurasi

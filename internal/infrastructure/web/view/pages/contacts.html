@@ -62,7 +62,7 @@
                   <th class="px-4 py-3">Nomor Telepon</th>
                   <th class="px-4 py-3">Catatan</th>
                   <th class="px-4 py-3">Status</th>
-                  <th class="px-4 py-3">Aksi</th>
+                  <th class="px-4 py-3 text-center">Aksi</th> <!-- Ubah alignment header -->
                 </tr>
               </thead>
               <tbody>
@@ -77,21 +77,23 @@
                         <span x-text="contact.isActive ? 'Aktif' : 'Nonaktif'"></span>
                       </span>
                     </td>
-                    <td class="px-4 py-3 text-right">
-                      <!-- Toggle whitelist status -->
-                      <button @click="toggleContactStatus(contact)" class="text-slate-400 hover:text-white mr-2">
-                        <i :class="contact.isActive ? 'fa-toggle-on text-primary-400' : 'fa-toggle-off'" class="fas"></i>
-                      </button>
-                      
-                      <!-- Edit contact -->
-                      <button @click="editContact(contact)" class="text-slate-400 hover:text-white mr-2">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      
-                      <!-- Delete contact -->
-                      <button @click="deleteContact(contact)" class="text-slate-400 hover:text-red-500">
-                        <i class="fas fa-trash"></i>
-                      </button>
+                    <td class="px-4 py-3 text-center">
+                      <div class="flex justify-center space-x-4"> <!-- Flex container untuk ikon -->
+                        <!-- Toggle whitelist status -->
+                        <button @click="toggleContactStatus(contact)" class="text-slate-400 hover:text-white">
+                          <i :class="contact.isActive ? 'fa-toggle-on text-primary-400' : 'fa-toggle-off'" class="fas"></i>
+                        </button>
+                        
+                        <!-- Edit contact -->
+                        <button @click="editContact(contact)" class="text-slate-400 hover:text-white">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        
+                        <!-- Delete contact -->
+                        <button @click="deleteContact(contact)" class="text-slate-400 hover:text-red-500">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 </template>
@@ -147,7 +149,7 @@
                   <th class="px-4 py-3">Nama</th>
                   <th class="px-4 py-3">Nomor Telepon</th>
                   <th class="px-4 py-3">Catatan</th>
-                  <th class="px-4 py-3">Aksi</th>
+                  <th class="px-4 py-3 text-center">Aksi</th> <!-- Ubah alignment header -->
                 </tr>
               </thead>
               <tbody>
@@ -156,11 +158,13 @@
                     <td class="px-4 py-3" x-text="contact.name || '-'"></td>
                     <td class="px-4 py-3" x-text="contact.phone"></td>
                     <td class="px-4 py-3" x-text="contact.notes || '-'"></td>
-                    <td class="px-4 py-3 text-right">
-                      <!-- Remove from whitelist -->
-                      <button @click="removeFromWhitelist(contact)" class="text-slate-400 hover:text-red-500">
-                        <i class="fas fa-user-slash"></i>
-                      </button>
+                    <td class="px-4 py-3 text-center">
+                      <div class="flex justify-center">
+                        <!-- Remove from whitelist -->
+                        <button @click="removeFromWhitelist(contact)" class="text-slate-400 hover:text-red-500">
+                          <i class="fas fa-user-slash"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 </template>

@@ -1,7 +1,6 @@
 package command
 
 import (
-	adapterService "github.com/gwenziro/botopia/internal/adapter/service"
 	"github.com/gwenziro/botopia/internal/domain/command/finance"
 	"github.com/gwenziro/botopia/internal/domain/command/help"
 	"github.com/gwenziro/botopia/internal/domain/command/ping"
@@ -56,12 +55,9 @@ func (c *CommandInitializer) RegisterDefaultCommands() {
 		c.log.Info("Command '%s' terdaftar", incomeCmd.GetName())
 
 		// Upload bukti transaksi command
-		// Type assertion diperlukan karena UploadProofCommand membutuhkan implementasi konkrit
-		if concreteService, ok := c.financeService.(*adapterService.FinanceService); ok {
-			uploadCmd := finance.NewUploadProofCommand(concreteService)
-			c.cmdRepo.Register(uploadCmd)
-			c.log.Info("Command '%s' terdaftar", uploadCmd.GetName())
-		}
+		uploadCmd := finance.NewUploadProofCommand(c.financeService)
+		c.cmdRepo.Register(uploadCmd)
+		c.log.Info("Command '%s' terdaftar", uploadCmd.GetName())
 	} else {
 		c.log.Warn("Finance service tidak tersedia, command finance tidak akan didaftarkan")
 	}

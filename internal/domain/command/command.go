@@ -14,6 +14,12 @@ type Command interface {
 
 	// Execute menjalankan command dan mengembalikan response
 	Execute(args []string, msg *message.Message) (string, error)
+
+	// GetCategory mengembalikan kategori command (opsional)
+	GetCategory() string
+
+	// GetUsage mengembalikan contoh penggunaan command (opsional)
+	GetUsage() string
 }
 
 // CommandInfo berisi informasi tentang command

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gwenziro/botopia/internal/domain/finance"
@@ -16,12 +15,11 @@ import (
 
 // FinanceService implementasi layanan keuangan
 type FinanceService struct {
-	sheetsRepo     repository.FinanceRepository
-	driveRepo      repository.DriveRepository
-	config         *finance.Configuration
-	configErr      error
-	configInitOnce sync.Once
-	log            *logger.Logger
+	sheetsRepo repository.FinanceRepository
+	driveRepo  repository.DriveRepository
+	config     *finance.Configuration
+	configErr  error
+	log        *logger.Logger
 }
 
 // NewFinanceService membuat instance layanan keuangan baru
