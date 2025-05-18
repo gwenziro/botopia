@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gwenziro/botopia/internal/usecase/connection"
@@ -27,8 +28,8 @@ func NewConnectivityController(
 
 // HandleConnectivityPage menangani halaman connectivity
 func (c *ConnectivityController) HandleConnectivityPage(ctx *fiber.Ctx) error {
-	return ctx.Render("pages/qr", fiber.Map{
-		"Title": "Connectivity | Botopia",
+	return ctx.Render("pages/connectivity", fiber.Map{
+		"Title": "Konektivitas | Botopia",
 		"Page":  "connectivity",
 	}, "layouts/main")
 }
@@ -37,6 +38,15 @@ func (c *ConnectivityController) HandleConnectivityPage(ctx *fiber.Ctx) error {
 func (c *ConnectivityController) HandleGetQR(ctx *fiber.Ctx) error {
 	// Check if already connected
 	if c.connectUseCase.IsConnected() {
+		// Get connection stats from stats use case
+		stats, err := c.statsUseCase.Execute(ctx.Context())
+		if err != nil {
+			return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to get stats: " + err.Error(),
+			})
+		}
+
+		// Get current user info
 		user, err := c.connectUseCase.GetCurrentUser()
 		if err != nil {
 			return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
@@ -46,6 +56,7 @@ func (c *ConnectivityController) HandleGetQR(ctx *fiber.Ctx) error {
 
 		phone := ""
 		name := "WhatsApp User"
+		var deviceDetails map[string]interface{} = nil
 
 		if user != nil {
 			phone = user.Phone
@@ -54,6 +65,15 @@ func (c *ConnectivityController) HandleGetQR(ctx *fiber.Ctx) error {
 			} else if user.PushName != "" {
 				name = user.PushName
 			}
+
+			// Provide simplified device details
+			if user.DeviceDetails != nil {
+				deviceDetails = map[string]interface{}{
+					"platform":  user.DeviceDetails.Platform,
+					"deviceId":  user.DeviceDetails.DeviceID,
+					"ipAddress": user.DeviceDetails.IPAddress,
+				}
+			}
 		}
 
 		return ctx.JSON(fiber.Map{
@@ -61,6 +81,8 @@ func (c *ConnectivityController) HandleGetQR(ctx *fiber.Ctx) error {
 			"connectionState": true,
 			"phone":           phone,
 			"name":            name,
+			"uptime":          stats.Uptime,
+			"deviceDetails":   deviceDetails,
 		})
 	}
 
@@ -83,6 +105,10 @@ func (c *ConnectivityController) HandleGetQR(ctx *fiber.Ctx) error {
 		return ctx.JSON(fiber.Map{
 			"qrCode":          qrCode,
 			"connectionState": false,
+		})
+	case <-time.After(15 * time.Second):
+		return ctx.Status(http.StatusRequestTimeout).JSON(fiber.Map{
+			"error": "QR code generation timed out after 15 seconds",
 		})
 	}
 }

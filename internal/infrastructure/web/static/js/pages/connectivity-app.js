@@ -15,18 +15,17 @@ document.addEventListener('alpine:init', () => {
         retryCount: 0,
         maxRetries: 15,
         deviceDetails: null,
+        isLoading: false,
         
         initialize() {
             console.log('Initializing Connectivity app');
-            
-            // Load data awal
             this.loadInitialData();
-            
-            // Start polling
             this.startPolling();
             
             // Cleanup when component is destroyed
-            this.$el.addEventListener('beforeunload', () => this.stopPolling());
+            this.$once('$destroy', () => {
+                this.stopPolling();
+            });
         },
         
         loadInitialData() {
@@ -83,6 +82,10 @@ document.addEventListener('alpine:init', () => {
         },
         
         fetchConnectivityData() {
+            if (this.isLoading) return;
+            
+            this.isLoading = true;
+            
             fetch('/api/qr')
                 .then(response => {
                     if (!response.ok) {
@@ -97,9 +100,9 @@ document.addEventListener('alpine:init', () => {
                     
                     // If connection state changed to connected, show notification
                     if (!wasConnected && this.connectionState === 'connected') {
-                        showToast('success', 'Berhasil terhubung ke WhatsApp!');
+                        this.showNotification('success', 'Berhasil terhubung ke WhatsApp!');
                     } else if (wasConnected && this.connectionState !== 'connected') {
-                        showToast('error', 'Koneksi WhatsApp terputus!');
+                        this.showNotification('error', 'Koneksi WhatsApp terputus!');
                     }
                     
                     // If connected, update device info
@@ -135,10 +138,12 @@ document.addEventListener('alpine:init', () => {
                             // Stop polling if exceeded max retries
                             if (this.retryCount > this.maxRetries) {
                                 this.stopPolling();
-                                showToast('error', 'Gagal mendapatkan QR code, silakan refresh halaman');
+                                this.showNotification('error', 'Gagal mendapatkan QR code, silakan refresh halaman');
                             }
                         }
                     }
+                    
+                    this.isLoading = false;
                 })
                 .catch(error => {
                     console.error('Error fetching connectivity data:', error);
@@ -146,9 +151,21 @@ document.addEventListener('alpine:init', () => {
                     
                     if (this.retryCount > this.maxRetries) {
                         this.stopPolling();
-                        showToast('error', 'Terjadi error saat mengambil data. Silakan refresh halaman');
+                        this.showNotification('error', 'Terjadi error saat mengambil data. Silakan refresh halaman');
                     }
+                    
+                    this.isLoading = false;
                 });
+        },
+        
+        showNotification(type, message) {
+            // Use global toast function if available
+            if (typeof showToast === 'function') {
+                showToast(type, message);
+            } else {
+                // Fallback to alert
+                alert(message);
+            }
         },
         
         adjustPollingInterval(newInterval) {
@@ -163,29 +180,29 @@ document.addEventListener('alpine:init', () => {
                 fetch('/api/disconnect', {
                     method: 'POST',
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            this.connectionState = 'disconnected';
-                            this.qrCode = '';
-                            this.deviceDetails = null;
-                            showToast('success', 'Koneksi WhatsApp berhasil diputuskan');
-                            
-                            // Restart polling with faster interval
-                            this.adjustPollingInterval(3000);
-                        } else {
-                            showToast('error', data.error || 'Gagal memutuskan koneksi');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error disconnecting:', error);
-                        showToast('error', 'Terjadi kesalahan saat memutuskan koneksi');
-                    });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        this.connectionState = 'disconnected';
+                        this.qrCode = '';
+                        this.deviceDetails = null;
+                        this.showNotification('success', 'Koneksi WhatsApp berhasil diputuskan');
+                        
+                        // Restart polling with faster interval
+                        this.adjustPollingInterval(3000);
+                    } else {
+                        this.showNotification('error', data.error || 'Gagal memutuskan koneksi');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error disconnecting:', error);
+                    this.showNotification('error', 'Terjadi kesalahan saat memutuskan koneksi');
+                });
             }
         },
         

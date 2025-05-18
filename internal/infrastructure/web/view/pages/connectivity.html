@@ -1,0 +1,318 @@
+<div x-data="connectivityApp" x-init="initialize()" class="p-connectivity">
+    <!-- Header Section - Status Banner -->
+    <div class="c-glassmorphism p-connectivity-banner">
+        <div class="p-connectivity-banner__status"
+            :class="connectionState === 'connected' ? 'p-connectivity-banner__status--connected' : 'p-connectivity-banner__status--disconnected'">
+            <div class="p-connectivity-banner__icon">
+                <i x-show="connectionState === 'connected'" class="fas fa-check-circle"></i>
+                <i x-show="connectionState !== 'connected'" class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="p-connectivity-banner__content">
+                <h1 class="p-connectivity-banner__title">
+                    <span x-show="connectionState === 'connected'">Status: WhatsApp Terhubung</span>
+                    <span x-show="connectionState !== 'connected'">Status: WhatsApp Tidak Terhubung</span>
+                </h1>
+                <p class="p-connectivity-banner__description">
+                    <span x-show="connectionState === 'connected'">Bot WhatsApp dalam keadaan aktif dan siap
+                        digunakan.</span>
+                    <span x-show="connectionState !== 'connected'">Pindai kode QR untuk menghubungkan bot dengan
+                        WhatsApp Anda.</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="p-connectivity-main">
+        <!-- Left Column - Primary Content -->
+        <div class="p-connectivity-main__col">
+            <template x-if="connectionState !== 'connected'">
+                <!-- QR Code Scanner -->
+                <div class="c-glassmorphism p-connectivity-card">
+                    <div class="p-connectivity-card__header">
+                        <div class="p-connectivity-card__header-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div class="p-connectivity-card__header-content">
+                            <h2 class="p-connectivity-card__title">Pindai Kode QR</h2>
+                            <p class="p-connectivity-card__subtitle">Arahkan kamera WhatsApp ke kode QR ini</p>
+                        </div>
+                    </div>
+                    <div class="p-connectivity-card__body">
+                        <!-- QR Loading State -->
+                        <div x-show="!qrCode" class="p-connectivity-qr-loading">
+                            <div class="p-connectivity-qr-loading__spinner"></div>
+                            <p class="p-connectivity-qr-loading__text">Memuat kode QR...</p>
+                        </div>
+
+                        <!-- QR Code Display -->
+                        <div x-show="qrCode" class="p-connectivity-qr-container">
+                            <div class="p-connectivity-qr-frame">
+                                <img :src="getQRImageURL()" alt="WhatsApp QR Code" class="p-connectivity-qr-image">
+                            </div>
+                            <div class="p-connectivity-qr-status">
+                                <span class="p-connectivity-qr-badge">
+                                    <i class="fas fa-sync-alt fa-spin"></i> QR Code aktif
+                                </span>
+                                <button @click="fetchConnectivityData()" class="c-btn c-btn--primary c-btn--sm u-mt-4">
+                                    <i class="fas fa-sync-alt"></i> Refresh QR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="connectionState === 'connected'">
+                <!-- Connection Info - Moved disconnect button to header -->
+                <div class="c-glassmorphism p-connectivity-card p-connectivity-card--equal-height">
+                    <div class="p-connectivity-card__header p-connectivity-card__header--with-action">
+                        <div class="p-connectivity-card__header-left">
+                            <div class="p-connectivity-card__header-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="p-connectivity-card__header-content">
+                                <h2 class="p-connectivity-card__title">Informasi Perangkat</h2>
+                                <p class="p-connectivity-card__subtitle">Detail perangkat WhatsApp yang terhubung</p>
+                            </div>
+                        </div>
+                        <div class="p-connectivity-card__header-action">
+                            <button @click="disconnect()" class="c-btn c-btn--sm c-btn--danger c-btn--with-icon">
+                                <i class="fas fa-power-off"></i>
+                                <span>Putuskan Koneksi</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-connectivity-card__body">
+                        <div class="p-connectivity-info-grid">
+                            <div class="p-connectivity-info-item">
+                                <div class="p-connectivity-info-item__icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="p-connectivity-info-item__content">
+                                    <div class="p-connectivity-info-item__label">Nama Pengguna</div>
+                                    <div class="p-connectivity-info-item__value" x-text="name || 'Tidak tersedia'">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-connectivity-info-item">
+                                <div class="p-connectivity-info-item__icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="p-connectivity-info-item__content">
+                                    <div class="p-connectivity-info-item__label">Nomor Telepon</div>
+                                    <div class="p-connectivity-info-item__value" x-text="formatPhone(phone)"></div>
+                                </div>
+                            </div>
+
+                            <div class="p-connectivity-info-item">
+                                <div class="p-connectivity-info-item__icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="p-connectivity-info-item__content">
+                                    <div class="p-connectivity-info-item__label">Waktu Aktif</div>
+                                    <div class="p-connectivity-info-item__value" x-text="formatUptime(uptime)"></div>
+                                </div>
+                            </div>
+
+                            <div class="p-connectivity-info-item">
+                                <div class="p-connectivity-info-item__icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="p-connectivity-info-item__content">
+                                    <div class="p-connectivity-info-item__label">Terhubung Sejak</div>
+                                    <div class="p-connectivity-info-item__value" x-text="formatDate(connectedSince)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Right Column - Secondary Content -->
+        <div class="p-connectivity-main__col">
+            <!-- System Status Card -->
+            <div class="c-glassmorphism p-connectivity-card p-connectivity-card--equal-height">
+                <div class="p-connectivity-card__header">
+                    <div class="p-connectivity-card__header-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="p-connectivity-card__header-content">
+                        <h2 class="p-connectivity-card__title">Status Sistem</h2>
+                        <p class="p-connectivity-card__subtitle">Keadaan komponen sistem</p>
+                    </div>
+                </div>
+                <div class="p-connectivity-card__body">
+                    <div class="p-connectivity-status-grid">
+                        <div class="p-connectivity-status-item">
+                            <span class="p-connectivity-status-item__icon p-connectivity-status-item__icon--active">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                            <span class="p-connectivity-status-item__label">Server Bot</span>
+                            <span
+                                class="p-connectivity-status-item__badge p-connectivity-status-item__badge--active">Aktif</span>
+                        </div>
+
+                        <div class="p-connectivity-status-item">
+                            <span class="p-connectivity-status-item__icon"
+                                :class="connectionState === 'connected' ? 'p-connectivity-status-item__icon--active' : 'p-connectivity-status-item__icon--inactive'">
+                                <i
+                                    :class="connectionState === 'connected' ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                            </span>
+                            <span class="p-connectivity-status-item__label">WhatsApp API</span>
+                            <span class="p-connectivity-status-item__badge"
+                                :class="connectionState === 'connected' ? 'p-connectivity-status-item__badge--active' : 'p-connectivity-status-item__badge--inactive'"
+                                x-text="connectionState === 'connected' ? 'Terhubung' : 'Terputus'"></span>
+                        </div>
+
+                        <div class="p-connectivity-status-item">
+                            <span class="p-connectivity-status-item__icon p-connectivity-status-item__icon--active">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                            <span class="p-connectivity-status-item__label">Database</span>
+                            <span
+                                class="p-connectivity-status-item__badge p-connectivity-status-item__badge--active">Aktif</span>
+                        </div>
+
+                        <div class="p-connectivity-status-item">
+                            <span class="p-connectivity-status-item__icon p-connectivity-status-item__icon--active">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                            <span class="p-connectivity-status-item__label">Web Dashboard</span>
+                            <span
+                                class="p-connectivity-status-item__badge p-connectivity-status-item__badge--active">Aktif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connection Guide (hanya ketika tidak terhubung) -->
+            <template x-if="connectionState !== 'connected'">
+                <div class="c-glassmorphism p-connectivity-card">
+                    <div class="p-connectivity-card__header">
+                        <div class="p-connectivity-card__header-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="p-connectivity-card__header-content">
+                            <h2 class="p-connectivity-card__title">Panduan Koneksi</h2>
+                            <p class="p-connectivity-card__subtitle">Langkah menghubungkan WhatsApp</p>
+                        </div>
+                    </div>
+                    <div class="p-connectivity-card__body">
+                        <div class="p-connectivity-guide">
+                            <div class="p-connectivity-step">
+                                <div class="p-connectivity-step__number">1</div>
+                                <div class="p-connectivity-step__content">
+                                    <h4 class="p-connectivity-step__title">Buka WhatsApp di ponsel Anda</h4>
+                                    <p class="p-connectivity-step__description">Pastikan aplikasi WhatsApp sudah
+                                        terinstal dan aktif.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-connectivity-step">
+                                <div class="p-connectivity-step__number">2</div>
+                                <div class="p-connectivity-step__content">
+                                    <h4 class="p-connectivity-step__title">Buka Menu Perangkat Tertaut</h4>
+                                    <p class="p-connectivity-step__description">Buka menu dengan ikon titik tiga (⋮),
+                                        lalu pilih "Perangkat Tertaut".</p>
+                                </div>
+                            </div>
+
+                            <div class="p-connectivity-step">
+                                <div class="p-connectivity-step__number">3</div>
+                                <div class="p-connectivity-step__content">
+                                    <h4 class="p-connectivity-step__title">Pilih "Tautkan Perangkat"</h4>
+                                    <p class="p-connectivity-step__description">Tunggu sampai kamera siap untuk memindai
+                                        kode QR.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-connectivity-step">
+                                <div class="p-connectivity-step__number">4</div>
+                                <div class="p-connectivity-step__content">
+                                    <h4 class="p-connectivity-step__title">Pindai Kode QR</h4>
+                                    <p class="p-connectivity-step__description">Arahkan kamera ponsel ke kode QR yang
+                                        ditampilkan di halaman ini.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-connectivity-note">
+                            <div class="p-connectivity-note__icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <p class="p-connectivity-note__text">
+                                Bot akan tetap aktif meskipun ponsel Anda tidak terhubung internet.
+                                Jangan logout dari WhatsApp Web jika ingin bot tetap berjalan.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Bot Features Section (Full Width) - Updated with horizontal layout -->
+    <template x-if="connectionState === 'connected'">
+        <div class="c-glassmorphism p-connectivity-card">
+            <div class="p-connectivity-card__header">
+                <div class="p-connectivity-card__header-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="p-connectivity-card__header-content">
+                    <h2 class="p-connectivity-card__title">Fitur Bot</h2>
+                    <p class="p-connectivity-card__subtitle">Kemampuan utama bot WhatsApp</p>
+                </div>
+            </div>
+            <div class="p-connectivity-card__body">
+                <div class="p-connectivity-features">
+                    <div class="p-connectivity-feature">
+                        <div class="p-connectivity-feature__icon">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <div class="p-connectivity-feature__content">
+                            <h4 class="p-connectivity-feature__title">Auto Responder</h4>
+                            <p class="p-connectivity-feature__desc">Balas pesan otomatis berdasarkan kata kunci yang
+                                telah ditentukan</p>
+                        </div>
+                    </div>
+
+                    <div class="p-connectivity-feature">
+                        <div class="p-connectivity-feature__icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="p-connectivity-feature__content">
+                            <h4 class="p-connectivity-feature__title">Keuangan</h4>
+                            <p class="p-connectivity-feature__desc">Catat dan kelola pemasukan dan pengeluaran keuangan
+                                dengan mudah</p>
+                        </div>
+                    </div>
+
+                    <div class="p-connectivity-feature">
+                        <div class="p-connectivity-feature__icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="p-connectivity-feature__content">
+                            <h4 class="p-connectivity-feature__title">Laporan</h4>
+                            <p class="p-connectivity-feature__desc">Dapatkan laporan terperinci dan analisis tentang
+                                aktivitas bot</p>
+                        </div>
+                    </div>
+
+                    <div class="p-connectivity-feature">
+                        <div class="p-connectivity-feature__icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="p-connectivity-feature__content">
+                            <h4 class="p-connectivity-feature__title">Pengingat</h4>
+                            <p class="p-connectivity-feature__desc">Atur pengingat dan jadwal otomatis untuk kegiatan
+                                penting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </template>
+</div>

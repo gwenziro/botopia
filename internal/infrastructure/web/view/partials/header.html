@@ -9,8 +9,10 @@
         </div>
         
         <div class="c-header__right">
-            <!-- Connection Status Badge -->
-            {{template "components/connection-status-badge" .}}
+            <div class="c-header-status">
+                <!-- Include badge component -->
+                {{template "components/connection-status-badge" .}}
+            </div>
             
             <!-- Theme Toggle -->
             <button id="darkModeToggle" class="c-btn c-btn--icon c-btn--ghost">

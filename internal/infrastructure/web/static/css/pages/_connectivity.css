@@ -1,340 +1,575 @@
 /* Connectivity Page Styles
  * -------------------------------------
  * Mendefinisikan gaya khusus untuk halaman connectivity
+ * dengan layout yang lebih proporsional dan simetris
  */
 
-/* Container untuk halaman connectivity */
+/* Container Utama */
 .p-connectivity {
+  padding: var(--space-6);
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: var(--space-6);
+  gap: var(--space-6);
 }
 
-.p-connectivity__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-/* Header dan status section */
-.p-connectivity-status {
-  margin-bottom: var(--space-6);
-  width: 100%;
-  text-align: center;
-}
-
-.p-connectivity-status__title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: var(--space-2);
-  color: var(--white);
-}
-
-.p-connectivity-status__subtitle {
-  font-size: 1rem;
-  color: var(--slate-300);
-  margin-bottom: var(--space-4);
-}
-
-/* QR Code Box */
-.p-connectivity-qrbox {
-  background-color: white;
-  padding: var(--space-6);
+/* Glassmorphism Effect */
+.c-glassmorphism {
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.5);
   border-radius: var(--radius-lg);
-  max-width: 320px;
-  margin: 0 auto var(--space-6) auto;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.c-glassmorphism:hover {
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Banner Section */
+.p-connectivity-banner {
+  width: 100%;
   overflow: hidden;
 }
 
-.p-connectivity-qrbox__image {
-  width: 100%;
-  height: auto;
-  display: block;
+.p-connectivity-banner__status {
+  display: flex;
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  position: relative;
 }
 
-/* Loading state for QR code */
-.p-connectivity-loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.8);
+.p-connectivity-banner__status--connected {
+  border-left: 6px solid var(--success);
+}
+
+.p-connectivity-banner__status--disconnected {
+  border-left: 6px solid var(--danger);
+}
+
+.p-connectivity-banner__icon {
+  font-size: 2.5rem;
+  margin-right: var(--space-5);
+}
+
+.p-connectivity-banner__status--connected .p-connectivity-banner__icon {
+  color: var(--success);
+}
+
+.p-connectivity-banner__status--disconnected .p-connectivity-banner__icon {
+  color: var(--danger);
+}
+
+.p-connectivity-banner__content {
+  flex: 1;
+}
+
+.p-connectivity-banner__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.p-connectivity-banner__description {
+  font-size: 1rem;
+  color: var(--slate-300);
+  margin: 0;
+}
+
+/* Main Content Layout */
+.p-connectivity-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-6);
+  width: 100%;
+}
+
+.p-connectivity-main__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Card Component */
+.p-connectivity-card {
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Equal Height Cards */
+.p-connectivity-card--equal-height {
+  height: 100%;
+}
+
+.p-connectivity-card--equal-height .p-connectivity-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.p-connectivity-card__header {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+}
+
+.p-connectivity-card__header--connected {
+  border-left: 4px solid var(--success);
+}
+
+.p-connectivity-card__header--with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.p-connectivity-card__header-left {
+  display: flex;
+  align-items: flex-start;
+}
+
+.p-connectivity-card__header-action {
+  flex-shrink: 0;
+}
+
+.p-connectivity-card__header-icon {
+  font-size: 1.5rem;
+  color: var(--primary-400);
+  margin-right: var(--space-4);
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  gap: var(--space-4);
-  z-index: 1;
+  background-color: rgba(var(--primary-400-rgb), 0.1);
+  border-radius: var(--radius-md);
 }
 
-.p-connectivity-loading__spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(var(--primary-400-rgb), 0.2);
+.p-connectivity-card__header-content {
+  flex: 1;
+}
+
+.p-connectivity-card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.p-connectivity-card__subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-400);
+  margin: 0;
+}
+
+.p-connectivity-card__body {
+  padding: var(--space-6);
+}
+
+/* QR Code Section */
+.p-connectivity-qr-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+
+.p-connectivity-qr-loading__spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(var(--primary-400-rgb), 0.1);
   border-radius: 50%;
   border-top: 4px solid var(--primary-400);
-  animation: connectivity-spinner 1s linear infinite;
+  animation: qr-spinner 1s linear infinite;
+  margin-bottom: var(--space-4);
 }
 
-@keyframes connectivity-spinner {
+.p-connectivity-qr-loading__text {
+  color: var(--slate-300);
+  font-size: 0.875rem;
+}
+
+.p-connectivity-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.p-connectivity-qr-frame {
+  background-color: white;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: var(--space-4);
+}
+
+.p-connectivity-qr-image {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+
+.p-connectivity-qr-status {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.p-connectivity-qr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background-color: rgba(var(--primary-400-rgb), 0.1);
+  border-radius: var(--radius-full);
+  color: var(--primary-400);
+  font-size: 0.75rem;
+}
+
+/* System Status */
+.p-connectivity-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: var(--space-4);
+  height: 100%;
+}
+
+.p-connectivity-status-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3);
+  background-color: rgba(30, 41, 59, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  transition: all 0.2s ease;
+}
+
+.p-connectivity-status-item:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+  border-color: rgba(var(--primary-400-rgb), 0.2);
+  transform: translateY(-2px);
+}
+
+.p-connectivity-status-item__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background-color: rgba(30, 41, 59, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--space-3);
+  flex-shrink: 0;
+}
+
+.p-connectivity-status-item__icon--active {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.p-connectivity-status-item__icon--inactive {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+.p-connectivity-status-item__label {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--white);
+}
+
+.p-connectivity-status-item__badge {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.p-connectivity-status-item__badge--active {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.p-connectivity-status-item__badge--inactive {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+/* Guide Steps */
+.p-connectivity-guide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.p-connectivity-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: rgba(30, 41, 59, 0.2);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(30, 41, 59, 0.1);
+  transition: all 0.2s ease;
+}
+
+.p-connectivity-step:hover {
+  background-color: rgba(30, 41, 59, 0.4);
+  border-color: rgba(var(--primary-400-rgb), 0.2);
+  transform: translateY(-2px);
+}
+
+.p-connectivity-step__number {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background-color: rgba(var(--primary-400-rgb), 0.15);
+  color: var(--primary-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.p-connectivity-step__content {
+  flex: 1;
+}
+
+.p-connectivity-step__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.p-connectivity-step__description {
+  font-size: 0.875rem;
+  color: var(--slate-300);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.p-connectivity-note {
+  margin-top: var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: rgba(var(--primary-400-rgb), 0.1);
+  border-radius: var(--radius-md);
+}
+
+.p-connectivity-note__icon {
+  color: var(--primary-400);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.p-connectivity-note__text {
+  font-size: 0.875rem;
+  color: var(--slate-300);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Info Grid for Connected Status */
+.p-connectivity-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  flex: 1;
+}
+
+.p-connectivity-info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: rgba(30, 41, 59, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  transition: all 0.2s ease;
+}
+
+.p-connectivity-info-item:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+  border-color: rgba(var(--primary-400-rgb), 0.2);
+  transform: translateY(-2px);
+}
+
+.p-connectivity-info-item__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background-color: rgba(var(--primary-400-rgb), 0.15);
+  color: var(--primary-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.p-connectivity-info-item__content {
+  flex: 1;
+}
+
+.p-connectivity-info-item__label {
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin-bottom: var(--space-1);
+}
+
+.p-connectivity-info-item__value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--white);
+}
+
+/* Features Grid - Updated to horizontal layout */
+.p-connectivity-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.p-connectivity-feature {
+  display: flex;
+  align-items: center;
+  background-color: rgba(30, 41, 59, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  padding: var(--space-3) var(--space-4);
+  transition: all 0.2s ease;
+}
+
+.p-connectivity-feature:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+  border-color: rgba(var(--primary-400-rgb), 0.2);
+  transform: translateY(-3px);
+}
+
+.p-connectivity-feature__icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--primary-400-rgb), 0.15);
+  color: var(--primary-400);
+  font-size: 1.25rem;
+  border-radius: var(--radius-md);
+  margin-right: var(--space-4);
+}
+
+.p-connectivity-feature__content {
+  flex: 1;
+  text-align: left;
+}
+
+.p-connectivity-feature__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.p-connectivity-feature__desc {
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Actions Area */
+.p-connectivity-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Animations */
+@keyframes qr-spinner {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* QR overlay for connected state */
-.p-connectivity-qrbox__overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding: var(--space-4);
-}
-
-.p-connectivity-qrbox__overlay-icon {
-  font-size: 3rem;
-  color: var(--success);
-  margin-bottom: var(--space-3);
-}
-
-.p-connectivity-qrbox__overlay-text {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--slate-900);
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* Connected info card */
-.p-connected-info {
-  background-color: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  width: 100%;
-  margin-bottom: var(--space-6);
-}
-
-.p-connected-info__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-}
-
-.p-connected-info__title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.p-connected-info__icon {
-  color: var(--success);
-}
-
-/* Connected info detail items */
-.p-connected-info__details {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.p-connected-info__detail {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  font-size: 0.875rem;
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.p-connected-info__detail:last-child {
-  border-bottom: none;
-}
-
-.p-connected-info__detail-icon {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: var(--radius-md);
-  background-color: rgba(16, 185, 129, 0.15);
-  color: var(--success);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-}
-
-.p-connected-info__detail-content {
-  flex: 1;
-}
-
-.p-connected-info__detail-label {
-  color: var(--slate-400);
-  margin-bottom: var(--space-1);
-  font-size: 0.75rem;
-}
-
-.p-connected-info__detail-value {
-  color: var(--white);
-  font-weight: 500;
-}
-
-/* Device Info Section */
-.p-device-info {
-  background-color: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(51, 65, 85, 0.5);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  width: 100%;
-  margin-bottom: var(--space-6);
-}
-
-.p-device-info__title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-
-.p-device-info__icon {
-  color: var(--primary-400);
-}
-
-.p-device-info__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-4);
-}
-
-.p-device-info__item {
-  background-color: rgba(30, 41, 59, 0.5);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-}
-
-.p-device-info__item-label {
-  font-size: 0.75rem;
-  color: var(--slate-400);
-  margin-bottom: var(--space-1);
-}
-
-.p-device-info__item-value {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--white);
-  word-break: break-word;
-}
-
-/* Instructions - Panduan menghubungkan */
-.p-connectivity-instructions {
-  margin-top: var(--space-6);
-  width: 100%;
-}
-
-.p-connectivity-instructions__title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-
-.p-connectivity-instructions__title i {
-  color: var(--primary-400);
-}
-
-.p-connectivity-instructions__list {
-  list-style-type: none;
-  counter-reset: connectivity-steps;
-  padding: 0;
-}
-
-.p-connectivity-instructions__step {
-  position: relative;
-  padding-left: var(--space-10);
-  margin-bottom: var(--space-4);
-  counter-increment: connectivity-steps;
-}
-
-.p-connectivity-instructions__step::before {
-  content: counter(connectivity-steps);
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 24px;
-  height: 24px;
-  background-color: rgba(var(--primary-400-rgb), 0.2);
-  color: var(--primary-400);
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.p-connectivity-instructions__step-title {
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: var(--space-1);
-}
-
-.p-connectivity-instructions__step-desc {
-  font-size: 0.875rem;
-  color: var(--slate-400);
-  line-height: 1.5;
-}
-
-/* Disconnect button */
-.p-disconnect-btn {
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: var(--danger);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
-}
-
-.p-disconnect-btn:hover {
-  background-color: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-}
-
-/* Responsive */
-@media (max-width: 640px) {
+/* Responsive Adjustments */
+@media (max-width: 991px) {
   .p-connectivity {
     padding: var(--space-4);
   }
   
-  .p-device-info__grid {
+  .p-connectivity-main {
     grid-template-columns: 1fr;
   }
+  
+  .p-connectivity-banner__status {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-4);
+  }
+  
+  .p-connectivity-banner__icon {
+    margin-right: 0;
+    margin-bottom: var(--space-3);
+  }
+}
+
+@media (max-width: 767px) {
+  .p-connectivity-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .p-connectivity-features {
+    grid-template-columns: 1fr;
+  }
+  
+  .p-connectivity-status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .p-connectivity-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .p-connectivity-card__header-icon {
+    margin-bottom: var(--space-3);
+  }
+  
+  .p-connectivity-card__header--with-action {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .p-connectivity-card__header-action {
+    margin-top: var(--space-3);
+  }
+}
+
+/* Utility Classes */
+.u-mt-4 {
+  margin-top: var(--space-4);
+}
+
+.u-mt-6 {
+  margin-top: var(--space-6);
+}
+
+.u-text-center {
+  text-align: center;
 }

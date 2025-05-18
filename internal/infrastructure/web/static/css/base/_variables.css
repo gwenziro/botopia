@@ -45,19 +45,16 @@
   --info: #0b7a97;
 
   /* Component Background Colors */
-  --sidebar-bg: rgba(15, 23, 42, 0.95);
-  --header-bg: rgba(15, 23, 42, 0.95);
-  --footer-bg: rgba(15, 23, 42, 0.95);
   --partials-bg: rgba(10, 19, 39, 0.95);
 
   /* Konten lebih gelap dengan efek glassmorphism */
-  --content-bg: rgba(2, 6, 23, 0.95); /* Lebih gelap dari slate-950 */
-  --card-bg: rgba(15, 23, 42, 0.65); /* Glassmorphism effect */
+  --content-bg: rgba(2, 6, 23, 0.95);
+  --card-bg: rgba(15, 23, 42, 0.65);
   
   /* Glass Effect */
   --glass-bg: rgba(15, 23, 42, 0.7);
   --glass-border: rgba(51, 65, 85, 0.5);
-  --glass-hover-border: rgba(11, 122, 151, 0.3); /* Updated to new primary */
+  --glass-hover-border: rgba(11, 122, 151, 0.3); 
   
   /* Spacing - Using a 4px base */
   --space-0: 0px;
@@ -138,6 +135,3 @@
 @custom-media --2xl (min-width: 1536px); /* 2X large devices */
 
 /* Dark Mode Override */
-.dark-mode {
-  /* Any dark mode specific variables */
-}
