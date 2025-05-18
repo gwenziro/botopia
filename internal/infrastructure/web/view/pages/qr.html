@@ -1,231 +1,194 @@
-<div x-data="qrHandler" x-init="initQR()" class="qr-page">
-  <div class="container mx-auto px-4 py-8">
-    <!-- Header Section -->
-    <div class="mb-6 flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-semibold text-white mb-2">Koneksi WhatsApp</h1>
-        <p class="text-slate-300"
-          x-text="isConnected ? 'Bot WhatsApp aktif dan siap digunakan untuk layanan Botopia.' : 'Hubungkan bot dengan WhatsApp untuk mulai menggunakan layanan Botopia.'">
-        </p>
-      </div>
-      <div>
-        <button @click="refreshQR" :disabled="loading"
-          class="refresh-btn flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-all">
-          <i class="fas fa-sync-alt mr-1" :class="{'animate-spin': loading}"></i>
-          <span x-text="isConnected ? 'Perbarui Status' : 'Perbarui QR'"></span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- QR Panel -->
-      <div class="qr-panel glass rounded-lg border border-slate-700/30 p-6 flex flex-col">
-        <div class="mb-4">
-          <h3 class="text-xl font-semibold">
-            <i class="fas fa-qrcode mr-2 text-primary-400"></i>
-            QR Code
-          </h3>
+<div x-data="connectivityApp" x-init="initialize()" class="p-connectivity">
+    <div class="p-connectivity__content">
+        <!-- Status heading -->
+        <div class="p-connectivity-status">
+            <h1 class="p-connectivity-status__title">
+                <template x-if="connectionState === 'connected'">
+                    Status: Terhubung
+                </template>
+                <template x-if="connectionState !== 'connected'">
+                    Status: Tidak Terhubung
+                </template>
+            </h1>
+            <p class="p-connectivity-status__subtitle">
+                <template x-if="connectionState === 'connected'">
+                    WhatsApp berhasil terhubung. Anda dapat menggunakan layanan bot sekarang.
+                </template>
+                <template x-if="connectionState !== 'connected'">
+                    Pindai kode QR dengan WhatsApp di ponsel Anda untuk terhubung.
+                </template>
+            </p>
+            
+            <!-- Auto refresh badge untuk QR Code -->
+            <template x-if="connectionState !== 'connected'">
+                <div class="p-auto-refresh">
+                    <i class="fas fa-sync-alt fa-spin"></i> Auto-refresh aktif
+                </div>
+            </template>
         </div>
-
-        <div class="qr-container w-full flex flex-col items-center justify-center bg-white/5 rounded-lg p-6">
-          <!-- QR Code Display -->
-          <template x-if="qrCode && !isConnected">
-            <div class="qr-display bg-white p-4 rounded-lg max-w-[280px] w-full mx-auto">
-              <div class="qr-code-wrapper" id="qrcode"></div>
-              <p class="text-center mt-4 text-slate-800 text-xs font-medium">Scan dengan WhatsApp</p>
+        
+        <!-- QR Code section - tampilkan hanya jika tidak terhubung -->
+        <template x-if="connectionState !== 'connected' && qrCode">
+            <div class="p-connectivity-qrbox">
+                <img :src="getQRImageURL()" alt="WhatsApp QR Code" class="p-connectivity-qrbox__image">
             </div>
-          </template>
-
-          <!-- Connected State -->
-          <template x-if="isConnected">
-            <div class="connected-state text-center p-2 w-full">
-              <div class="connected-animation mb-6">
-                <div class="connection-pulse-ring"></div>
-                <div class="connection-icon">
-                  <i class="fas fa-check-circle text-5xl text-green-400"></i>
-                </div>
-              </div>
-
-              <h4 class="text-xl font-semibold text-white">WhatsApp Terhubung</h4>
-              <p class="text-sm text-slate-300 mt-2" x-text="connectedPhone || 'Perangkat aktif'"></p>
-
-              <div class="connection-details mt-6 bg-white/5 p-4 rounded-lg border border-green-500/20 w-full">
-                <div class="grid grid-cols-1 gap-3 text-left">
-                  <div class="flex items-center text-slate-300">
-                    <i class="fas fa-user-circle w-5 text-slate-500 mr-2"></i>
-                    <div class="text-sm" x-text="displayName"></div>
-                  </div>
-                  <div x-show="platform" class="flex items-center text-slate-300">
-                    <i class="fas fa-laptop w-5 text-slate-500 mr-2"></i>
-                    <div class="text-sm" x-text="platform || 'WhatsApp Web'"></div>
-                  </div>
-                  <div class="flex items-center text-slate-300">
-                    <i class="fas fa-clock w-5 text-slate-500 mr-2"></i>
-                    <div class="text-sm" x-text="formattedConnectedTime || '-'"></div>
-                  </div>
-                </div>
-              </div>
-
-              <button @click="disconnectWhatsApp()"
-                class="mt-6 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white text-sm transition-colors flex mx-auto items-center">
-                <i class="fas fa-power-off mr-2"></i>
-                Putuskan Koneksi
-              </button>
-            </div>
-          </template>
-
-          <!-- Loading/Waiting State -->
-          <template x-if="!qrCode && !isConnected">
-            <div class="waiting-state text-center w-full">
-              <div class="loader-ring mx-auto mb-4"></div>
-              <h4 class="text-xl font-semibold text-white">Membuat QR Code</h4>
-              <p class="text-sm text-slate-300 mt-2">Mohon tunggu sebentar...</p>
-            </div>
-          </template>
-        </div>
-      </div>
-
-      <!-- Instructions Panel -->
-      <div class="instructions-panel glass rounded-lg border border-slate-700/30 p-6">
-        <!-- Konten dinamis berdasarkan status koneksi -->
-        <template x-if="!isConnected">
-          <div>
-            <h3 class="text-xl font-semibold mb-4">
-              <i class="fas fa-info-circle mr-2 text-primary-400"></i>
-              Cara Menghubungkan
-            </h3>
-
-            <div class="steps-container space-y-6">
-              <div class="step flex">
-                <div
-                  class="step-number flex-shrink-0 w-8 h-8 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center mr-3 mt-0.5">
-                  1
-                </div>
-                <div>
-                  <h4 class="text-white font-medium mb-1">Buka WhatsApp di ponsel Anda</h4>
-                  <p class="text-slate-300 text-sm">Pastikan Anda menggunakan versi WhatsApp terbaru.</p>
-                </div>
-              </div>
-
-              <div class="step flex">
-                <div
-                  class="step-number flex-shrink-0 w-8 h-8 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center mr-3 mt-0.5">
-                  2
-                </div>
-                <div>
-                  <h4 class="text-white font-medium mb-1">Buka menu Pengaturan</h4>
-                  <p class="text-slate-300 text-sm">Ketuk ikon tiga titik di pojok kanan atas dan pilih "Perangkat
-                    Tertaut".</p>
-                </div>
-              </div>
-
-              <div class="step flex">
-                <div
-                  class="step-number flex-shrink-0 w-8 h-8 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center mr-3 mt-0.5">
-                  3
-                </div>
-                <div>
-                  <h4 class="text-white font-medium mb-1">Ketuk "Tertautkan Perangkat"</h4>
-                  <p class="text-slate-300 text-sm">Pilih opsi untuk menautkan perangkat baru.</p>
-                </div>
-              </div>
-
-              <div class="step flex">
-                <div
-                  class="step-number flex-shrink-0 w-8 h-8 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center mr-3 mt-0.5">
-                  4
-                </div>
-                <div>
-                  <h4 class="text-white font-medium mb-1">Scan QR Code</h4>
-                  <p class="text-slate-300 text-sm">Arahkan kamera ponsel Anda ke QR code yang ditampilkan di sebelah.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="info-box bg-blue-900/30 border border-blue-800/40 rounded-lg p-4 mt-6">
-              <div class="flex">
-                <div class="flex-shrink-0 text-blue-400 mt-1">
-                  <i class="fas fa-lightbulb"></i>
-                </div>
-                <div class="ml-3">
-                  <h5 class="text-blue-400 text-sm font-medium">Informasi Penting</h5>
-                  <p class="text-slate-300 text-xs mt-1">Koneksi akan tetap aktif meskipun Anda menutup halaman ini.
-                    Untuk memutuskan koneksi secara manual, silakan gunakan tombol "Putuskan Koneksi".</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </template>
-
-        <!-- Konten ketika sudah terhubung -->
-        <template x-if="isConnected">
-          <div>
-            <h3 class="text-xl font-semibold mb-4">
-              <i class="fas fa-check-circle mr-2 text-green-400"></i>
-              Status Koneksi Aktif
-            </h3>
-
-            <div class="status-container space-y-6">
-              <div class="status-item">
-                <div class="feature-card p-4 bg-green-900/20 border border-green-800/30 rounded-lg mb-4">
-                  <div class="flex items-start">
-                    <div class="stats-card-icon bg-green-400/20 mr-4">
-                      <i class="fas fa-robot text-green-400"></i>
-                    </div>
-                    <div>
-                      <h4 class="text-white font-medium">Bot Siap Digunakan</h4>
-                      <p class="text-slate-300 text-sm mt-1">WhatsApp Bot Anda aktif dan siap menerima perintah dari
-                        pengguna.</p>
-                    </div>
-                  </div>
+        
+        <!-- Loading state - tampilkan hanya jika tidak terhubung dan tidak ada QR -->
+        <template x-if="connectionState !== 'connected' && !qrCode">
+            <div class="p-connectivity-qrbox">
+                <div class="p-connectivity-loading">
+                    <div class="p-connectivity-loading__spinner"></div>
+                    <p>Memuat kode QR...</p>
                 </div>
-
-                <div class="feature-card p-4 bg-blue-900/20 border border-blue-800/30 rounded-lg mb-4">
-                  <div class="flex items-start">
-                    <div class="stats-card-icon bg-blue-400/20 mr-4">
-                      <i class="fas fa-mobile-alt text-blue-400"></i>
-                    </div>
-                    <div>
-                      <h4 class="text-white font-medium">Multi-Device</h4>
-                      <p class="text-slate-300 text-sm mt-1">Bot terhubung melalui fitur multi-device WhatsApp. Ponsel
-                        Anda tidak perlu tetap online.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="feature-card p-4 bg-purple-900/20 border border-purple-800/30 rounded-lg">
-                  <div class="flex items-start">
-                    <div class="stats-card-icon bg-purple-400/20 mr-4">
-                      <i class="fas fa-code text-purple-400"></i>
-                    </div>
-                    <div>
-                      <h4 class="text-white font-medium">Command Tersedia</h4>
-                      <p class="text-slate-300 text-sm mt-1">Pengguna dapat mengirimkan perintah seperti
-                        <code>!masuk</code>, <code>!keluar</code> untuk mencatat keuangan.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-
-            <div class="info-box bg-amber-900/30 border border-amber-800/40 rounded-lg p-4 mt-6">
-              <div class="flex">
-                <div class="flex-shrink-0 text-amber-400 mt-1">
-                  <i class="fas fa-lightbulb"></i>
-                </div>
-                <div class="ml-3">
-                  <h5 class="text-amber-400 text-sm font-medium">Tips Penggunaan</h5>
-                  <p class="text-slate-300 text-xs mt-1">Kirim pesan <code>!panduan</code> ke bot untuk melihat daftar
-                    lengkap perintah yang tersedia.</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </template>
-      </div>
+        
+        <!-- Connected state info -->
+        <template x-if="connectionState === 'connected'">
+            <!-- Connected info panel -->
+            <div class="p-connected-info">
+                <div class="p-connected-info__header">
+                    <h2 class="p-connected-info__title">
+                        <i class="fas fa-check-circle p-connected-info__icon"></i>
+                        WhatsApp Terhubung
+                    </h2>
+                </div>
+                
+                <div class="p-connected-info__details">
+                    <!-- Phone detail -->
+                    <div class="p-connected-info__detail">
+                        <div class="p-connected-info__detail-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="p-connected-info__detail-content">
+                            <div class="p-connected-info__detail-label">Nomor Telepon</div>
+                            <div class="p-connected-info__detail-value" x-text="formatPhone(phone)"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Name detail -->
+                    <div class="p-connected-info__detail">
+                        <div class="p-connected-info__detail-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="p-connected-info__detail-content">
+                            <div class="p-connected-info__detail-label">Nama</div>
+                            <div class="p-connected-info__detail-value" x-text="name"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Uptime detail -->
+                    <div class="p-connected-info__detail">
+                        <div class="p-connected-info__detail-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="p-connected-info__detail-content">
+                            <div class="p-connected-info__detail-label">Waktu Aktif</div>
+                            <div class="p-connected-info__detail-value" x-text="formatUptime(uptime)"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Connected Since detail -->
+                    <div class="p-connected-info__detail">
+                        <div class="p-connected-info__detail-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="p-connected-info__detail-content">
+                            <div class="p-connected-info__detail-label">Terhubung Sejak</div>
+                            <div class="p-connected-info__detail-value" x-text="formatDate(connectedSince)"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Disconnect button -->
+                <div class="u-text-center u-mt-4">
+                    <button @click="disconnect()" class="p-disconnect-btn">
+                        <i class="fas fa-plug-circle-xmark"></i> Putuskan Koneksi
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Device Details Section - tampilkan hanya jika ada deviceDetails -->
+            <template x-if="deviceDetails">
+                <div class="p-device-info">
+                    <h3 class="p-device-info__title">
+                        <i class="fas fa-mobile-alt p-device-info__icon"></i>
+                        Informasi Perangkat
+                    </h3>
+                    
+                    <div class="p-device-info__grid">
+                        <!-- Platform -->
+                        <template x-if="deviceDetails.platform">
+                            <div class="p-device-info__item">
+                                <div class="p-device-info__item-label">Platform</div>
+                                <div class="p-device-info__item-value" x-text="deviceDetails.platform"></div>
+                            </div>
+                        </template>
+                        
+                        <!-- Device Model -->
+                        <template x-if="deviceDetails.deviceModel">
+                            <div class="p-device-info__item">
+                                <div class="p-device-info__item-label">Model Perangkat</div>
+                                <div class="p-device-info__item-value" x-text="deviceDetails.deviceModel"></div>
+                            </div>
+                        </template>
+                        
+                        <!-- OS Version -->
+                        <template x-if="deviceDetails.osVersion">
+                            <div class="p-device-info__item">
+                                <div class="p-device-info__item-label">Versi OS</div>
+                                <div class="p-device-info__item-value" x-text="deviceDetails.osVersion"></div>
+                            </div>
+                        </template>
+                        
+                        <!-- Device ID -->
+                        <template x-if="deviceDetails.deviceId">
+                            <div class="p-device-info__item">
+                                <div class="p-device-info__item-label">ID Perangkat</div>
+                                <div class="p-device-info__item-value" x-text="deviceDetails.deviceId"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </template>
+        
+        <!-- Instructions - tampilkan hanya jika tidak terhubung -->
+        <template x-if="connectionState !== 'connected'">
+            <div class="p-connectivity-instructions">
+                <h3 class="p-connectivity-instructions__title">
+                    <i class="fas fa-info-circle"></i> Cara Menghubungkan WhatsApp
+                </h3>
+                
+                <ol class="p-connectivity-instructions__list">
+                    <li class="p-connectivity-instructions__step">
+                        <div class="p-connectivity-instructions__step-title">Buka WhatsApp di ponsel Anda</div>
+                        <div class="p-connectivity-instructions__step-desc">
+                            Pastikan WhatsApp sudah terinstal dan aktif di ponsel Anda.
+                        </div>
+                    </li>
+                    <li class="p-connectivity-instructions__step">
+                        <div class="p-connectivity-instructions__step-title">Buka Menu Pengaturan</div>
+                        <div class="p-connectivity-instructions__step-desc">
+                            Ketuk ikon titik tiga di pojok kanan atas, lalu pilih "WhatsApp Web".
+                        </div>
+                    </li>
+                    <li class="p-connectivity-instructions__step">
+                        <div class="p-connectivity-instructions__step-title">Pindai Kode QR</div>
+                        <div class="p-connectivity-instructions__step-desc">
+                            Arahkan kamera ponsel Anda ke kode QR yang ditampilkan di halaman ini.
+                        </div>
+                    </li>
+                    <li class="p-connectivity-instructions__step">
+                        <div class="p-connectivity-instructions__step-title">Tunggu Proses Koneksi</div>
+                        <div class="p-connectivity-instructions__step-desc">
+                            Setelah kode QR dipindai, tunggu hingga proses koneksi selesai. 
+                            Halaman akan otomatis beralih ke status terhubung.
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </template>
     </div>
-  </div>
 </div>

@@ -1,9 +1,9 @@
 /**
- * QR Code Application
- * Menangani fungsionalitas QR code scanner dan connection state
+ * Connectivity Application
+ * Mengelola antarmuka untuk pemindai QR WhatsApp dan status koneksi
  */
 document.addEventListener('alpine:init', () => {
-    Alpine.data('qrCodeApp', () => ({
+    Alpine.data('connectivityApp', () => ({
         connectionState: 'disconnected', // connected, connecting, disconnected
         qrCode: '',
         phone: '',
@@ -14,9 +14,10 @@ document.addEventListener('alpine:init', () => {
         pollingInterval: null,
         retryCount: 0,
         maxRetries: 15,
+        deviceDetails: null,
         
         initialize() {
-            console.log('Initializing QR code app');
+            console.log('Initializing Connectivity app');
             
             // Load data awal
             this.loadInitialData();
@@ -58,7 +59,7 @@ document.addEventListener('alpine:init', () => {
             }
             
             // Segera fetch data untuk informasi terbaru
-            this.fetchQRData();
+            this.fetchConnectivityData();
         },
         
         startPolling() {
@@ -70,7 +71,7 @@ document.addEventListener('alpine:init', () => {
             
             // Start new polling
             this.pollingInterval = setInterval(() => {
-                this.fetchQRData();
+                this.fetchConnectivityData();
             }, interval);
         },
         
@@ -81,7 +82,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
         
-        fetchQRData() {
+        fetchConnectivityData() {
             fetch('/api/qr')
                 .then(response => {
                     if (!response.ok) {
@@ -106,6 +107,7 @@ document.addEventListener('alpine:init', () => {
                         this.phone = data.phone || '';
                         this.name = data.name || 'WhatsApp User';
                         this.uptime = data.uptime || 0;
+                        this.deviceDetails = data.deviceDetails || null;
                         
                         // Calculate connected since from uptime
                         if (this.uptime > 0) {
@@ -139,7 +141,7 @@ document.addEventListener('alpine:init', () => {
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching QR data:', error);
+                    console.error('Error fetching connectivity data:', error);
                     this.retryCount++;
                     
                     if (this.retryCount > this.maxRetries) {
@@ -152,7 +154,7 @@ document.addEventListener('alpine:init', () => {
         adjustPollingInterval(newInterval) {
             this.stopPolling();
             this.pollingInterval = setInterval(() => {
-                this.fetchQRData();
+                this.fetchConnectivityData();
             }, newInterval);
         },
         
@@ -171,6 +173,7 @@ document.addEventListener('alpine:init', () => {
                         if (data.success) {
                             this.connectionState = 'disconnected';
                             this.qrCode = '';
+                            this.deviceDetails = null;
                             showToast('success', 'Koneksi WhatsApp berhasil diputuskan');
                             
                             // Restart polling with faster interval

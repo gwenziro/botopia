@@ -128,6 +128,7 @@ func (c *DashboardController) HandleDashboard(ctx *fiber.Ctx) error {
 		"SpreadsheetId":       c.getSpreadsheetID(), // Add this
 		"DriveFolderId":       c.getDriveFolderID(), // Already added
 		"Commands":            commands,
+		"ConnectivityUrl":     "/connectivity", // Tambahkan data untuk URL konektivitas
 	}, "layouts/main")
 }
 

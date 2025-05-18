@@ -38,7 +38,7 @@
     <div id="toast-container" class="p-toast-container"></div>
 
     <!-- Main JavaScript -->
-    <script src="/static/js/utils/toast.js"></script>
+    <script src="/static/js/toast.js"></script>
     <script src="/static/js/sidebar-controller.js"></script>
     <script src="/static/js/main.js"></script>
     
@@ -68,8 +68,8 @@
     <!-- Page specific script -->
     {{if eq .Page "dashboard"}}
     <script src="/static/js/pages/dashboard-app.js"></script>
-    {{else if eq .Page "qr"}}
-    <script src="/static/js/pages/qr-app.js"></script>
+    {{else if eq .Page "connectivity"}}
+    <script src="/static/js/pages/connectivity-app.js"></script>
     {{else if eq .Page "commands"}}
     <script src="/static/js/pages/commands-app.js"></script>
     {{else if eq .Page "data-master"}}
@@ -78,20 +78,5 @@
     <script src="/static/js/pages/contact-app.js"></script>
     {{end}}
 
-    <!-- Script untuk debug popular commands -->
-    <script>
-        // Debug function that will run after page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                console.log("Commands from window object:", window.botopiaCommands);
-                if (window.Alpine) {
-                    const dashApp = document.querySelector('[x-data="dashboardApp"]')?.__x;
-                    if (dashApp) {
-                        console.log("Popular commands from Alpine:", dashApp.$data.popularCommands);
-                    }
-                }
-            }, 1000);
-        });
-    </script>
 </body>
 </html>

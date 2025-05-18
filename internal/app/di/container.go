@@ -55,14 +55,14 @@ type Container struct {
 	contactService service.ContactService
 
 	// Controllers
-	dashboardController  *web.DashboardController
-	qrController         *web.QRController
-	authController       *web.AuthController
-	messageController    *whatsappController.MessageController
-	configController     *web.ConfigController
-	dataMasterController *web.DataMasterController
-	contactController    *web.ContactController
-	commandsController   *web.CommandsController // Tambahkan controller baru
+	dashboardController    *web.DashboardController
+	connectivityController *web.ConnectivityController // Rename from qrController
+	authController         *web.AuthController
+	messageController      *whatsappController.MessageController
+	configController       *web.ConfigController
+	dataMasterController   *web.DataMasterController
+	contactController      *web.ContactController
+	commandsController     *web.CommandsController // Tambahkan controller baru
 
 	// Command initializer
 	commandInitializer *command.CommandInitializer
@@ -196,7 +196,10 @@ func (c *Container) initControllers() {
 		c.financeService, // Tambahkan finance service
 	)
 
-	c.qrController = web.NewQRController(c.connectWhatsAppUseCase, c.getStatsUseCase)
+	c.connectivityController = web.NewConnectivityController(
+		c.connectWhatsAppUseCase,
+		c.getStatsUseCase,
+	)
 
 	c.authController = web.NewAuthController(
 		c.config.WebAuthUsername,
@@ -272,8 +275,8 @@ func (c *Container) GetDashboardController() *web.DashboardController {
 }
 
 // GetQRController mengembalikan controller QR
-func (c *Container) GetQRController() *web.QRController {
-	return c.qrController
+func (c *Container) GetQRController() *web.ConnectivityController {
+	return c.connectivityController
 }
 
 // GetAuthController mengembalikan controller autentikasi

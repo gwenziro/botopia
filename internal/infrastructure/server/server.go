@@ -178,7 +178,7 @@ func (s *Server) setupAuthenticatedRoutes(
 
 // setupUnauthenticatedRoutes mengatur route tanpa auth
 func (s *Server) setupUnauthenticatedRoutes(
-	dashboardCtrl, qrCtrl, configCtrl, dataMasterCtrl, contactCtrl interface{},
+	dashboardCtrl, connectivityCtrl, configCtrl, dataMasterCtrl, contactCtrl interface{},
 ) {
 	// Cast to correct types
 	dashboard := dashboardCtrl.(interface {
@@ -186,11 +186,11 @@ func (s *Server) setupUnauthenticatedRoutes(
 		HandleDashboard(ctx *fiber.Ctx) error
 		HandleGetStats(ctx *fiber.Ctx) error
 		HandleGetCommands(ctx *fiber.Ctx) error
-		HandleGetRecentTransactions(ctx *fiber.Ctx) error // Add this
+		HandleGetRecentTransactions(ctx *fiber.Ctx) error
 	})
 
-	qr := qrCtrl.(interface {
-		HandleQRPage(ctx *fiber.Ctx) error
+	connectivity := connectivityCtrl.(interface {
+		HandleConnectivityPage(ctx *fiber.Ctx) error
 		HandleGetQR(ctx *fiber.Ctx) error
 		HandleDisconnect(ctx *fiber.Ctx) error
 	})
@@ -199,7 +199,7 @@ func (s *Server) setupUnauthenticatedRoutes(
 		HandleConfigPage(ctx *fiber.Ctx) error
 		HandleGetConfig(ctx *fiber.Ctx) error
 		HandleUpdateConfig(ctx *fiber.Ctx) error
-		HandleGetConfigStatus(ctx *fiber.Ctx) error // Add this to the interface
+		HandleGetConfigStatus(ctx *fiber.Ctx) error
 	})
 
 	dataMaster := dataMasterCtrl.(interface {
@@ -220,9 +220,9 @@ func (s *Server) setupUnauthenticatedRoutes(
 	// Public routes
 	s.app.Get("/", dashboard.HandleIndex)
 	s.app.Get("/dashboard", dashboard.HandleDashboard)
-	s.app.Get("/qr", qr.HandleQRPage)
+	s.app.Get("/connectivity", connectivity.HandleConnectivityPage) // Updated path from /qr to /connectivity
 	s.app.Get("/konfigurasi", config.HandleConfigPage)
-	s.app.Get("/data-master", dataMaster.HandleDataMasterPage) // Tambahkan route data master
+	s.app.Get("/data-master", dataMaster.HandleDataMasterPage)
 	s.app.Get("/contacts", contact.HandleContactPage)
 
 	// Cast Commands controller
@@ -236,8 +236,8 @@ func (s *Server) setupUnauthenticatedRoutes(
 	api.Get("/stats", dashboard.HandleGetStats)
 	api.Get("/commands", dashboard.HandleGetCommands)
 	api.Get("/transactions/recent", dashboard.HandleGetRecentTransactions) // Add this
-	api.Get("/qr", qr.HandleGetQR)
-	api.Post("/disconnect", qr.HandleDisconnect)
+	api.Get("/qr", connectivity.HandleGetQR)                               // Keep API endpoint as /api/qr for backward compatibility
+	api.Post("/disconnect", connectivity.HandleDisconnect)
 	api.Get("/config", config.HandleGetConfig)
 	api.Post("/config", config.HandleUpdateConfig)
 	api.Get("/config/status", config.HandleGetConfigStatus) // Add this new route

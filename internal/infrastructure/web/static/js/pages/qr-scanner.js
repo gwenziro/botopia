@@ -1,43 +1,49 @@
 /**
- * QR Scanner Module for Botopia
+ * Connectivity Application
  * 
- * Handles QR code generation, display and connection management
+ * Mengelola antarmuka untuk pemindai QR WhatsApp dan status koneksi
  */
-
 document.addEventListener('alpine:init', () => {
-  Alpine.data('qrHandler', () => ({
-    qrCode: '',
-    isConnected: false,
-    isRefreshing: false,
-    connectionStatus: 'Terputus',
-    statusTitle: 'Koneksi WhatsApp',
-    statusMessage: 'Menunggu koneksi...',
-    connectedPhone: '',
-    deviceName: '',
-    platform: '',
-    businessName: '',
-    deviceID: '',
-    connectedSince: '',
-    formattedConnectedTime: '',
-    errorMessage: '',
-    pollInterval: null,
-    
-    // Computed properties for UI
+    Alpine.data('connectivityApp', () => ({
+        qrCodeData: '',
+        isConnected: false,
+        isLoading: false,
+        phone: '',
+        name: '',
+        refreshInterval: null,
+        refreshTimerInterval: null,
+        refreshTimerProgress: 0,
+        refreshTime: 20, // seconds until auto refresh
+        deviceDetails: null,
+        
+        initialize() {
+            console.log('Initializing Connectivity App...');
+            
+            // Cek status koneksi saat halaman dimuat
+            this.checkConnectionStatus();
+            
+            // Setup timer untuk refresh otomatis jika belum terhubung
+            if (!this.isConnected) {
+                this.setupRefreshTimer();
+            }
+        },
+        
+        // Computed properties for UI
     get connectionClass() {
       if (this.isConnected) return 'connected';
-      if (this.isRefreshing) return 'loading';
+      if (this.isLoading) return 'loading';
       return 'disconnected';
     },
     
     get connectionIcon() {
       if (this.isConnected) return 'fa-check';
-      if (this.isRefreshing) return 'fa-spinner fa-spin';
+      if (this.isLoading) return 'fa-spinner fa-spin';
       return 'fa-times';
     },
     
     get connectionBadgeClass() {
       if (this.isConnected) return 'connected';
-      if (this.isRefreshing) return 'loading';
+      if (this.isLoading) return 'loading';
       return 'disconnected';
     },
     
@@ -55,7 +61,7 @@ document.addEventListener('alpine:init', () => {
       return parts.join(' • ');
     },
     
-    // Initialize QR handling
+        // Initialize QR handling
     initQR() {
       console.log('Initializing QR handler');
       this.fetchQRStatus();
@@ -309,5 +315,5 @@ document.addEventListener('alpine:init', () => {
         minute: '2-digit'
       });
     }
-  }));
+    }));
 });

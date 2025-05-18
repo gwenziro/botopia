@@ -32,6 +32,6 @@
 
 /* Pages */
 @import './pages/_dashboard.css';
-@import './pages/_qr.css';
+@import './pages/_connectivity.css';
 @import './pages/_commands.css';
 @import './pages/_data-master.css';

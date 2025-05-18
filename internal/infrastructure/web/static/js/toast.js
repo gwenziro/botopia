@@ -1,119 +1,74 @@
 /**
- * Toast notification system for Botopia
+ * Toast Notification System
+ * Menampilkan notifikasi toast
  */
-
-// Create toast container if it doesn't exist
-function ensureToastContainer() {
-  let container = document.querySelector('.toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-  return container;
-}
-
-// Create a new toast notification
-function createToast(type, message, options = {}) {
-  const container = ensureToastContainer();
-  
-  // Default options
-  const defaults = {
-    title: getDefaultTitle(type),
-    duration: 5000,
-    closable: true,
-    icon: getIconForType(type)
-  };
-  
-  // Merge options
-  const settings = { ...defaults, ...options };
-  
-  // Create toast element
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.innerHTML = `
-    <div class="toast-icon">
-      <i class="${settings.icon}"></i>
-    </div>
-    <div class="toast-content">
-      <div class="toast-title">${settings.title}</div>
-      <div class="toast-message">${message}</div>
-    </div>
-    ${settings.closable ? '<button class="toast-close">&times;</button>' : ''}
-  `;
-  
-  // Add to container
-  container.appendChild(toast);
-  
-  // Add close functionality
-  if (settings.closable) {
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', () => removeToast(toast));
-  }
-  
-  // Auto dismiss
-  if (settings.duration) {
-    setTimeout(() => removeToast(toast), settings.duration);
-  }
-  
-  return toast;
-}
-
-// Remove a toast with animation
-function removeToast(toast) {
-  toast.style.animation = 'toast-out-bottom 0.3s forwards';
-  setTimeout(() => {
-    if (toast.parentNode) {
-      toast.parentNode.removeChild(toast);
+const showToast = (type, message, duration = 3000) => {
+    // Get or create toast container
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'p-toast-container';
+        document.body.appendChild(container);
     }
     
-    // Remove container if empty
-    const container = document.querySelector('.toast-container');
-    if (container && container.children.length === 0) {
-      document.body.removeChild(container);
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `p-toast p-toast--${type}`;
+    
+    // Add icon based on type
+    let icon = 'fa-info-circle';
+    switch (type) {
+        case 'success':
+            icon = 'fa-check-circle';
+            break;
+        case 'error':
+            icon = 'fa-circle-exclamation';
+            break;
+        case 'warning':
+            icon = 'fa-triangle-exclamation';
+            break;
     }
-  }, 300);
-}
-
-// Get default title based on type
-function getDefaultTitle(type) {
-  switch (type) {
-    case 'success': return 'Berhasil';
-    case 'error': return 'Error';
-    case 'info': return 'Informasi';
-    case 'warning': return 'Perhatian';
-    default: return 'Notifikasi';
-  }
-}
-
-// Get icon based on type
-function getIconForType(type) {
-  switch (type) {
-    case 'success': return 'fas fa-check-circle';
-    case 'error': return 'fas fa-exclamation-circle';
-    case 'info': return 'fas fa-info-circle';
-    case 'warning': return 'fas fa-exclamation-triangle';
-    default: return 'fas fa-bell';
-  }
-}
-
-// Public API
-window.showToast = function(type, message, options) {
-  return createToast(type, message, options);
+    
+    // Set content
+    toast.innerHTML = `
+        <div class="p-toast__icon">
+            <i class="fas ${icon}"></i>
+        </div>
+        <div class="p-toast__content">${message}</div>
+        <button class="p-toast__close" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Add to container
+    container.appendChild(toast);
+    
+    // Add show class after a small delay for animation
+    setTimeout(() => {
+        toast.classList.add('p-toast--show');
+    }, 10);
+    
+    // Add click event for close button
+    const closeBtn = toast.querySelector('.p-toast__close');
+    closeBtn.addEventListener('click', () => {
+        closeToast(toast);
+    });
+    
+    // Auto close after duration
+    setTimeout(() => {
+        closeToast(toast);
+    }, duration);
 };
 
-window.successToast = function(message, options) {
-  return createToast('success', message, options);
-};
-
-window.errorToast = function(message, options) {
-  return createToast('error', message, options);
-};
-
-window.infoToast = function(message, options) {
-  return createToast('info', message, options);
-};
-
-window.warningToast = function(message, options) {
-  return createToast('warning', message, options);
+const closeToast = (toast) => {
+    // Add hide class for animation
+    toast.classList.add('p-toast--hide');
+    
+    // Remove after animation completes
+    toast.addEventListener('transitionend', () => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    });
 };
