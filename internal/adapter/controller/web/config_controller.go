@@ -1,6 +1,8 @@
 package web
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gwenziro/botopia/internal/infrastructure/config"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
@@ -22,35 +24,83 @@ func NewConfigController(config *config.Config) *ConfigController {
 
 // HandleConfigPage menangani halaman konfigurasi
 func (c *ConfigController) HandleConfigPage(ctx *fiber.Ctx) error {
-	return ctx.Render("pages/configuration", fiber.Map{
-		"Title": "Konfigurasi | Botopia",
-		"Page":  "konfigurasi",
+	return ctx.Render("pages/config", fiber.Map{
+		"Title":             "Konfigurasi | Botopia",
+		"Page":              "konfigurasi",
+		"LogLevel":          c.config.LogLevel,
+		"CommandPrefix":     c.config.CommandPrefix,
+		"WebPort":           c.config.WebPort,
+		"WebHost":           c.config.WebHost,
+		"WebAuthEnabled":    c.config.WebAuthEnabled,
+		"WebAuthUsername":   c.config.WebAuthUsername,
+		"WebAuthPassword":   c.config.WebAuthPassword,
+		"DevMode":           c.config.DevMode,
+		"QRAutoRefresh":     c.config.QRAutoRefresh,
+		"GoogleCredentials": c.config.GoogleSheets.CredentialsFile,
+		"SpreadsheetID":     c.config.GoogleSheets.SpreadsheetID,
+		"DriveFolderID":     c.config.GoogleSheets.DriveFolderID,
 	}, "layouts/main")
 }
 
 // HandleGetConfig menangani API untuk mendapatkan konfigurasi
 func (c *ConfigController) HandleGetConfig(ctx *fiber.Ctx) error {
-	// Kembalikan konfigurasi yang aman untuk frontend
-	return ctx.JSON(fiber.Map{
-		"commandPrefix":   c.config.CommandPrefix,
+	// Sembunyikan password sebelum mengembalikan konfigurasi
+	config := map[string]interface{}{
 		"logLevel":        c.config.LogLevel,
+		"commandPrefix":   c.config.CommandPrefix,
 		"webPort":         c.config.WebPort,
 		"webHost":         c.config.WebHost,
-		"spreadsheetId":   c.config.GoogleSheets.SpreadsheetID,
-		"driveFolderId":   c.config.GoogleSheets.DriveFolderID,
-		"credentialsFile": c.config.GoogleSheets.CredentialsFile,
-	})
+		"webAuthEnabled":  c.config.WebAuthEnabled,
+		"webAuthUsername": c.config.WebAuthUsername,
+		"webAuthPassword": "********", // Sembunyikan password
+		"devMode":         c.config.DevMode,
+		"qrAutoRefresh":   c.config.QRAutoRefresh,
+		"googleSheets": map[string]string{
+			"credentialsFile": c.config.GoogleSheets.CredentialsFile,
+			"spreadsheetID":   c.config.GoogleSheets.SpreadsheetID,
+			"driveFolderID":   c.config.GoogleSheets.DriveFolderID,
+		},
+	}
+
+	return ctx.JSON(config)
 }
 
 // HandleUpdateConfig menangani API untuk memperbarui konfigurasi
 func (c *ConfigController) HandleUpdateConfig(ctx *fiber.Ctx) error {
-	// Di implementasi sebenarnya, kita akan memvalidasi dan menyimpan perubahan
-	// Namun untuk sekarang kita hanya simulasikan berhasil
+	// Implementasi update config sesuai kebutuhan
+	return ctx.JSON(fiber.Map{"success": true})
+}
 
-	c.log.Info("Config update requested (not implemented yet)")
+// HandleGetConfigStatus returns configuration status as JSON
+func (c *ConfigController) HandleGetConfigStatus(ctx *fiber.Ctx) error {
+	// Check Google API status
+	isGoogleAPIConfigured := c.config.GoogleSheets.CredentialsFile != ""
+	googleSheetsConfigured := c.config.GoogleSheets.SpreadsheetID != ""
+	googleDriveConfigured := c.config.GoogleSheets.DriveFolderID != ""
+
+	// Get spreadsheet URL & ID
+	spreadsheetUrl := ""
+	spreadsheetId := c.config.GoogleSheets.SpreadsheetID
+	if googleSheetsConfigured {
+		spreadsheetUrl = fmt.Sprintf("https://docs.google.com/spreadsheets/d/%s/edit", spreadsheetId)
+	}
+
+	// Get drive folder URL & ID
+	driveFolderUrl := ""
+	driveFolderId := c.config.GoogleSheets.DriveFolderID
+	if googleDriveConfigured {
+		driveFolderUrl = fmt.Sprintf("https://drive.google.com/drive/folders/%s", driveFolderId)
+	}
 
 	return ctx.JSON(fiber.Map{
-		"success": true,
-		"message": "Konfigurasi berhasil diperbarui",
+		"googleApi": fiber.Map{
+			"configured": isGoogleAPIConfigured,
+			"sheets":     googleSheetsConfigured,
+			"drive":      googleDriveConfigured,
+		},
+		"spreadsheetUrl": spreadsheetUrl,
+		"spreadsheetId":  spreadsheetId,
+		"driveFolderUrl": driveFolderUrl,
+		"driveFolderId":  driveFolderId,
 	})
 }

@@ -122,17 +122,33 @@ func (r *ConnectionRepository) GetCurrentUser() (*user.User, error) {
 		return nil, nil
 	}
 
-	// Buat user object dengan informasi dasar
+	// Dapatkan push name dan nama owner
+	pushName := r.getPushName()
+
+	// Get business name if available
+	businessName := r.getBusinessName()
+
+	// Prioritaskan nama bisnis jika tersedia
+	contactName := pushName
+	if businessName != "" {
+		contactName = businessName
+	}
+
+	// Buat user object dengan informasi lengkap
 	userInfo := &user.User{
 		ID:       jid.User,
 		Phone:    "+" + jid.User,
-		Name:     r.getPushName(),
-		PushName: r.getPushName(),
+		Name:     contactName,
+		PushName: pushName,
 		DeviceDetails: &user.DeviceDetails{
 			Platform:     r.getDevicePlatform(),
-			BusinessName: r.getBusinessName(),
+			BusinessName: businessName,
 			DeviceID:     r.getDeviceIDString(),
+			DeviceModel:  r.getDeviceModel(), // Added device model
+			OSVersion:    r.getOSVersion(),   // Added OS version
 			Connected:    time.Now().Format(time.RFC3339),
+			ClientType:   r.getClientType(), // Added client type
+			IPAddress:    r.getIPAddress(),  // Added IP address
 		},
 	}
 
@@ -145,9 +161,21 @@ func (r *ConnectionRepository) getPushName() string {
 		// Mencoba mendapatkan push name dari info device
 		pushName := r.client.Store.PushName
 		if pushName != "" {
+			r.log.Debug("Found push name: %s", pushName)
 			return pushName
 		}
 	}
+
+	// Cek contact info jika tersedia melalui contacts client
+	if r.client != nil && r.client.Store != nil && r.client.Store.ID != nil {
+		selfJID := r.client.Store.ID.ToNonAD()
+		contact, err := r.client.Store.Contacts.GetContact(selfJID)
+		if err == nil && contact.PushName != "" {
+			r.log.Debug("Found push name from contact: %s", contact.PushName)
+			return contact.PushName
+		}
+	}
+
 	return "WhatsApp User"
 }
 
@@ -177,6 +205,31 @@ func (r *ConnectionRepository) getDeviceIDString() string {
 
 	// Menggunakan device ID dalam bentuk string yang aman
 	return fmt.Sprintf("%d", r.client.Store.ID.Device)
+}
+
+// getDeviceModel mendapatkan model perangkat jika tersedia
+func (r *ConnectionRepository) getDeviceModel() string {
+	// WhatsApp Web tidak memberikan info model perangkat
+	// Gunakan informasi dari browser client jika tersedia
+	return "WhatsApp Client"
+}
+
+// getOSVersion mendapatkan versi OS jika tersedia
+func (r *ConnectionRepository) getOSVersion() string {
+	// WhatsApp Web tidak memberikan info OS secara spesifik
+	return "Web Client"
+}
+
+// getClientType mendapatkan tipe client
+func (r *ConnectionRepository) getClientType() string {
+	// Untuk WhatsApp web, coba deteksi tipe browser jika tersedia
+	return "WhatsApp Web"
+}
+
+// getIPAddress mendapatkan alamat IP jika tersedia
+func (r *ConnectionRepository) getIPAddress() string {
+	// Tidak tersedia untuk Whatsmeow
+	return "Unknown"
 }
 
 // SendMessage mengirim pesan

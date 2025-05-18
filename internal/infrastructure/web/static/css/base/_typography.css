@@ -1,0 +1,296 @@
+/* Typography
+ * -------------------------------------
+ * Definisi untuk semua aturan tipografi dasar
+ * dan kelas utilitas terkait tipografi
+ */
+
+/* Base Typography */
+body {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--white);
+}
+
+/* Headings */
+h1, .h1 {
+  font-size: 2.25rem; /* 36px */
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h2, .h2 {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.875rem;
+}
+
+h3, .h3 {
+  font-size: 1.5rem; /* 24px */
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+}
+
+h4, .h4 {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+h5, .h5 {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+h6, .h6 {
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+/* Paragraphs and Body Text */
+p {
+  margin-bottom: 1rem;
+}
+
+small, .text-small {
+  font-size: 0.875rem; /* 14px */
+}
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+}
+
+.text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+}
+
+.text-base {
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+}
+
+.text-lg {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.75rem; /* 28px */
+}
+
+.text-xl {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.75rem; /* 28px */
+}
+
+.text-2xl {
+  font-size: 1.5rem; /* 24px */
+  line-height: 2rem; /* 32px */
+}
+
+.text-3xl {
+  font-size: 1.875rem; /* 30px */
+  line-height: 2.25rem; /* 36px */
+}
+
+/* Font Weights */
+.font-thin {
+  font-weight: 100;
+}
+
+.font-extralight {
+  font-weight: 200;
+}
+
+.font-light {
+  font-weight: 300;
+}
+
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-extrabold {
+  font-weight: 800;
+}
+
+.font-black {
+  font-weight: 900;
+}
+
+/* Text Colors */
+.text-white {
+  color: var(--white);
+}
+
+.text-primary-400 {
+  color: var(--primary-400);
+}
+
+.text-primary-500 {
+  color: var(--primary-500);
+}
+
+.text-slate-300 {
+  color: var(--slate-300);
+}
+
+.text-slate-400 {
+  color: var(--slate-400);
+}
+
+.text-slate-500 {
+  color: var(--slate-500);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.text-danger {
+  color: var(--danger);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+/* Text Alignment */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+/* Text Transformations */
+.uppercase {
+  text-transform: uppercase;
+}
+
+.lowercase {
+  text-transform: lowercase;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.normal-case {
+  text-transform: none;
+}
+
+/* Text Decoration */
+.underline {
+  text-decoration: underline;
+}
+
+.line-through {
+  text-decoration: line-through;
+}
+
+.no-underline {
+  text-decoration: none;
+}
+
+/* Font Styles */
+.italic {
+  font-style: italic;
+}
+
+.not-italic {
+  font-style: normal;
+}
+
+/* Text Wrapping & Overflow */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overflow-ellipsis {
+  text-overflow: ellipsis;
+}
+
+.overflow-clip {
+  text-overflow: clip;
+}
+
+/* Links & Interactive Text */
+a {
+  color: var(--primary-400);
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-300);
+}
+
+.link-white {
+  color: var(--white);
+}
+
+.link-white:hover {
+  color: var(--slate-300);
+}
+
+/* Code and Monospace Text */
+code, pre, .monospace {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+pre {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background-color: var(--slate-800);
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive Typography */
+@media (--sm) {
+  h1, .h1 {
+    font-size: 2.5rem; /* 40px */
+  }
+}
+
+@media (--lg) {
+  h1, .h1 {
+    font-size: 3rem; /* 48px */
+  }
+  
+  h2, .h2 {
+    font-size: 2.25rem; /* 36px */
+  }
+}

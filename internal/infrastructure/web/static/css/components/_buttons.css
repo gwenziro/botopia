@@ -1,0 +1,222 @@
+/* Button Components
+ * -------------------------------------
+ * Definisi untuk semua varian button yang digunakan
+ */
+
+/* Base Button */
+.c-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.c-btn:focus {
+  outline: 2px solid var(--primary-400);
+  outline-offset: 2px;
+}
+
+.c-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Button Size Variants */
+.c-btn--sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem;
+}
+
+.c-btn--lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: 1rem;
+}
+
+/* Button Color Variants */
+.c-btn--primary {
+  background-color: var(--primary-600); /* Menggunakan primary-600 untuk lebih kontras */
+  color: var(--white);
+  border-color: var(--primary-700);
+}
+
+.c-btn--primary:hover {
+  background-color: var(--primary-700);
+  border-color: var(--primary-800);
+}
+
+.c-btn--primary:focus {
+  box-shadow: 0 0 0 2px rgba(var(--primary-500-rgb), 0.4);
+}
+
+.c-btn--primary:active {
+  background-color: var(--primary-800);
+}
+
+.c-btn--secondary {
+  background-color: var(--slate-700);
+  color: var(--white);
+}
+
+.c-btn--secondary:hover {
+  background-color: var(--slate-600);
+}
+
+.c-btn--success {
+  background-color: var(--success);
+  color: var(--white);
+}
+
+.c-btn--success:hover {
+  background-color: rgba(16, 185, 129, 0.8); /* Darkened success */
+}
+
+.c-btn--danger {
+  background-color: var(--danger);
+  color: var(--white);
+}
+
+.c-btn--danger:hover {
+  background-color: rgba(239, 68, 68, 0.8); /* Darkened danger */
+}
+
+.c-btn--warning {
+  background-color: var(--warning);
+  color: white;
+}
+
+.c-btn--warning:hover {
+  background-color: rgba(245, 158, 11, 0.8); /* Darkened warning */
+}
+
+.c-btn--info {
+  background-color: var(--info);
+  color: var(--white);
+}
+
+.c-btn--info:hover {
+  background-color: rgba(59, 130, 246, 0.8); /* Darkened info */
+}
+
+/* Button Outline Variants */
+.c-btn--outline-primary {
+  color: var(--primary-400);
+  border-color: var(--primary-400);
+}
+
+.c-btn--outline-primary:hover {
+  background-color: rgba(var(--primary-500-rgb), 0.1);
+  color: var(--primary-300);
+  border-color: var(--primary-300);
+}
+
+.c-btn--outline-secondary {
+  border: 1px solid var(--slate-500);
+  color: var(--slate-300);
+  background-color: transparent;
+}
+
+.c-btn--outline-secondary:hover {
+  background-color: rgba(100, 116, 139, 0.1); /* slate-500 with transparency */
+}
+
+/* Ghost Button Variants */
+.c-btn--ghost {
+  background-color: transparent;
+  color: var(--slate-300);
+}
+
+.c-btn--ghost:hover {
+  background-color: rgba(51, 65, 85, 0.5); /* slate-700 with transparency */
+}
+
+.c-btn--ghost-primary {
+  background-color: transparent;
+  color: var(--primary-400);
+}
+
+.c-btn--ghost-primary:hover {
+  background-color: rgba(var(--primary-500-rgb), 0.1);
+}
+
+/* Button With Icon */
+.c-btn--icon {
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.c-btn--icon-only {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.c-btn--icon-only.c-btn--sm {
+  width: 2rem;
+  height: 2rem;
+}
+
+.c-btn--icon-only.c-btn--lg {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Button Group */
+.c-btn-group {
+  display: inline-flex;
+}
+
+.c-btn-group .c-btn:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.c-btn-group .c-btn:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+/* Full Width Button */
+.c-btn--full {
+  display: flex;
+  width: 100%;
+}
+
+/* Loading State Button */
+.c-btn--loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.c-btn--loading::after {
+  content: "";
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  top: calc(50% - 0.5rem);
+  left: calc(50% - 0.5rem);
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: button-spinner 0.75s linear infinite;
+}
+
+@keyframes button-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}

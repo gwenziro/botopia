@@ -1,11 +1,50 @@
-{{if eq .ConnectionState "connected"}}
-<div class="hidden sm:flex items-center text-sm text-green-400">
-    <span class="inline-block w-2 h-2 rounded-full bg-green-400 mr-2"></span>
-    Terhubung
+<div class="c-connection-badge" 
+    x-data="{ 
+        isConnected: {{.IsConnected}},
+        name: '{{.Name}}',
+        phone: '{{.Phone}}'
+    }"
+    x-init="
+        $watch('isConnected', value => {
+            if (value) {
+                showToast('success', 'Terhubung dengan WhatsApp');
+            } else {
+                showToast('error', 'Koneksi WhatsApp terputus');
+            }
+        });
+        
+        // Poll for connection status and user info
+        setInterval(() => {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => { 
+                    isConnected = data.isConnected;
+                    name = data.name || 'WhatsApp User';
+                    phone = data.phone || '';
+                })
+                .catch(() => { isConnected = false; })
+        }, 30000); // Check every 30 seconds
+    "
+>
+    <template x-if="isConnected">
+        <a href="/qr" class="c-connection-badge--connected" title="Status: Terhubung">
+            <div class="c-connection-badge__icon-container">
+                <i class="fas fa-check-circle"></i>
+                <span class="c-connection-badge__ping"></span>
+            </div>
+            <div class="c-connection-badge__info">
+                <span class="c-connection-badge__status">Terhubung</span>
+                <span class="c-connection-badge__name" x-text="name || 'WhatsApp User'"></span>
+            </div>
+        </a>
+    </template>
+    <template x-if="!isConnected">
+        <a href="/qr" class="c-connection-badge--disconnected" title="Status: Tidak Terhubung">
+            <i class="fas fa-times-circle"></i>
+            <div class="c-connection-badge__info">
+                <span class="c-connection-badge__status">Tidak Terhubung</span>
+                <span class="c-connection-badge__action">Scan QR</span>
+            </div>
+        </a>
+    </template>
 </div>
-{{else}}
-<div class="hidden sm:flex items-center text-sm text-red-400">
-    <span class="inline-block w-2 h-2 rounded-full bg-red-400 mr-2"></span>
-    Terputus
-</div>
-{{end}}

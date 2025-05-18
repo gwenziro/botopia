@@ -1,198 +1,278 @@
-<div id="dashboard-app" x-data="dashboardApp" x-init="initialize()" data-connection-state="{{.ConnectionState}}"
-    data-command-count="{{.CommandCount}}" data-message-count="{{.MessageCount}}" data-commands-run="{{.CommandsRun}}"
-    data-phone="{{.Phone}}" data-name="{{.Name}}" class="animate-fadeIn pb-24">
-
-    <div class="content-wrapper">
-        <!-- Di bagian header utama dashboard -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-semibold">Dashboard</h1>
-
-            <button @click="refreshStats()" class="refresh-btn flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-all" :disabled="isLoading">
-                <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': isLoading}"></i>
-                <span x-text="isRefreshing ? 'Memperbarui...' : 'Perbarui Data'"></span>
-            </button>
-
-
-        </div>
-
-        <!-- Connection Status Alert -->
-        <div class="mb-6" x-show="!isConnected">
-            <div class="bg-yellow-900/60 text-yellow-100 p-4 rounded-lg border border-yellow-800 flex items-start">
-                <div class="text-yellow-500 mr-3">
-                    <i class="fas fa-exclamation-triangle text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-yellow-200">WhatsApp Belum Terhubung</h3>
-                    <p class="text-yellow-100/80 text-sm mt-1">
-                        Botopia belum terhubung dengan WhatsApp.
-                        <a href="/qr" class="text-primary-300 underline">Pindai kode QR</a>
-                        untuk menghubungkan WhatsApp Web.
-                    </p>
+<div x-data="dashboardApp" x-init="initialize()" class="u-space-y-6">
+    <!-- Info Sections Container - Side by Side -->
+    <div class="p-dashboard-info-container">
+        <!-- WhatsApp Account Info Card -->
+        <div class="p-dashboard-info-card c-card h-full">
+            <div class="c-card__body">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-4">
+                    <i class="fab fa-whatsapp u-text-primary-400"></i>
+                    Informasi Akun WhatsApp
+                </h2>
+                
+                <div class="p-connection-status">
+                    <div class="p-connection-status__content">
+                        <template x-if="isConnected">
+                            <div class="p-connection-info">
+                                <div class="p-connection-info__grid">
+                                    <!-- User Info Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-user u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">Nama Akun</div>
+                                            <div class="c-info-item__value" 
+                                                 x-text="name !== 'WhatsApp User' ? name : (phone || 'WhatsApp User')"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Phone Number Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-phone u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">Nomor Telepon</div>
+                                            <div class="c-info-item__value" x-text="formatPhone(phone) || '-'"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Connected Since Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-calendar-check u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">Terhubung Sejak</div>
+                                            <div class="c-info-item__value" x-text="formatDate(connectedSince)"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Device ID Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-fingerprint u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">ID Perangkat</div>
+                                            <div class="c-info-item__value" x-text="deviceDetails?.deviceId || '-'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <!-- Disconnected Info -->
+                        <div class="p-connection-not-connected" x-show="!isConnected">
+                            <div class="p-connection-not-connected__icon">
+                                <i class="fas fa-plug-circle-xmark"></i>
+                            </div>
+                            <div class="p-connection-not-connected__message">
+                                Tidak terhubung ke WhatsApp
+                            </div>
+                            <div class="p-connection-not-connected__action">
+                                <a href="/qr" class="c-btn c-btn--primary u-flex u-items-center u-gap-2">
+                                    <i class="fas fa-qrcode"></i> Scan QR Code
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Connected Success Alert -->
-        <div class="mb-6" x-show="isConnected" x-cloak>
-            <div class="bg-green-900/60 text-green-100 p-4 rounded-lg border border-green-800 flex items-start">
-                <div class="text-green-500 mr-3">
-                    <i class="fas fa-check-circle text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-green-200">WhatsApp Terhubung</h3>
-                    <p class="text-green-100/80 text-sm mt-1">
-                        Botopia telah terhubung dengan WhatsApp dan siap digunakan.
-                        <span x-text="connectedPhone ? `Nomor terhubung: ${connectedPhone}` : ''"></span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Connection Status -->
-            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
-                <div class="flex justify-between items-start">
-                    <div class="overflow-hidden max-w-[70%]">
-                        <p class="text-slate-400 text-sm">Status Koneksi</p>
-                        <h3 class="text-2xl font-semibold mt-1"
-                            :class="isConnected ? 'text-green-400' : 'text-red-400'">
-                            <span x-text="isConnected ? 'Terhubung' : 'Terputus'"></span>
-                        </h3>
-                        <p x-show="isConnected" class="text-sm mt-1 text-slate-400 truncate">
-                            <span x-text="connectedPhone || 'WhatsApp'" class="truncate"></span>
-                        </p>
+        
+        <!-- Google Service Info Card - Updated layout -->
+        <div class="p-dashboard-info-card c-card">
+            <div class="c-card__body">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-4">
+                    <i class="fab fa-google u-text-primary-400"></i>
+                    Informasi Layanan Google
+                </h2>
+                
+                <div class="p-google-services">
+                    <div class="p-google-services__content">
+                        <template x-if="googleServices.isConfigured">
+                            <div class="p-google-info">
+                                <!-- Google Sheets Item -->
+                                <div class="c-service-item">
+                                    <div class="c-service-item__header">
+                                        <div class="c-service-item__header-left">
+                                            <div class="c-service-item__icon">
+                                                <i class="fas fa-table u-text-primary-400"></i>
+                                            </div>
+                                            <div class="c-service-item__title-container">
+                                                <h3 class="c-service-item__title">
+                                                    Google Sheets
+                                                    <span x-show="googleServices.sheets.isConnected" class="c-service-item__status c-service-item__status--active">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </span>
+                                                    <span x-show="!googleServices.sheets.isConnected" class="c-service-item__status c-service-item__status--inactive">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </span>
+                                                </h3>
+                                                <div class="c-service-item__id" x-show="googleServices.sheets.id" x-text="googleServices.sheets.id"></div>
+                                            </div>
+                                        </div>
+                                        <div class="c-service-item__action" x-show="googleServices.sheets.isConnected && googleServices.sheets.url && googleServices.sheets.url !== '#'">
+                                            <a :href="googleServices.sheets.url" 
+                                               target="_blank" 
+                                               class="c-btn c-btn--sm c-btn--primary">
+                                                <i class="fas fa-external-link-alt"></i> Buka
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Google Drive Item -->
+                                <div class="c-service-item">
+                                    <div class="c-service-item__header">
+                                        <div class="c-service-item__header-left">
+                                            <div class="c-service-item__icon">
+                                                <i class="fab fa-google-drive u-text-primary-400"></i>
+                                            </div>
+                                            <div class="c-service-item__title-container">
+                                                <h3 class="c-service-item__title">
+                                                    Google Drive
+                                                    <span x-show="googleServices.drive.isConnected" class="c-service-item__status c-service-item__status--active">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </span>
+                                                    <span x-show="!googleServices.drive.isConnected" class="c-service-item__status c-service-item__status--inactive">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </span>
+                                                </h3>
+                                                <div class="c-service-item__id" x-show="googleServices.drive.id" x-text="googleServices.drive.id"></div>
+                                            </div>
+                                        </div>
+                                        <div class="c-service-item__action" x-show="googleServices.drive.isConnected && googleServices.drive.url && googleServices.drive.url !== '#'">
+                                            <a :href="googleServices.drive.url" 
+                                               target="_blank" 
+                                               class="c-btn c-btn--sm c-btn--primary">
+                                                <i class="fas fa-external-link-alt"></i> Buka
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <!-- Not Configured Info -->
+                        <div class="p-google-not-configured" x-show="!googleServices.isConfigured">
+                            <div class="p-google-not-configured__icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="p-google-not-configured__message">
+                                Layanan Google belum dikonfigurasi
+                            </div>
+                            <div class="p-google-not-configured__action">
+                                <a href="/konfigurasi" class="c-btn c-btn--primary u-flex u-items-center u-gap-2">
+                                    <i class="fas fa-cog"></i> Konfigurasi
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stats-card-icon" :class="isConnected ? 'bg-green-400/10' : 'bg-red-400/10'">
-                        <i class="fas" :class="isConnected ? 'fa-link text-green-400' : 'fa-unlink text-red-400'"></i>
-                    </div>
-                </div>
-                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full"
-                    :class="isConnected ? 'bg-green-500/5' : 'bg-red-500/5'"></div>
-            </div>
-
-            <!-- Message Count -->
-            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
-                <div class="flex justify-between items-start">
-                    <div class="overflow-hidden max-w-[70%]">
-                        <p class="text-slate-400 text-sm">Pesan Diterima</p>
-                        <h3 class="text-2xl font-semibold mt-1 text-white truncate">
-                            <span x-text="stats.messageCount">0</span>
-                        </h3>
-                        <p class="text-sm mt-1 text-slate-400 truncate">Total pesan</p>
-                    </div>
-                    <div class="stats-card-icon bg-blue-400/10">
-                        <i class="fas fa-envelope text-blue-400"></i>
-                    </div>
-                </div>
-                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-blue-500/5"></div>
-            </div>
-
-            <!-- Commands Run -->
-            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
-                <div class="flex justify-between items-start">
-                    <div class="overflow-hidden max-w-[70%]">
-                        <p class="text-slate-400 text-sm">Commands Dijalankan</p>
-                        <h3 class="text-2xl font-semibold mt-1 text-white truncate">
-                            <span x-text="stats.commandsRun">0</span>
-                        </h3>
-                        <p class="text-sm mt-1 text-slate-400 truncate">Total eksekusi</p>
-                    </div>
-                    <div class="stats-card-icon bg-purple-400/10">
-                        <i class="fas fa-terminal text-purple-400"></i>
-                    </div>
-                </div>
-                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-purple-500/5"></div>
-            </div>
-
-            <!-- Uptime -->
-            <div class="glass rounded-lg p-6 border border-slate-700/30 relative overflow-hidden min-h-[140px]">
-                <div class="flex justify-between items-start">
-                    <div class="overflow-hidden max-w-[70%]">
-                        <p class="text-slate-400 text-sm">Uptime</p>
-                        <h3 class="text-2xl font-semibold mt-1 text-white truncate">
-                            <span x-text="formatUptime(stats.uptime)">-</span>
-                        </h3>
-                        <p class="text-sm mt-1 text-slate-400 truncate">Waktu aktif</p>
-                    </div>
-                    <div class="stats-card-icon bg-primary-400/10">
-                        <i class="fas fa-clock text-primary-400"></i>
-                    </div>
-                </div>
-                <div class="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-primary-500/5"></div>
-            </div>
-        </div>
-
-        <!-- Commands Section -->
-        <div class="mt-8">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-white">Daftar Command</h2>
-                <span class="badge glass px-3 py-1 text-xs rounded-full text-primary-300 border border-primary-800/50">
-                    <i class="fas fa-terminal mr-1"></i> <span x-text="Object.keys(commands).length">0</span> Commands
-                </span>
-            </div>
-
-            <!-- Commands List -->
-            <div class="glass rounded-lg p-6 border border-slate-700/30">
-                <div x-show="loadingCommands" class="text-center py-8">
-                    <i class="fas fa-spinner fa-spin text-3xl mb-3 text-primary-400"></i>
-                    <p class="text-gray-400">Memuat daftar command...</p>
-                </div>
-
-                <div x-show="!loadingCommands && Object.keys(commands).length === 0"
-                    class="text-center py-8 text-gray-400">
-                    <i class="fas fa-terminal text-3xl mb-3"></i>
-                    <p>Belum ada command yang terdaftar.</p>
-                </div>
-
-                <div x-show="!loadingCommands && Object.keys(commands).length > 0" class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="border-b border-slate-700/30">
-                                <th class="py-3 pl-6 pr-6 text-sm font-medium text-slate-300">Command</th>
-                                <th class="py-3 px-3 text-sm font-medium text-slate-300">Deskripsi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="(command, cmdName) in commands" :key="cmdName">
-                                <tr class="border-b border-slate-700/30 hover:bg-slate-800/30 transition-colors">
-                                    <td class="py-3 pl-4 pr-3">
-                                        <code class="text-primary-300 bg-primary-900/20 px-2 py-1 rounded">
-                                            <span class="text-white">!</span><span x-text="cmdName"></span>
-                                        </code>
-                                    </td>
-                                    <td class="py-3 px-3 text-slate-300">
-                                        <span x-text="command.description || 'Tidak ada deskripsi'"></span>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Command Usage Info -->
-                <div class="mt-6 bg-slate-800/50 rounded p-4 text-slate-300 text-sm">
-                    <h3 class="font-semibold text-primary-300 mb-2">
-                        <i class="fas fa-info-circle mr-1"></i> Cara Menggunakan Command
-                    </h3>
-                    <p class="mb-2">
-                        Kirim pesan ke bot WhatsApp dengan format: <code
-                            class="bg-slate-700/70 px-1 py-0.5 rounded">!nama_command parameter</code>
-                    </p>
-                    <p>
-                        Contoh: <code class="bg-slate-700/70 px-1 py-0.5 rounded">!keluar</code> untuk mencatat
-                        pengeluaran baru
-                        atau <code class="bg-slate-700/70 px-1 py-0.5 rounded">!masuk</code> untuk mencatat pemasukan.
-                    </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Hidden script element to store command data with CDATA protection -->
-    <script id="commands-data" type="application/json">
-    /*<![CDATA[*/
-    {{.CommandsJSON}}
-    /*]]>*/
-    </script>
+    <!-- Statistics Card -->
+    <div class="c-card">
+        <div class="c-card__body">
+            <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-4">
+                <i class="fas fa-chart-simple u-text-primary-400"></i>
+                Statistik Dasar
+            </h2>
+
+            <div class="c-stats-grid">
+                <!-- Message Count Stats -->
+                <div class="c-stats-card c-stats-card--info">
+                    <div class="c-stats-card__icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="c-stats-card__content">
+                        <h3 class="c-stats-card__title">Total Pesan</h3>
+                        <p class="c-stats-card__value" x-text="formatNumber(stats.messageCount)"></p>
+                    </div>
+                </div>
+
+                <!-- Commands Run Stats -->
+                <div class="c-stats-card c-stats-card--success">
+                    <div class="c-stats-card__icon">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <div class="c-stats-card__content">
+                        <h3 class="c-stats-card__title">Command Dijalankan</h3>
+                        <p class="c-stats-card__value" x-text="formatNumber(stats.commandsRun)"></p>
+                    </div>
+                </div>
+
+                <!-- Commands Available Stats - Updated with commands color class -->
+                <div class="c-stats-card c-stats-card--commands">
+                    <div class="c-stats-card__icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="c-stats-card__content">
+                        <h3 class="c-stats-card__title">Command Tersedia</h3>
+                        <p class="c-stats-card__value" x-text="formatNumber(stats.commandCount)"></p>
+                    </div>
+                </div>
+
+                <!-- System Uptime Stats -->
+                <div class="c-stats-card c-stats-card--warning">
+                    <div class="c-stats-card__icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="c-stats-card__content">
+                        <h3 class="c-stats-card__title">Waktu Aktif Sistem</h3>
+                        <p class="c-stats-card__value" x-text="formatUptimeDuration(stats.systemUptime)"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commands List Section - RESTORED -->
+    <div class="c-card">
+        <div class="c-card__body">
+            <div class="u-flex u-items-center u-justify-between u-mb-4">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-0">
+                    <i class="fas fa-terminal u-text-primary-400"></i>
+                    Command Tersedia
+                </h2>
+                <a href="/commands" class="p-view-all">
+                    <span>Lihat Semua</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <!-- Command List with Dynamic Icons -->
+            <div class="p-commands-list" x-show="Object.keys(commands).length > 0">
+                <template x-for="(command, name) in commands" :key="name">
+                    <div class="p-command-item">
+                        <div class="p-command-icon">
+                            <i class="fas" :class="getCommandIcon(name)"></i>
+                        </div>
+                        <div class="p-command-content">
+                            <h3 class="p-command-name" x-text="'!' + name"></h3>
+                            <p class="p-command-description" x-text="command.description"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="p-commands-empty" x-show="Object.keys(commands).length === 0">
+                <div class="p-commands-empty__icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3 class="p-commands-empty__title">Belum ada command</h3>
+                <p class="p-commands-empty__text">Belum ada command yang tersedia saat ini.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="u-flex u-justify-between u-text-sm u-text-slate-500 u-px-2">
+        <div>Botopia v1.0.0</div>
+        <div>Waktu Server: <span x-text="new Date().toLocaleString()"></span></div>
+    </div>
 </div>

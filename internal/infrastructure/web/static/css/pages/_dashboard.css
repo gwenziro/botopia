@@ -1,0 +1,516 @@
+/* Dashboard Page Styles
+ * -------------------------------------
+ * Mendefinisikan gaya khusus untuk halaman dashboard termasuk
+ * komponen info item, service item, dan layout
+ */
+
+/* ========== DASHBOARD LAYOUTS ========== */
+
+/* Dashboard Container */
+.p-dashboard {
+  padding: var(--space-6);
+}
+
+/* Dashboard Section */
+.p-dashboard-section {
+  margin-bottom: var(--space-8);
+}
+
+.p-dashboard-section__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.p-dashboard-section__title i {
+  color: var(--primary-400);
+}
+
+/* Dashboard Info Container - Side by Side Layout */
+.p-dashboard-info-container {
+  display: flex;
+  width: 100%;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+/* Info Section Cards */
+.p-dashboard-info-card {
+  flex: 1;
+  min-width: 0;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+/* Card Full Height Helpers */
+.c-card.h-full {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.c-card.h-full .c-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== INFO ITEM COMPONENT ========== */
+
+/* Base Info Item */
+.c-info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: rgba(30, 41, 59, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  transition: all 0.3s ease;
+}
+
+.c-info-item:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+.c-info-item__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background-color: rgba(var(--primary-400-rgb), 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: var(--primary-400);
+}
+
+.c-info-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.c-info-item__label {
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin-bottom: var(--space-1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.c-info-item__value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.c-info-item__link {
+  color: var(--primary-400);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: all 0.2s ease;
+}
+
+.c-info-item__link:hover {
+  color: var(--primary-300);
+  text-decoration: underline;
+}
+
+/* Status indicators */
+.c-info-item__status--active {
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.c-info-item__status--inactive {
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Info Item ID formatting */
+.c-info-item__id {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: var(--slate-400);
+  background-color: rgba(30, 41, 59, 0.5);
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--radius-sm);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ========== SERVICE ITEM COMPONENT ========== */
+
+/* Service Item */
+.c-service-item {
+  background-color: rgba(30, 41, 59, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  padding: var(--space-3);
+  transition: all 0.3s ease;
+}
+
+.c-service-item:last-child {
+  margin-bottom: 0;
+}
+
+.c-service-item:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+.c-service-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.c-service-item__header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.c-service-item__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background-color: rgba(var(--primary-400-rgb), 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: var(--primary-400);
+}
+
+.c-service-item__title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.c-service-item__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0;
+  padding: 0;
+}
+
+.c-service-item__id {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin-top: var(--space-1);
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.c-service-item__status {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.c-service-item__status--active {
+  color: var(--success);
+}
+
+.c-service-item__status--inactive {
+  color: var(--danger);
+}
+
+.c-service-item__action {
+  margin-left: auto;
+  align-self: center;
+}
+
+/* ========== CONNECTION STATUS ========== */
+
+/* Connection Info Grid - Improved 2x2 Layout */
+.p-connection-info__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: var(--space-4);
+  width: 100%;
+  height: 100%;
+}
+
+/* Connection Status */
+.p-connection-status {
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+.p-connection-status__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.p-connection-info {
+  flex: 1;
+  display: flex;
+}
+
+/* Not Connected State */
+.p-connection-not-connected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+  height: 100%;
+}
+
+.p-connection-not-connected__icon {
+  font-size: 3rem;
+  color: var(--slate-500);
+  margin-bottom: var(--space-4);
+}
+
+.p-connection-not-connected__message {
+  font-size: 1.125rem;
+  color: var(--slate-300);
+  margin-bottom: var(--space-4);
+}
+
+.p-connection-not-connected__action {
+  margin-top: var(--space-2);
+}
+
+/* ========== GOOGLE SERVICES SECTION ========== */
+
+.p-google-services,
+.p-connection-status {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-google-services__content,
+.p-connection-status__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-4);
+}
+
+.p-google-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  width: 100%;
+  flex: 1;
+}
+
+/* Google Not Configured State */
+.p-google-not-configured {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+  height: 100%;
+}
+
+/* Additional Header Style for Google Info */
+.p-google-info__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* ========== COMMANDS LIST ========== */
+
+/* Commands List Layout */
+.p-commands-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.p-command-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.p-command-item:hover {
+  background-color: rgba(15, 23, 42, 0.6);
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.p-command-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-md);
+  background-color: rgba(var(--primary-400-rgb), 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-400);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.p-command-content {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.p-command-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.p-command-description {
+  font-size: 0.875rem;
+  color: var(--slate-400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* View All Link */
+.p-view-all {
+  display: flex;
+  color: var(--primary-400);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  gap: var(--space-2);
+  justify-content: center;
+  align-items: center;
+}
+
+.p-view-all:hover {
+  color: var(--primary-300);
+  text-decoration: underline;
+}
+
+/* Empty States */
+.p-commands-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.p-commands-empty__icon {
+  font-size: 2rem;
+  color: var(--slate-600);
+  margin-bottom: var(--space-4);
+}
+
+.p-commands-empty__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.p-commands-empty__text {
+  font-size: 0.875rem;
+  color: var(--slate-400);
+  margin: 0;
+}
+
+/* ========== RESPONSIVE ADJUSTMENTS ========== */
+
+@media (max-width: 768px) {
+  .p-dashboard {
+    padding: var(--space-4);
+  }
+  
+  .p-dashboard-info-container {
+    flex-direction: column;
+  }
+  
+  .p-dashboard-info-card {
+    width: 100%;
+  }
+  
+  .p-connection-info__grid,
+  .p-google-info__grid,
+  .c-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .p-commands-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .p-commands-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .p-connection-info__grid,
+  .p-google-info__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+.u-justify-between {
+  justify-content: space-between;
+}
+
+.u-mt-4 {
+  margin-top: 1rem;
+}

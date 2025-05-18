@@ -1,153 +1,194 @@
-<div class="container mx-auto px-4 py-8" x-data="dataMasterApp" x-init="initializeDataMaster">
-  <!-- Header Section -->
-  <div class="mb-6 flex justify-between items-center">
-    <div>
-      <h1 class="text-2xl font-semibold text-white mb-2">Data Master</h1>
-      <p class="text-slate-300">Daftar data kategori, metode pembayaran, dan penyimpanan.</p>
+<div x-data="dataMasterApp" x-init="initializeDataMaster()" class="p-data-master">
+    <div class="c-card u-mb-6">
+        <div class="c-card__body">
+            <h1 class="c-card__title u-text-xl u-mb-4 u-flex u-items-center u-gap-2">
+                <i class="fas fa-database u-text-primary-400"></i>
+                Data Master
+            </h1>
+            
+            <p class="u-text-slate-300 u-mb-6">
+                Berikut adalah data master yang tersedia untuk digunakan dalam aplikasi.
+                Data ini digunakan untuk memvalidasi input dan memberikan opsi pilihan pada form.
+            </p>
+            
+            <!-- Tabs -->
+            <div class="p-data-tabs">
+                <button 
+                    @click="activeTab = 'expense-categories'" 
+                    :class="{'p-data-tab': true, 'active': activeTab === 'expense-categories'}"
+                    type="button">
+                    Kategori Pengeluaran
+                </button>
+                <button 
+                    @click="activeTab = 'income-categories'" 
+                    :class="{'p-data-tab': true, 'active': activeTab === 'income-categories'}"
+                    type="button">
+                    Kategori Pemasukan
+                </button>
+                <button 
+                    @click="activeTab = 'payment-methods'" 
+                    :class="{'p-data-tab': true, 'active': activeTab === 'payment-methods'}"
+                    type="button">
+                    Metode Pembayaran
+                </button>
+                <button 
+                    @click="activeTab = 'storage-media'" 
+                    :class="{'p-data-tab': true, 'active': activeTab === 'storage-media'}"
+                    type="button">
+                    Media Penyimpanan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div x-show="loading" class="c-card u-mb-6">
+        <div class="c-card__body u-flex u-flex-col u-items-center u-justify-center u-py-12">
+            <div class="u-w-16 u-h-16 u-border-4 u-border-t-4 u-border-primary-500 u-border-t-transparent u-rounded-full u-animate-spin"></div>
+            <p class="u-mt-4 u-text-slate-400">Memuat data master...</p>
+        </div>
     </div>
     
-    <!-- Tombol Refresh yang konsisten dengan halaman lain -->
-    <button 
-      @click="refreshData()" 
-      class="refresh-btn flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-all" 
-      :disabled="loading">
-      <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': loading}"></i>
-      <span x-text="loading ? 'Memuat...' : 'Perbarui Data'"></span>
-    </button>
-  </div>
-
-  <!-- Content Section -->
-  <div class="glass rounded-lg border border-slate-700/30 p-6">
-    <!-- Tabs -->
-    <div class="tabs border-b border-slate-700/40 mb-6">
-      <button @click="activeTab = 'expense-categories'" 
-              :class="{'text-primary-400 border-primary-400': activeTab === 'expense-categories'}" 
-              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
-        Kategori Pengeluaran
-      </button>
-      <button @click="activeTab = 'income-categories'" 
-              :class="{'text-primary-400 border-primary-400': activeTab === 'income-categories'}"
-              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
-        Kategori Pemasukan
-      </button>
-      <button @click="activeTab = 'payment-methods'" 
-              :class="{'text-primary-400 border-primary-400': activeTab === 'payment-methods'}"
-              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
-        Metode Pembayaran
-      </button>
-      <button @click="activeTab = 'storage-media'" 
-              :class="{'text-primary-400 border-primary-400': activeTab === 'storage-media'}" 
-              class="tab-btn border-b-2 border-transparent pb-3 px-4 mr-4 font-medium transition-colors">
-        Media Penyimpanan
-      </button>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="tab-content">
-      <!-- Loading State -->
-      <template x-if="loading">
-        <div class="py-6 text-center">
-          <div class="loader-ring mx-auto mb-4"></div>
-          <p class="text-slate-300">Memuat data...</p>
+    <!-- Content Area -->
+    <div x-show="!loading">
+        <!-- Expense Categories -->
+        <div x-show="activeTab === 'expense-categories'" class="c-card u-mb-6">
+            <div class="c-card__header">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-m-0">
+                    <i class="fas fa-tags u-text-primary-400"></i>
+                    Kategori Pengeluaran
+                </h2>
+                
+                <div class="u-flex u-items-center u-gap-2">
+                    <button 
+                        @click="refreshData()" 
+                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        aria-label="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="c-card__body">
+                <div class="p-data-grid" x-show="getItems('expense-categories').length > 0">
+                    <template x-for="(item, index) in getItems('expense-categories')" :key="index">
+                        <div class="p-data-card">
+                            <h3 class="p-data-card__name" x-text="item"></h3>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Empty State -->
+                <div x-show="getItems('expense-categories').length === 0" class="p-data-empty">
+                    <i class="fas fa-info-circle p-data-empty__icon"></i>
+                    <h3 class="p-data-empty__title">Tidak ada kategori pengeluaran</h3>
+                    <p class="p-data-empty__text">Belum ada kategori pengeluaran yang tersedia.</p>
+                </div>
+            </div>
         </div>
-      </template>
 
-      <!-- Content for Each Tab -->
-      <template x-if="!loading">
-        <div>
-          <!-- Expense Categories -->
-          <div x-show="activeTab === 'expense-categories'">
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold">Kategori Pengeluaran</h3>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <template x-for="(item, index) in masterData.expenseCategories" :key="index">
-                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
-                  <span x-text="item"></span>
+        <!-- Income Categories -->
+        <div x-show="activeTab === 'income-categories'" class="c-card u-mb-6">
+            <div class="c-card__header">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-m-0">
+                    <i class="fas fa-tags u-text-primary-400"></i>
+                    Kategori Pemasukan
+                </h2>
+                
+                <div class="u-flex u-items-center u-gap-2">
+                    <button 
+                        @click="refreshData()" 
+                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        aria-label="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
-              </template>
-              <template x-if="masterData.expenseCategories.length === 0">
-                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
-                  Tidak ada data kategori pengeluaran
-                </div>
-              </template>
             </div>
-          </div>
-
-          <!-- Income Categories -->
-          <div x-show="activeTab === 'income-categories'">
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold">Kategori Pemasukan</h3>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <template x-for="(item, index) in masterData.incomeCategories" :key="index">
-                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
-                  <span x-text="item"></span>
+            <div class="c-card__body">
+                <div class="p-data-grid" x-show="getItems('income-categories').length > 0">
+                    <template x-for="(item, index) in getItems('income-categories')" :key="index">
+                        <div class="p-data-card">
+                            <h3 class="p-data-card__name" x-text="item"></h3>
+                        </div>
+                    </template>
                 </div>
-              </template>
-              <template x-if="masterData.incomeCategories.length === 0">
-                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
-                  Tidak ada data kategori pemasukan
+                
+                <!-- Empty State -->
+                <div x-show="getItems('income-categories').length === 0" class="p-data-empty">
+                    <i class="fas fa-info-circle p-data-empty__icon"></i>
+                    <h3 class="p-data-empty__title">Tidak ada kategori pemasukan</h3>
+                    <p class="p-data-empty__text">Belum ada kategori pemasukan yang tersedia.</p>
                 </div>
-              </template>
             </div>
-          </div>
-
-          <!-- Payment Methods -->
-          <div x-show="activeTab === 'payment-methods'">
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold">Metode Pembayaran</h3>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <template x-for="(item, index) in masterData.paymentMethods" :key="index">
-                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
-                  <span x-text="item"></span>
-                </div>
-              </template>
-              <template x-if="masterData.paymentMethods.length === 0">
-                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
-                  Tidak ada data metode pembayaran
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Storage Media -->
-          <div x-show="activeTab === 'storage-media'">
-            <div class="mb-6">
-              <h3 class="text-lg font-semibold">Media Penyimpanan</h3>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <template x-for="(item, index) in masterData.storageMedias" :key="index">
-                <div class="bg-slate-800/50 rounded-lg p-4 flex items-center border border-slate-700/30">
-                  <span x-text="item"></span>
-                </div>
-              </template>
-              <template x-if="masterData.storageMedias.length === 0">
-                <div class="bg-slate-800/50 rounded-lg p-4 col-span-full text-center text-slate-400">
-                  Tidak ada data media penyimpanan
-                </div>
-              </template>
-            </div>
-          </div>
         </div>
-      </template>
+        
+        <!-- Payment Methods -->
+        <div x-show="activeTab === 'payment-methods'" class="c-card u-mb-6">
+            <div class="c-card__header">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-m-0">
+                    <i class="fas fa-credit-card u-text-primary-400"></i>
+                    Metode Pembayaran
+                </h2>
+                
+                <div class="u-flex u-items-center u-gap-2">
+                    <button 
+                        @click="refreshData()" 
+                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        aria-label="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="c-card__body">
+                <div class="p-data-grid" x-show="getItems('payment-methods').length > 0">
+                    <template x-for="(item, index) in getItems('payment-methods')" :key="index">
+                        <div class="p-data-card">
+                            <h3 class="p-data-card__name" x-text="item"></h3>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Empty State -->
+                <div x-show="getItems('payment-methods').length === 0" class="p-data-empty">
+                    <i class="fas fa-info-circle p-data-empty__icon"></i>
+                    <h3 class="p-data-empty__title">Tidak ada metode pembayaran</h3>
+                    <p class="p-data-empty__text">Belum ada metode pembayaran yang tersedia.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Storage Media -->
+        <div x-show="activeTab === 'storage-media'" class="c-card u-mb-6">
+            <div class="c-card__header">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-m-0">
+                    <i class="fas fa-wallet u-text-primary-400"></i>
+                    Media Penyimpanan
+                </h2>
+                
+                <div class="u-flex u-items-center u-gap-2">
+                    <button 
+                        @click="refreshData()" 
+                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        aria-label="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="c-card__body">
+                <div class="p-data-grid" x-show="getItems('storage-media').length > 0">
+                    <template x-for="(item, index) in getItems('storage-media')" :key="index">
+                        <div class="p-data-card">
+                            <h3 class="p-data-card__name" x-text="item"></h3>
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- Empty State -->
+                <div x-show="getItems('storage-media').length === 0" class="p-data-empty">
+                    <i class="fas fa-info-circle p-data-empty__icon"></i>
+                    <h3 class="p-data-empty__title">Tidak ada media penyimpanan</h3>
+                    <p class="p-data-empty__text">Belum ada media penyimpanan yang tersedia.</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  
-  <!-- Script tag untuk data JSON -->
-  <script id="config-data" type="application/json">{{.ConfigJSON}}</script>
-  
-  <!-- Script untuk inisialisasi data global -->
-  <script>
-    // Inisialisasi objek global Botopia config
-    window.botopiaConfig = {
-      masterData: {
-        expenseCategories: JSON.parse('{{json .ExpenseCategories}}'),
-        incomeCategories: JSON.parse('{{json .IncomeCategories}}'),
-        paymentMethods: JSON.parse('{{json .PaymentMethods}}'),
-        storageMedias: JSON.parse('{{json .StorageMedias}}')
-      }
-    };
-  </script>
 </div>

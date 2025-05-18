@@ -1,0 +1,94 @@
+/* Connection Badge Component
+ * -------------------------------------
+ * Badge untuk menampilkan status koneksi
+ */
+
+.c-connection-badge {
+  display: flex;
+}
+
+.c-connection-badge--connected,
+.c-connection-badge--disconnected {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.c-connection-badge--connected {
+  color: var(--success);
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.c-connection-badge--disconnected {
+  color: var(--danger);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.c-connection-badge--connected:hover {
+  background-color: rgba(16, 185, 129, 0.2);
+}
+
+.c-connection-badge--disconnected:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Icon container with animation */
+.c-connection-badge__icon-container {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Animated ping effect */
+.c-connection-badge__ping {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: connection-ping 1.5s infinite;
+}
+
+@keyframes connection-ping {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.c-connection-badge__info {
+  display: none;
+  flex-direction: column;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.c-connection-badge__status {
+  font-weight: 600;
+}
+
+.c-connection-badge__name,
+.c-connection-badge__action {
+  opacity: 0.8;
+  font-size: 0.7rem;
+}
+
+/* Show text info on larger screens */
+@media (min-width: 640px) {
+  .c-connection-badge__info {
+    display: flex;
+  }
+}

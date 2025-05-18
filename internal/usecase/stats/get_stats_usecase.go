@@ -40,10 +40,32 @@ func (uc *GetStatsUseCase) Execute(ctx context.Context) (*dto.StatsDTO, error) {
 
 	// Dapatkan info user jika terhubung
 	var phone string
+	name := "WhatsApp User" // Nilai default
+	var deviceDetailsDTO *dto.DeviceDetailsDTO
+
 	if isConnected {
-		user, _ := uc.connectionRepo.GetCurrentUser()
-		if user != nil {
+		user, err := uc.connectionRepo.GetCurrentUser()
+		if err == nil && user != nil {
 			phone = user.Phone
+
+			// Prioritaskan PushName, lalu Name
+			if user.PushName != "" {
+				name = user.PushName
+			} else if user.Name != "" {
+				name = user.Name
+			}
+
+			// Tambahkan detail perangkat jika tersedia
+			if user.DeviceDetails != nil {
+				deviceDetailsDTO = &dto.DeviceDetailsDTO{
+					Platform:    user.DeviceDetails.Platform,
+					DeviceModel: user.DeviceDetails.DeviceModel,
+					OSVersion:   user.DeviceDetails.OSVersion,
+					ClientType:  user.DeviceDetails.ClientType,
+					IPAddress:   user.DeviceDetails.IPAddress,
+					DeviceID:    user.DeviceDetails.DeviceID,
+				}
+			}
 		}
 	}
 
@@ -52,14 +74,18 @@ func (uc *GetStatsUseCase) Execute(ctx context.Context) (*dto.StatsDTO, error) {
 	commandCount := len(commands)
 
 	// Buat DTO
-	return &dto.StatsDTO{
+	statsDTO := &dto.StatsDTO{
 		ConnectionState: stats.ConnectionState,
 		IsConnected:     isConnected,
 		MessageCount:    stats.MessageCount,
 		CommandsRun:     stats.CommandsRun,
 		Uptime:          stats.Uptime,
+		SystemUptime:    stats.SystemUptime,
 		CommandCount:    commandCount,
 		Phone:           phone,
-		Name:            "WhatsApp User", // Nilai default
-	}, nil
+		Name:            name,
+		DeviceDetails:   deviceDetailsDTO,
+	}
+
+	return statsDTO, nil
 }

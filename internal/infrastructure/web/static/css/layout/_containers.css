@@ -1,0 +1,164 @@
+/* Containers
+ * -------------------------------------
+ * Definisi berbagai kontainer yang digunakan untuk layout
+ */
+
+/* Container Dasar */
+.l-container {
+  width: 100%;
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Container dengan ukuran maksimum */
+.l-container-sm {
+  max-width: 640px;
+}
+
+.l-container-md {
+  max-width: 768px;
+}
+
+.l-container-lg {
+  max-width: 1024px;
+}
+
+.l-container-xl {
+  max-width: 1280px;
+}
+
+.l-container-2xl {
+  max-width: 1536px;
+}
+
+/* Container dengan padding berbeda */
+.l-container-padding-sm {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.l-container-padding-lg {
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+/* Container Fluid - selalu 100% width */
+.l-container-fluid {
+  width: 100%;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Container dengan Narrow Content */
+.l-container-narrow {
+  max-width: 65ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Card Container */
+.l-card-container {
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+/* Section Container */
+.l-section {
+  margin-bottom: var(--space-8);
+}
+
+.l-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+  color: var(--white);
+}
+
+/* Container Form */
+.l-form-container {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Content Container */
+.l-content {
+  flex: 1;
+  max-width: 100%;
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  background-color: var(--content-bg); /* Lebih gelap */
+  backdrop-filter: blur(10px); /* Efek glassmorphism */
+  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+}
+
+@media (min-width: 640px) {
+  .l-content {
+    padding: var(--space-6);
+  }
+}
+
+/* Sidebar Container */
+.l-sidebar-container {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  transition: width 0.3s ease;
+}
+
+.l-sidebar-container.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* Content Layout */
+.l-content-with-sidebar {
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-normal);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.l-content-with-sidebar.sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Main content area that pushes footer to bottom */
+.l-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .l-content-with-sidebar {
+    margin-left: 0;
+  }
+  
+  .l-content-with-sidebar.sidebar-collapsed {
+    margin-left: 0;
+  }
+}
+
+/* Media queries untuk adaptasi responsive */
+@media (max-width: 640px) {
+  .l-card-container {
+    padding: var(--space-4);
+  }
+
+  .l-content {
+    padding: var(--space-4);
+  }
+
+  .l-section {
+    margin-bottom: var(--space-6);
+  }
+}

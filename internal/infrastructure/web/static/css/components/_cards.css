@@ -1,0 +1,157 @@
+/* Card Components
+ * -------------------------------------
+ * Mendefinisikan gaya untuk card dan komponen terkait
+ */
+
+/* Card Base */
+.c-card {
+  background-color: var(--card-bg);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.c-card:hover {
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* Card Header */
+.c-card__header {
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Card Body */
+.c-card__body {
+  padding: var(--space-6);
+}
+
+/* Card Footer */
+.c-card__footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid rgba(51, 65, 85, 0.3);
+}
+
+/* Card Title */
+.c-card__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+}
+
+/* Card Actions */
+.c-card__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Card Content */
+.c-card__content {
+  color: var(--slate-300);
+  line-height: 1.5;
+}
+
+/* Stats Card Grid */
+.c-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+/* Stats Card */
+.c-stats-card {
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: all 0.2s ease;
+}
+
+.c-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Stats Card Icon */
+.c-stats-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Stats Card Content */
+.c-stats-card__content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stats Card Title */
+.c-stats-card__title {
+  font-size: 0.875rem;
+  color: var(--slate-400);
+  margin: 0 0 var(--space-1) 0;
+  font-weight: 500;
+}
+
+/* Stats Card Value */
+.c-stats-card__value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0;
+}
+
+/* Stats Card Variants */
+.c-stats-card--primary .c-stats-card__icon {
+  background-color: rgba(var(--primary-500-rgb), 0.2);
+  color: var(--primary-400);
+}
+
+.c-stats-card--success .c-stats-card__icon {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: rgb(16, 185, 129);
+}
+
+.c-stats-card--warning .c-stats-card__icon {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: rgb(245, 158, 11);
+}
+
+.c-stats-card--info .c-stats-card__icon {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: rgb(59, 130, 246);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .c-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .c-card__body {
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .c-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

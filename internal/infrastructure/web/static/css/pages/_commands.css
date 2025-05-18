@@ -1,0 +1,285 @@
+/* Commands Page Styles
+ * -------------------------------------
+ * Styling khusus untuk halaman commands
+ */
+
+/* Command List Container */
+.p-commands {
+  padding: var(--space-6);
+}
+
+/* Command Filter Bar */
+.p-command-filter {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.p-command-search {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.p-command-search__input {
+  width: 100%;
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-10);
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: var(--radius-md);
+  color: var(--white);
+  transition: all 0.2s ease;
+}
+
+.p-command-search__input:focus {
+  outline: none;
+  border-color: rgba(var(--primary-400-rgb), 0.7);
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+.p-command-search__icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  transform: translateY(-50%);
+  color: var(--slate-400);
+  pointer-events: none;
+}
+
+.p-command-filter__select {
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: var(--radius-md);
+  color: var(--white);
+  padding: var(--space-2) var(--space-4);
+  min-width: 150px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--space-2) center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: var(--space-8);
+}
+
+.p-command-filter__select:focus {
+  outline: none;
+  border-color: rgba(var(--primary-400-rgb), 0.7);
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+/* Command Grid */
+.p-command-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+/* Command Card */
+.p-command-card {
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-command-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+  background-color: rgba(30, 41, 59, 0.6);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Command Card Header */
+.p-command-card__header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  gap: var(--space-3);
+}
+
+.p-command-card__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: rgba(var(--primary-400-rgb), 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-400);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.p-command-card__title {
+  font-weight: 600;
+  color: var(--white);
+  font-size: 1.125rem;
+}
+
+.p-command-card__category {
+  background-color: rgba(51, 65, 85, 0.5);
+  color: var(--slate-300);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* Command Card Body */
+.p-command-card__body {
+  padding: var(--space-4);
+  flex: 1;
+}
+
+.p-command-card__description {
+  color: var(--slate-300);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+}
+
+.p-command-card__usage {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-top: auto;
+}
+
+.p-command-card__usage-title {
+  color: var(--slate-400);
+  font-size: 0.75rem;
+  margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.p-command-card__usage-code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  color: var(--primary-400);
+  font-size: 0.875rem;
+  background-color: rgba(var(--primary-400-rgb), 0.1);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--primary-400);
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+/* Command Table (Alternative View) */
+.p-command-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+}
+
+.p-command-table th,
+.p-command-table td {
+  padding: var(--space-4);
+  text-align: left;
+}
+
+.p-command-table thead th {
+  background-color: rgba(30, 41, 59, 0.6);
+  color: var(--slate-300);
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.p-command-table tbody tr {
+  background-color: rgba(30, 41, 59, 0.3);
+  transition: background-color 0.2s ease;
+}
+
+.p-command-table tbody tr:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+
+.p-command-table tbody tr:not(:last-child) {
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.p-command-table__name {
+  font-weight: 600;
+  color: var(--primary-400);
+}
+
+.p-command-table__description {
+  color: var(--slate-300);
+}
+
+.p-command-table__category {
+  color: var(--slate-400);
+}
+
+/* View Type Toggle */
+.p-view-toggle {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.p-view-toggle__btn {
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: var(--slate-400);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.p-view-toggle__btn:hover {
+  color: var(--white);
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+.p-view-toggle__btn.active {
+  color: var(--primary-400);
+  border-color: rgba(var(--primary-400-rgb), 0.5);
+  background-color: rgba(var(--primary-400-rgb), 0.1);
+}
+
+/* Empty State */
+.p-commands-empty {
+  text-align: center;
+  padding: var(--space-12);
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px dashed rgba(51, 65, 85, 0.8);
+  border-radius: var(--radius-lg);
+}
+
+.p-commands-empty__icon {
+  font-size: 3rem;
+  color: var(--slate-600);
+  margin-bottom: var(--space-4);
+}
+
+.p-commands-empty__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--slate-300);
+  margin-bottom: var(--space-2);
+}
+
+.p-commands-empty__text {
+  color: var(--slate-400);
+  font-size: 0.875rem;
+  max-width: 500px;
+  margin: 0 auto;
+}

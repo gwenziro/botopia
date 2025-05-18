@@ -1,0 +1,143 @@
+/* Base Variables
+ * -------------------------------------
+ * Definisi seluruh variabel global yang digunakan dalam proyek
+ * Menggunakan custom properties CSS untuk konsistensi visual
+ */
+
+:root {
+  /* Colors */
+  --white: #ffffff;
+  --black: #000000;
+  
+  /* Primary Colors - Biru dongker gelap (2, 41, 57) */
+  --primary-50: #e6f3f7;
+  --primary-100: #c0e2ea;
+  --primary-200: #9ad0de;
+  --primary-300: #67b8ca;
+  --primary-400: #3b9fb7;
+  --primary-500: #0b7a97;
+  --primary-700: #044761;
+  --primary-800: #032d45;
+  --primary-900: #02293a;
+  
+  /* RGB Values untuk operasi opacity */
+  --primary-500-rgb: 11, 122, 151;
+  --primary-400-rgb: 59, 159, 183;
+  --primary-600-rgb: 6, 97, 124;
+
+  /* Slate Colors */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #0b7a97;
+
+  /* Component Background Colors */
+  --sidebar-bg: rgba(15, 23, 42, 0.95);
+  --header-bg: rgba(15, 23, 42, 0.95);
+  --footer-bg: rgba(15, 23, 42, 0.95);
+  --partials-bg: rgba(10, 19, 39, 0.95);
+
+  /* Konten lebih gelap dengan efek glassmorphism */
+  --content-bg: rgba(2, 6, 23, 0.95); /* Lebih gelap dari slate-950 */
+  --card-bg: rgba(15, 23, 42, 0.65); /* Glassmorphism effect */
+  
+  /* Glass Effect */
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(51, 65, 85, 0.5);
+  --glass-hover-border: rgba(11, 122, 151, 0.3); /* Updated to new primary */
+  
+  /* Spacing - Using a 4px base */
+  --space-0: 0px;
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem;  /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem;    /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem;  /* 24px */
+  --space-8: 2rem;    /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem;   /* 48px */
+  --space-16: 4rem;   /* 64px */
+  --space-20: 5rem;   /* 80px */
+  --space-24: 6rem;   /* 96px */
+  
+  /* Border Radius */
+  --radius-sm: 0.125rem; /* 2px */
+  --radius-md: 0.375rem; /* 6px */
+  --radius-lg: 0.5rem;   /* 8px */
+  --radius-xl: 0.75rem;  /* 12px */
+  --radius-2xl: 1rem;    /* 16px */
+  --radius-full: 9999px;
+  
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Box Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Z-index */
+  --z-0: 0;
+  --z-10: 10;
+  --z-20: 20;
+  --z-30: 30;
+  --z-40: 40;
+  --z-50: 50;
+  --z-auto: auto;
+  
+  /* Z-index aliases */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-header: 1080;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Layout */
+  --sidebar-width: 248px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 64px;
+  --footer-height: 64px;
+  
+  /* Container Widths */
+  --container-max: 1200px;
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
+
+/* Media Query Breakpoints */
+@custom-media --sm (min-width: 640px);  /* Small devices */
+@custom-media --md (min-width: 768px);  /* Medium devices */
+@custom-media --lg (min-width: 1024px); /* Large devices */
+@custom-media --xl (min-width: 1280px); /* Extra large devices */
+@custom-media --2xl (min-width: 1536px); /* 2X large devices */
+
+/* Dark Mode Override */
+.dark-mode {
+  /* Any dark mode specific variables */
+}

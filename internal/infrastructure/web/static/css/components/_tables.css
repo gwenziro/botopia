@@ -1,0 +1,196 @@
+/* Tables Component Styles
+ * -------------------------------------
+ * Mendefinisikan gaya untuk tabel dan elemen-elemen terkait
+ */
+
+/* Base Table */
+.c-table {
+  width: 100%;
+  margin-bottom: var(--space-6);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.c-table th,
+.c-table td {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: top;
+  border-top: 1px solid rgba(51, 65, 85, 0.6);
+  text-align: left;
+}
+
+.c-table th {
+  font-weight: 600;
+  color: var(--slate-300);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  background-color: rgba(30, 41, 59, 0.4);
+}
+
+.c-table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid rgba(51, 65, 85, 0.8);
+}
+
+.c-table tbody + tbody {
+  border-top: 2px solid rgba(51, 65, 85, 0.8);
+}
+
+/* Bordered Table */
+.c-table--bordered {
+  border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.c-table--bordered th,
+.c-table--bordered td {
+  border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.c-table--bordered thead th,
+.c-table--bordered thead td {
+  border-bottom-width: 2px;
+}
+
+/* Table with rounded corners */
+.c-table--rounded {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Striped Table */
+.c-table--striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(30, 41, 59, 0.3);
+}
+
+/* Hoverable Table */
+.c-table--hover tbody tr:hover {
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+/* Small Table */
+.c-table--sm th,
+.c-table--sm td {
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Table with sticky header */
+.c-table--sticky-header {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.c-table--sticky-header thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(4px);
+}
+
+/* Responsive Tables */
+.c-table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table Row States */
+.c-table .c-table-active {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.c-table .c-table-success {
+  background-color: rgba(16, 185, 129, 0.15);
+}
+
+.c-table .c-table-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.c-table .c-table-warning {
+  background-color: rgba(245, 158, 11, 0.15);
+}
+
+.c-table .c-table-info {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* Actions Column */
+.c-table-actions {
+  white-space: nowrap;
+  width: 1%;
+  text-align: right;
+}
+
+/* Truncated Cells */
+.c-table-cell-truncate {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Table Caption */
+.c-table-caption {
+  padding: var(--space-2) var(--space-4);
+  color: var(--slate-400);
+  text-align: left;
+  font-style: italic;
+}
+
+/* Empty Table State */
+.c-table-empty-state {
+  text-align: center;
+  padding: var(--space-6);
+  color: var(--slate-500);
+}
+
+.c-table-empty-state__icon {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-3);
+  opacity: 0.7;
+}
+
+.c-table-empty-state__text {
+  font-size: 0.875rem;
+}
+
+/* Table Pagination Container */
+.c-table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-4);
+}
+
+.c-table-pagination__info {
+  color: var(--slate-400);
+  font-size: 0.875rem;
+}
+
+/* Sortable Table Headers */
+.c-table-sort {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.c-table-sort::after {
+  content: "\f0dc"; /* FontAwesome sort icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-left: var(--space-2);
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
+
+.c-table-sort--asc::after {
+  content: "\f0de"; /* FontAwesome sort-up icon */
+  opacity: 1;
+}
+
+.c-table-sort--desc::after {
+  content: "\f0dd"; /* FontAwesome sort-down icon */
+  opacity: 1;
+}

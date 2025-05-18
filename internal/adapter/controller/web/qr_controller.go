@@ -6,11 +6,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gwenziro/botopia/internal/infrastructure/logger"
 	"github.com/gwenziro/botopia/internal/usecase/connection"
+	"github.com/gwenziro/botopia/internal/usecase/stats"
 )
 
 // QRController controller untuk halaman QR
 type QRController struct {
 	connectWhatsAppUseCase *connection.ConnectWhatsAppUseCase
+	getStatsUseCase        *stats.GetStatsUseCase
 	log                    *logger.Logger
 	qrCode                 string
 	qrMutex                sync.RWMutex
@@ -18,9 +20,10 @@ type QRController struct {
 }
 
 // NewQRController membuat instance QR controller
-func NewQRController(connectUC *connection.ConnectWhatsAppUseCase) *QRController {
+func NewQRController(connectUC *connection.ConnectWhatsAppUseCase, statsUC *stats.GetStatsUseCase) *QRController {
 	ctrl := &QRController{
 		connectWhatsAppUseCase: connectUC,
+		getStatsUseCase:        statsUC,
 		log:                    logger.New("QRController", logger.INFO, true),
 	}
 
@@ -79,15 +82,51 @@ func (c *QRController) HandleQRPage(ctx *fiber.Ctx) error {
 	}, "layouts/main")
 }
 
-// HandleGetQR menangani API untuk QR code
+// HandleGetQR menangani API endpoint untuk mendapatkan QR code
 func (c *QRController) HandleGetQR(ctx *fiber.Ctx) error {
+	// Dapatkan status koneksi
+	isConnected := c.connectWhatsAppUseCase.IsConnected()
+
+	// Jika sudah terhubung, kembalikan status saja tanpa QR
+	if isConnected {
+		user, err := c.connectWhatsAppUseCase.GetCurrentUser()
+
+		phone := ""
+		name := "WhatsApp User"
+
+		if err == nil && user != nil {
+			phone = user.Phone
+
+			// Dapatkan nama dari beberapa kemungkinan field
+			if user.PushName != "" {
+				name = user.PushName
+			} else if user.Name != "" {
+				name = user.Name
+			}
+
+			c.log.Info("Connected with user: %s (phone: %s)", name, phone)
+		}
+
+		// Dapatkan uptime (durasi koneksi)
+		stats, _ := c.getStatsUseCase.Execute(ctx.Context())
+		uptime := int64(0)
+		if stats != nil {
+			uptime = stats.Uptime
+		}
+
+		return ctx.JSON(fiber.Map{
+			"connectionState": true,
+			"qrCode":          "",
+			"phone":           phone,
+			"name":            name,
+			"uptime":          uptime,
+		})
+	}
+
 	// Get current QR code
 	c.qrMutex.RLock()
 	qrCode := c.qrCode
 	c.qrMutex.RUnlock()
-
-	// Get connection status
-	isConnected := c.connectWhatsAppUseCase.IsConnected()
 
 	// Inisialisasi response
 	response := fiber.Map{

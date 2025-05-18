@@ -86,6 +86,19 @@ func (s *FinanceService) GetSpreadsheetURL() string {
 	return s.sheetsRepo.GetSpreadsheetURL()
 }
 
+// GetSpreadsheetID mendapatkan ID spreadsheet
+func (s *FinanceService) GetSpreadsheetID() string {
+	// Mungkin tersedia dari config atau repository
+	if s.sheetsRepo != nil {
+		// Jika repository memiliki method untuk mendapatkan ID
+		if repo, ok := s.sheetsRepo.(interface{ GetSpreadsheetID() string }); ok {
+			return repo.GetSpreadsheetID()
+		}
+	}
+
+	return ""
+}
+
 // GetConfiguration mendapatkan konfigurasi keuangan
 func (s *FinanceService) GetConfiguration(ctx context.Context) (*finance.Configuration, error) {
 	// Gunakan cache jika tersedia
@@ -225,4 +238,16 @@ func (s *FinanceService) UpdateConfiguration(ctx context.Context, config *financ
 // GetLogger mengembalikan logger service
 func (s *FinanceService) GetLogger() *logger.Logger {
 	return s.log
+}
+
+// GetDriveFolderID mendapatkan ID folder Drive
+func (s *FinanceService) GetDriveFolderID() string {
+	// Jika menggunakan DriveRepository yang memiliki akses ke config
+	if driveRepo, ok := s.driveRepo.(interface {
+		GetDriveFolderID() string
+	}); ok {
+		return driveRepo.GetDriveFolderID()
+	}
+
+	return ""
 }

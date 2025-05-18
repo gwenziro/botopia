@@ -146,6 +146,7 @@ func (s *Server) setupAuthenticatedRoutes(
 		HandleConfigPage(ctx *fiber.Ctx) error
 		HandleGetConfig(ctx *fiber.Ctx) error
 		HandleUpdateConfig(ctx *fiber.Ctx) error
+		HandleGetConfigStatus(ctx *fiber.Ctx) error
 	})
 
 	// Auth routes
@@ -172,6 +173,7 @@ func (s *Server) setupAuthenticatedRoutes(
 	api.Get("/qr", qr.HandleGetQR)
 	api.Get("/config", config.HandleGetConfig)
 	api.Post("/config", config.HandleUpdateConfig)
+	api.Get("/config/status", config.HandleGetConfigStatus)
 }
 
 // setupUnauthenticatedRoutes mengatur route tanpa auth
@@ -183,7 +185,8 @@ func (s *Server) setupUnauthenticatedRoutes(
 		HandleIndex(ctx *fiber.Ctx) error
 		HandleDashboard(ctx *fiber.Ctx) error
 		HandleGetStats(ctx *fiber.Ctx) error
-		HandleGetCommands(ctx *fiber.Ctx) error // Tambahkan ini
+		HandleGetCommands(ctx *fiber.Ctx) error
+		HandleGetRecentTransactions(ctx *fiber.Ctx) error // Add this
 	})
 
 	qr := qrCtrl.(interface {
@@ -196,6 +199,7 @@ func (s *Server) setupUnauthenticatedRoutes(
 		HandleConfigPage(ctx *fiber.Ctx) error
 		HandleGetConfig(ctx *fiber.Ctx) error
 		HandleUpdateConfig(ctx *fiber.Ctx) error
+		HandleGetConfigStatus(ctx *fiber.Ctx) error // Add this to the interface
 	})
 
 	dataMaster := dataMasterCtrl.(interface {
@@ -230,11 +234,13 @@ func (s *Server) setupUnauthenticatedRoutes(
 	// API routes
 	api := s.app.Group("/api")
 	api.Get("/stats", dashboard.HandleGetStats)
+	api.Get("/commands", dashboard.HandleGetCommands)
+	api.Get("/transactions/recent", dashboard.HandleGetRecentTransactions) // Add this
 	api.Get("/qr", qr.HandleGetQR)
 	api.Post("/disconnect", qr.HandleDisconnect)
 	api.Get("/config", config.HandleGetConfig)
 	api.Post("/config", config.HandleUpdateConfig)
-	api.Get("/commands", commands.HandleGetCommands)
+	api.Get("/config/status", config.HandleGetConfigStatus) // Add this new route
 
 	// Data Master API routes - hanya route GET yang diperlukan
 	api.Get("/data-master", dataMaster.HandleGetMasterData)

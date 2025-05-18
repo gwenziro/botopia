@@ -1,0 +1,234 @@
+/* Forms Component Styles
+ * -------------------------------------
+ * Mendefinisikan gaya untuk elemen-elemen form
+ */
+
+/* Base Form */
+.c-form {
+  margin-bottom: var(--space-6);
+  width: 100%;
+}
+
+/* Form Groups */
+.c-form-group {
+  margin-bottom: var(--space-4);
+}
+
+.c-form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Form Labels */
+.c-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--slate-300);
+  margin-bottom: var(--space-1);
+}
+
+/* Required Field Indicator */
+.c-label-required::after {
+  content: "*";
+  color: var(--danger);
+  margin-left: var(--space-1);
+}
+
+/* Form Inputs Base */
+.c-input {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--white);
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.c-input:focus {
+  outline: none;
+  border-color: rgba(var(--primary-500-rgb), 0.7);
+  box-shadow: 0 0 0 1px rgba(var(--primary-500-rgb), 0.1);
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+.c-input::placeholder {
+  color: var(--slate-500);
+}
+
+.c-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Input Sizes */
+.c-input--sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem;
+}
+
+.c-input--lg {
+  padding: var(--space-3) var(--space-4);
+  font-size: 1rem;
+}
+
+/* Text Area */
+.c-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Select Inputs */
+.c-select {
+  position: relative;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--space-2) center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: var(--space-8);
+  appearance: none;
+}
+
+/* Custom Checkboxes & Radio Buttons */
+.c-checkbox-label, .c-radio-label {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: var(--space-1);
+}
+
+.c-checkbox, .c-radio {
+  position: absolute;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+
+.c-checkbox-custom, .c-radio-custom {
+  height: 18px;
+  width: 18px;
+  margin-right: var(--space-2);
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  transition: all 0.2s ease;
+}
+
+.c-checkbox-custom {
+  border-radius: var(--radius-sm);
+}
+
+.c-radio-custom {
+  border-radius: 50%;
+}
+
+.c-checkbox:checked ~ .c-checkbox-custom {
+  background-color: var(--primary-500);
+  border-color: var(--primary-600);
+}
+
+.c-radio:checked ~ .c-radio-custom {
+  border: 5px solid var(--primary-500);
+}
+
+.c-checkbox:focus ~ .c-checkbox-custom,
+.c-radio:focus ~ .c-radio-custom {
+  box-shadow: 0 0 0 2px rgba(var(--primary-500-rgb), 0.3);
+}
+
+/* Form Validation */
+.c-input.is-invalid {
+  border-color: var(--danger);
+}
+
+.c-validation-feedback {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--danger);
+}
+
+/* Form Help Text */
+.c-form-help {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--slate-400);
+}
+
+/* Form Inline */
+.c-form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.c-form-inline .c-form-group {
+  display: flex;
+  flex: 0 0 auto;
+  flex-flow: row wrap;
+  align-items: center;
+  margin-bottom: 0;
+  margin-right: var(--space-4);
+}
+
+/* Input Groups */
+.c-input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+}
+
+.c-input-group .c-input {
+  position: relative;
+  flex: 1 1 auto;
+  width: 1%;
+}
+
+.c-input-group-prepend, .c-input-group-append {
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--white);
+  text-align: center;
+  background-color: rgba(51, 65, 85, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  white-space: nowrap;
+}
+
+.c-input-group-prepend {
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+  border-right: 0;
+}
+
+.c-input-group-append {
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  border-left: 0;
+}
+
+.c-input-group > .c-input:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.c-input-group > .c-input:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Responsive Forms */
+@media (max-width: 640px) {
+  .c-form-inline .c-form-group {
+    margin-right: 0;
+    margin-bottom: var(--space-2);
+    flex-basis: 100%;
+  }
+}

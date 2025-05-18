@@ -18,10 +18,9 @@ type StatsRepository struct {
 func NewStatsRepository() *StatsRepository {
 	return &StatsRepository{
 		stats: repository.BotStats{
-			ConnectionState: "disconnected",
-			MessageCount:    0,
-			CommandsRun:     0,
-			ConnectedSince:  0,
+			MessageCount: 0,
+			CommandsRun:  0,
+			IsConnected:  false,
 		},
 		startTime: time.Now(),
 	}
@@ -50,22 +49,17 @@ func (r *StatsRepository) GetStats() (*repository.BotStats, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
-	// Buat salinan untuk menghindari race condition
+	// Salin data untuk thread safety
 	stats := r.stats
 
-	// Hitung uptime sistem (berbeda dari uptime koneksi)
-	stats.SystemUptime = int64(time.Since(r.startTime).Seconds())
+	// Tambahkan system uptime
+	systemUptime := time.Since(r.startTime).Seconds()
+	stats.SystemUptime = int64(systemUptime)
 
-	// Hitung uptime jika terhubung
-	if stats.ConnectionState == "connected" {
-		if stats.ConnectedSince > 0 {
-			stats.Uptime = int64(time.Since(time.Unix(stats.ConnectedSince, 0)).Seconds())
-		} else {
-			// Fallback ke system uptime jika ConnectedSince tidak diset tapi state connected
-			stats.Uptime = stats.SystemUptime
-			// Setel ConnectedSince ke waktu sekarang dikurangi SystemUptime
-			stats.ConnectedSince = time.Now().Unix() - stats.SystemUptime
-		}
+	// Hitung uptime koneksi jika terhubung
+	if stats.IsConnected && stats.ConnectedSince > 0 {
+		uptime := time.Now().Unix() - stats.ConnectedSince
+		stats.Uptime = uptime
 	} else {
 		stats.Uptime = 0
 	}
@@ -78,13 +72,15 @@ func (r *StatsRepository) SetConnectionState(isConnected bool) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
-	if isConnected {
+	// Update state and connection details
+	if isConnected && !r.stats.IsConnected {
+		// Baru terhubung - catat waktu mulai
+		r.stats.IsConnected = true
 		r.stats.ConnectionState = "connected"
-		// Hanya set ConnectedSince jika sebelumnya tidak connected
-		if r.stats.ConnectedSince == 0 {
-			r.stats.ConnectedSince = time.Now().Unix()
-		}
-	} else {
+		r.stats.ConnectedSince = time.Now().Unix()
+	} else if !isConnected && r.stats.IsConnected {
+		// Koneksi terputus
+		r.stats.IsConnected = false
 		r.stats.ConnectionState = "disconnected"
 		r.stats.ConnectedSince = 0
 		r.stats.Uptime = 0

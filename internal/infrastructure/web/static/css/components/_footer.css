@@ -1,0 +1,56 @@
+/* Footer Component Styles
+ * -------------------------------------
+ * Mendefinisikan gaya untuk footer aplikasi
+ */
+
+/* Base Footer */
+.c-footer {
+  background-color: var(--partials-bg); /* Gunakan variabel baru */
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--slate-800);
+  padding: var(--space-4) 0;
+  margin-top: auto; /* Push to bottom if parent is flex */
+}
+
+.c-footer__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.c-footer__copyright {
+  font-size: 0.875rem;
+  color: var(--slate-400);
+}
+
+.c-footer__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.c-footer__link {
+  color: var(--slate-400);
+  text-decoration: none;
+  font-size: 1.25rem;
+  transition: color 0.2s ease;
+}
+
+.c-footer__link:hover {
+  color: var(--white);
+}
+
+.c-footer__version {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .c-footer__content {
+    flex-direction: column;
+    text-align: center;
+  }
+}

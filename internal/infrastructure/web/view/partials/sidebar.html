@@ -1,117 +1,87 @@
 <!-- Sidebar partial -->
-<div id="sidebar" class="sidebar glass border-r border-slate-700/30 -translate-x-full lg:translate-x-0"
-    :class="{'sidebar-collapsed': sidebarCollapsed}" x-data="sidebarController">
-    <!-- Logo & App Name - tetap fix di top -->
-    <div class="flex items-center justify-between px-6 h-16 border-b border-slate-700/30 flex-shrink-0">
-        <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div
-                class="logo-icon bg-gradient-to-tr from-primary-600 to-primary-400 flex items-center justify-center text-white">
-                <i class="fas fa-robot text-sm"></i>
-            </div>
-            <span class="text-xl font-semibold text-white sidebar-text">Botopia</span>
-        </a>
+<aside x-data="sidebarController" 
+       class="l-sidebar" 
+       :class="{'collapsed': collapsed, 'mobile-open': mobileOpen}">
+    
+    <!-- Logo dan Brand -->
+    <div class="l-sidebar__logo">
+        <div class="l-sidebar__logo-icon">
+            <i class="fas fa-robot"></i>
+        </div>
+        <span class="l-sidebar__logo-text">Botopia</span>
     </div>
+    
+    <!-- Navigasi Utama -->
+    <nav class="l-sidebar__nav">
+        <!-- Grup Menu: Utama -->
+        <div class="l-sidebar__group">
+            <h5 class="l-sidebar__group-title">Utama</h5>
+            
+            <a href="/dashboard" class="l-sidebar__item {{if eq .Page "dashboard"}}active{{end}}">
+                <div class="l-sidebar__item-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="l-sidebar__item-text">Dashboard</span>
+                <span class="l-sidebar__item-tooltip">Dashboard</span>
+            </a>
 
-    <!-- Navigation menu with sections - area scrollable -->
-    <div class="sidebar-content px-4 py-5">
-        <!-- Main section -->
-        <div class="mb-6">
-            <h3 class="px-2 pt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sidebar-text">
-                Menu Utama
-            </h3>
-            <div class="mt-3 space-y-3">
-                <a href="/dashboard"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-chart-line w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-                <a href="/qr"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-qrcode w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Konektivitas</span>
-                </a>
-                <a href="/contacts"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-address-book w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Whitelist</span>
-                </a>
-            </div>
+            <a href="/qr" class="l-sidebar__item {{if eq .Page "qr"}}active{{end}}">
+                <div class="l-sidebar__item-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <span class="l-sidebar__item-text">QR Code</span>
+                <span class="l-sidebar__item-tooltip">QR Code</span>
+            </a>
+            
+            <a href="/commands" class="l-sidebar__item {{if eq .Page "commands"}}active{{end}}">
+                <div class="l-sidebar__item-icon">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <span class="l-sidebar__item-text">Commands</span>
+                <span class="l-sidebar__item-tooltip">Commands</span>
+            </a>
         </div>
+        
+        <!-- Grup Menu: Data -->
+        <div class="l-sidebar__group">
+            <h5 class="l-sidebar__group-title">Data</h5>
+            
+            <a href="/contacts" class="l-sidebar__item {{if eq .Page "contacts"}}active{{end}}">
+                <div class="l-sidebar__item-icon">
+                    <i class="fas fa-address-book"></i>
+                </div>
+                <span class="l-sidebar__item-text">Kontak</span>
+                <span class="l-sidebar__item-tooltip">Kontak</span>
+            </a>
 
-        <!-- Keuangan section -->
-        <div class="mb-6">
-            <h3 class="px-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sidebar-text">
-                Keuangan
-            </h3>
-            <div class="mt-3 space-y-3">
-                <a href="/data-master"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-database w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Data Master</span>
-                </a>
-                <a href="/transaksi"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-exchange-alt w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Transaksi</span>
-                </a>
-                <a href="/laporan"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-file-invoice w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Laporan</span>
-                </a>
-                <a href="/anggaran"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-wallet w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Anggaran</span>
-                </a>
-            </div>
+            <a href="/data-master" class="l-sidebar__item {{if eq .Page "data-master"}}active{{end}}">
+                <div class="l-sidebar__item-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <span class="l-sidebar__item-text">Data Master</span>
+                <span class="l-sidebar__item-tooltip">Data Master</span>
+            </a>
         </div>
-
-        <!-- System section -->
-        <div class="mb-6">
-            <h3 class="px-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sidebar-text">
-                Sistem
-            </h3>
-            <div class="mt-3 space-y-3">
-                <a href="/commands"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-terminal w-5 mr-3 text-primary-400"></i>
-                    <span class="sidebar-text">Commands</span>
-                </a>
-                <a href="/konfigurasi"
-                    class="nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                    <i class="fas fa-cog w-5 mr-3 text-primary-400 flex-center-icon"></i>
-                    <span class="sidebar-text">Konfigurasi</span>
-                </a>
-            </div>
+        
+        <!-- Grup Menu: Pengaturan -->
+        <div class="l-sidebar__group">
+            <h5 class="l-sidebar__group-title">Pengaturan</h5>
+            
+            <a href="/konfigurasi" class="l-sidebar__item {{if eq .Page "konfigurasi"}}active{{end}}">
+                <div class="l-sidebar__item-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <span class="l-sidebar__item-text">Konfigurasi</span>
+                <span class="l-sidebar__item-tooltip">Konfigurasi</span>
+            </a>
         </div>
-
-        <!-- Collapse Toggle -->
-        <div class="mt-3 space-y-3">
-            <button @click="toggleCollapse"
-                class=" nav-link flex items-center px-4 py-3 text-sm font-medium text-white hover:bg-white/5 transition-all">
-                <i class="fas w-5 mr-3 text-primary-400 flex-center-icon" :class="sidebarCollapsed ? 'fa-angle-right' : 'fa-angle-left'"></i>
-                <span class="sidebar-text" x-text="sidebarCollapsed ? 'Expand' : 'Collapse'"></span>
-            </button>
-        </div>
+    </nav>
+    
+    <!-- Footer Sidebar -->
+    <div class="l-sidebar__footer">
+        <span class="l-sidebar__footer-text">Botopia v1.0.0</span>
+        <button id="sidebarToggleBtn" @click="toggleCollapse" class="l-sidebar__collapse-btn">
+            <i class="fas fa-chevron-left"></i>
+        </button>
     </div>
-
-    <!-- User Profile - tetap fix di bottom -->
-    <div class="border-t border-slate-700/30 p-4 flex-shrink-0">
-        <div class="glass px-3 py-3 rounded-lg flex items-center">
-            <div
-                class="profile-icon bg-gradient-to-tr from-primary-700 to-primary-500 flex items-center justify-center text-white">
-                <i class="fas fa-user text-sm"></i>
-            </div>
-            <div class="ml-3 sidebar-user-info">
-                <p class="text-sm font-medium text-white">Admin</p>
-                <p class="text-xs text-slate-400">Botopia Admin</p>
-            </div>
-            <div class="ml-auto">
-                <a href="/logout" class="text-slate-400 hover:text-white transition-colors">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+</aside>

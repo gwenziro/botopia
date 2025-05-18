@@ -1,0 +1,274 @@
+/* Data Master Page Styles
+ * -------------------------------------
+ * Styling khusus untuk halaman data master
+ */
+
+/* Data Master Container */
+.p-data-master {
+  padding: var(--space-6);
+}
+
+/* Data Master Tabs */
+.p-data-tabs {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  margin-bottom: var(--space-6);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.p-data-tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+.p-data-tab {
+  padding: var(--space-3) var(--space-4);
+  color: var(--slate-400);
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.p-data-tab:hover {
+  color: var(--slate-200);
+}
+
+.p-data-tab.active {
+  color: var(--primary-400);
+  border-bottom-color: var(--primary-400);
+}
+
+/* Data List Header */
+.p-data-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.p-data-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.p-data-title i {
+  color: var(--primary-400);
+}
+
+.p-data-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Data Cards */
+.p-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.p-data-card {
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.p-data-card:hover {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+.p-data-card__name {
+  color: var(--white);
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+  word-break: break-word;
+}
+
+.p-data-card__meta {
+  color: var(--slate-400);
+  font-size: 0.75rem;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.p-data-card__created {
+  color: var(--slate-500);
+}
+
+.p-data-card__actions {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: flex;
+  gap: var(--space-1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.p-data-card:hover .p-data-card__actions {
+  opacity: 1;
+}
+
+.p-data-card__action {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background-color: rgba(51, 65, 85, 0.8);
+  color: var(--slate-300);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.p-data-card__action:hover {
+  background-color: rgba(var(--primary-400-rgb), 0.3);
+  color: var(--white);
+}
+
+.p-data-card__action.delete:hover {
+  background-color: rgba(239, 68, 68, 0.3);
+  color: var(--danger);
+}
+
+/* Data List (Alternative View) */
+.p-data-list {
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+}
+
+.p-data-list__header {
+  background-color: rgba(30, 41, 59, 0.6);
+  padding: var(--space-3) var(--space-4);
+  color: var(--slate-300);
+  font-weight: 500;
+  font-size: 0.875rem;
+  display: flex;
+}
+
+.p-data-list__header-name {
+  flex: 1;
+}
+
+.p-data-list__header-actions {
+  width: 80px;
+  text-align: center;
+}
+
+.p-data-list__item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  background-color: rgba(30, 41, 59, 0.3);
+  transition: background-color 0.2s ease;
+  border-top: 1px solid rgba(51, 65, 85, 0.3);
+}
+
+.p-data-list__item:hover {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+
+.p-data-list__item-name {
+  flex: 1;
+  color: var(--white);
+}
+
+.p-data-list__item-actions {
+  width: 80px;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+/* Empty State */
+.p-data-empty {
+  padding: var(--space-8);
+  text-align: center;
+  background-color: rgba(30, 41, 59, 0.3);
+  border: 1px dashed rgba(51, 65, 85, 0.8);
+  border-radius: var(--radius-lg);
+}
+
+.p-data-empty__icon {
+  font-size: 2.5rem;
+  color: var(--slate-600);
+  margin-bottom: var(--space-4);
+}
+
+.p-data-empty__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--slate-300);
+  margin-bottom: var(--space-2);
+}
+
+.p-data-empty__text {
+  color: var(--slate-400);
+  font-size: 0.875rem;
+  max-width: 500px;
+  margin: 0 auto var(--space-4) auto;
+}
+
+/* Add Button */
+.p-data-add {
+  background-color: rgba(var(--primary-400-rgb), 0.2);
+  border: 2px dashed rgba(var(--primary-400-rgb), 0.4);
+  border-radius: var(--radius-lg);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.p-data-add:hover {
+  background-color: rgba(var(--primary-400-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+.p-data-add__icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background-color: rgba(var(--primary-400-rgb), 0.3);
+  color: var(--primary-400);
+  font-size: 1.25rem;
+  margin-bottom: var(--space-3);
+}
+
+.p-data-add__text {
+  color: var(--primary-400);
+  font-weight: 500;
+  text-align: center;
+  font-size: 0.875rem;
+}

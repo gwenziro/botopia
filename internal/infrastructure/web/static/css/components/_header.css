@@ -1,0 +1,165 @@
+/* Header Component Styles
+ * -------------------------------------
+ * Mendefinisikan gaya untuk header aplikasi
+ */
+
+/* Base Header */
+.c-header {
+  background-color: var(--partials-bg);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--slate-800);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  transition: all 0.3s ease;
+  padding: var(--space-2) 0;
+  height: var(--header-height);
+}
+
+.c-header__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.c-header__menu-button {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .c-header__menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--slate-400);
+    font-size: 1.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .c-header__menu-button:hover {
+    color: var(--white);
+  }
+}
+
+.c-header__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.c-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.c-header__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0;
+}
+
+.c-connection-badge {
+  display: flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  gap: var(--space-2);
+}
+
+.c-connection-badge--connected {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--success);
+}
+
+.c-connection-badge--disconnected {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--danger);
+}
+
+/* User Menu */
+.c-header__user-button {
+  font-size: 1.25rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .c-header {
+    padding: var(--space-2) 0;
+  }
+
+  .c-header__title {
+    font-size: 1rem;
+  }
+}
+
+/* Dropdown Component */
+.c-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.c-dropdown__menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--space-2);
+  background-color: var(--slate-800);
+  border: 1px solid var(--slate-700);
+  border-radius: var(--radius-md);
+  min-width: 180px;
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown);
+  overflow: hidden;
+}
+
+.c-dropdown__menu--right {
+  right: 0;
+  left: auto;
+}
+
+.c-dropdown__menu--left {
+  left: 0;
+  right: auto;
+}
+
+.c-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  color: var(--slate-300);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.c-dropdown__item:hover {
+  background-color: rgba(var(--primary-500-rgb), 0.1);
+  color: var(--white);
+}
+
+.c-dropdown__item--danger {
+  color: var(--danger);
+}
+
+.c-dropdown__item--danger:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.c-dropdown__divider {
+  height: 1px;
+  background-color: var(--slate-700);
+  margin: var(--space-1) 0;
+}

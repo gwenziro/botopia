@@ -1,57 +1,47 @@
 /**
- * Sidebar Controller
- * 
- * Mengelola keadaan dan perilaku sidebar
+ * Sidebar Controller - Menangani interaksi sidebar
  */
 document.addEventListener('alpine:init', () => {
     Alpine.data('sidebarController', () => ({
-        sidebarCollapsed: false,
+        collapsed: false,
+        mobileOpen: false,
         
         init() {
-            // Cek local storage untuk status sidebar sebelumnya
-            const savedState = localStorage.getItem('sidebarCollapsed');
-            if (savedState !== null) {
-                this.sidebarCollapsed = savedState === 'true';
-            }
+            // Check localStorage for saved state
+            this.collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
             
-            // Tambahkan data-title ke semua nav-link untuk tooltip
-            this.addTitlesToNavLinks();
+            // Add event listeners
+            this.addEventListeners();
             
-            // Tambahkan listener untuk perubahan ukuran layar
-            this.setupResizeListener();
-        },
-        
-        toggleCollapse() {
-            this.sidebarCollapsed = !this.sidebarCollapsed;
-            localStorage.setItem('sidebarCollapsed', this.sidebarCollapsed);
-        },
-        
-        addTitlesToNavLinks() {
-            // Tambahkan atribut data-title ke semua nav-link berdasarkan teks
-            document.querySelectorAll('.nav-link').forEach(link => {
-                const textElement = link.querySelector('.sidebar-text');
-                if (textElement) {
-                    const text = textElement.innerText;
-                    link.setAttribute('data-title', text);
+            // Handle resize events to reset mobile menu when screen size changes
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768 && this.mobileOpen) {
+                    this.mobileOpen = false;
                 }
             });
         },
         
-        setupResizeListener() {
-            // Otomatis collapse sidebar pada layar kecil
-            const mobileBreakpoint = 768; // Batas ukuran mobile dalam pixel
-            
-            const handleResize = () => {
-                if (window.innerWidth < mobileBreakpoint) {
-                    this.sidebarCollapsed = true;
+        addEventListeners() {
+            // Listen for clicks outside when mobile menu is open
+            document.addEventListener('click', (event) => {
+                if (this.mobileOpen && !event.target.closest('.l-sidebar') && 
+                    !event.target.closest('#mobileSidebarToggle')) {
+                    this.mobileOpen = false;
                 }
-            };
-            
-            // Jalankan sekali saat init
-            handleResize();
-            
-            // Tambahkan listener untuk resize
-            window.addEventListener('resize', handleResize);
+            });
+        },
+        
+        toggleCollapse() {
+            this.collapsed = !this.collapsed;
+            localStorage.setItem('sidebarCollapsed', this.collapsed);
+        },
+        
+        toggleMobileMenu() {
+            this.mobileOpen = !this.mobileOpen;
+        },
+        
+        closeMobileMenu() {
+            this.mobileOpen = false;
         }
     }));
 });

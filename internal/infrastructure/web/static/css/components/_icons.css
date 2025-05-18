@@ -1,0 +1,258 @@
+/* Icons Component Styles
+ * -------------------------------------
+ * Mendefinisikan gaya untuk ikon dan elemen icon-related
+ */
+
+/* Base Icon Styles */
+.c-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  font-size: inherit;
+  vertical-align: -0.125em;
+  flex-shrink: 0;
+}
+
+/* Icon Sizes */
+.c-icon--xs {
+  font-size: 0.75rem;
+}
+
+.c-icon--sm {
+  font-size: 0.875rem;
+}
+
+.c-icon--md {
+  font-size: 1rem;
+}
+
+.c-icon--lg {
+  font-size: 1.25rem;
+}
+
+.c-icon--xl {
+  font-size: 1.5rem;
+}
+
+.c-icon--2xl {
+  font-size: 2rem;
+}
+
+.c-icon--3xl {
+  font-size: 3rem;
+}
+
+/* Icon Colors */
+.c-icon--primary {
+  color: var(--primary-400);
+}
+
+.c-icon--success {
+  color: var(--success);
+}
+
+.c-icon--danger {
+  color: var(--danger);
+}
+
+.c-icon--warning {
+  color: var(--warning);
+}
+
+.c-icon--info {
+  color: var(--info);
+}
+
+.c-icon--muted {
+  color: var(--slate-400);
+}
+
+.c-icon--white {
+  color: var(--white);
+}
+
+/* Icon Button */
+.c-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--slate-400);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.c-icon-info {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background-color: rgba(var(--primary-400-rgb), 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: var(--primary-400);
+}
+
+.c-icon-btn:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+  color: var(--white);
+}
+
+.c-icon-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--primary-500-rgb), 0.3);
+}
+
+/* Icon Button Variants */
+.c-icon-btn--primary {
+  color: var(--primary-400);
+}
+
+.c-icon-btn--primary:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: var(--primary-300);
+}
+
+.c-icon-btn--danger {
+  color: var(--danger);
+}
+
+.c-icon-btn--danger:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+/* Icon Button Sizes */
+.c-icon-btn--sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.75rem;
+}
+
+.c-icon-btn--lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.25rem;
+}
+
+/* Icon With Badge */
+.c-icon-with-badge {
+  position: relative;
+  display: inline-flex;
+}
+
+.c-icon-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  font-size: 0.675rem;
+  line-height: 1rem;
+  white-space: nowrap;
+  text-align: center;
+  background-color: var(--danger);
+  color: var(--white);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  z-index: 1;
+}
+
+/* Icon Group */
+.c-icon-group {
+  display: inline-flex;
+}
+
+.c-icon-group .c-icon-with-badge:not(:first-child) {
+  margin-left: -0.5rem;
+}
+
+/* Icon with Text */
+.c-icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.c-icon-text--right {
+  flex-direction: row-reverse;
+}
+
+/* Feature Icons - Special Application Icons */
+.c-feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-xl);
+  font-size: 1.75rem;
+  transition: all 0.3s ease;
+}
+
+.c-feature-icon:hover {
+  transform: scale(1.05);
+}
+
+.c-feature-icon--qr {
+  background-color: rgba(124, 58, 237, 0.15);
+  color: rgba(124, 58, 237, 0.9);
+}
+
+.c-feature-icon--commands {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: rgba(245, 158, 11, 0.9);
+}
+
+.c-feature-icon--contacts {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: rgba(16, 185, 129, 0.9);
+}
+
+.c-feature-icon--data {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: rgba(59, 130, 246, 0.9);
+}
+
+.c-feature-icon--finance {
+  background-color: rgba(14, 165, 233, 0.15);
+  color: rgba(14, 165, 233, 0.9);
+}
+
+/* Animated Icons */
+.c-icon--spin {
+  animation: icon-spin 2s infinite linear;
+}
+
+.c-icon--pulse {
+  animation: icon-pulse 1.5s infinite;
+}
+
+@keyframes icon-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes icon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

@@ -16,4 +16,8 @@ type DeviceDetails struct {
 	BusinessName string // Nama bisnis jika akun bisnis
 	DeviceID     string // ID perangkat
 	Connected    string // Waktu terhubung dalam format RFC3339
+	DeviceModel  string // Model perangkat (baru)
+	OSVersion    string // Versi OS (baru)
+	ClientType   string // Tipe client (baru)
+	IPAddress    string // Alamat IP (baru)
 }

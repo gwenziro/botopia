@@ -1,0 +1,126 @@
+/* Reset & Normalizations
+ * -------------------------------------
+ * Reset dasar dan normalisasi untuk menciptakan CSS yang konsisten
+ * di semua browser
+ */
+
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margin and padding */
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+dl,
+figure,
+blockquote,
+fieldset,
+legend {
+  margin: 0;
+  padding: 0;
+}
+
+/* Set core body defaults */
+body {
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+  background-color: var(--slate-950);
+  color: var(--white);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Remove list styles on ul, ol */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove default styles on links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Make images and embedded objects responsive */
+img,
+picture,
+video,
+canvas,
+svg,
+embed,
+object {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Remove border on images within links */
+a img {
+  border: none;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Remove built-in form typography styles */
+button,
+input,
+select,
+textarea {
+  background-color: transparent;
+  border-style: none;
+}
+
+/* Set default focus state */
+:focus {
+  outline: 2px solid var(--primary-400);
+  outline-offset: 2px;
+}
+
+/* Make sure textarea only resizes vertically */
+textarea {
+  resize: vertical;
+}
+
+/* Blur images when they have no alt attribute */
+img:not([alt]) {
+  filter: blur(10px);
+}
+
+/* AlpineJS Specifics */
+[x-cloak] { 
+  display: none !important; 
+}
+
+/* Accessibility: Vis-hidden for screen readers but hidden visually */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

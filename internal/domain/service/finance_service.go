@@ -33,6 +33,9 @@ type FinanceService interface {
 	// GetSpreadsheetURL mendapatkan URL spreadsheet
 	GetSpreadsheetURL() string
 
+	// GetSpreadsheetID mendapatkan ID spreadsheet
+	GetSpreadsheetID() string
+
 	// GetRecentRecords mendapatkan record keuangan terbaru
 	GetRecentRecords(ctx context.Context, limit int) ([]*finance.FinanceRecord, error)
 

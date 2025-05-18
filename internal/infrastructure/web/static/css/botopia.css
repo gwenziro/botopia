@@ -1,0 +1,37 @@
+/* Botopia - Main CSS Entry Point
+ * -------------------------------------
+ * File ini adalah entry point utama yang mengimpor semua file CSS lainnya
+ * Ini memungkinkan pendekatan modular dan terorganisir untuk styling
+ */
+
+/* Base */
+@import './base/_variables.css';
+@import './base/_reset.css';
+@import './base/_typography.css';
+
+/* Layout */
+@import './layout/_grid.css';
+@import './layout/_containers.css';
+@import './layout/_sidebar.css';
+
+/* Components */
+@import './components/_buttons.css';
+@import './components/_cards.css';
+@import './components/_forms.css';
+@import './components/_tables.css';
+@import './components/_stats.css';
+@import './components/_icons.css';
+@import './components/_header.css';
+@import './components/_footer.css';
+@import './components/_toast.css';
+
+/* Utilities */
+@import './utilities/_spacing.css';
+@import './utilities/_display.css';
+@import './utilities/_colors.css';
+
+/* Pages */
+@import './pages/_dashboard.css';
+@import './pages/_qr.css';
+@import './pages/_commands.css';
+@import './pages/_data-master.css';

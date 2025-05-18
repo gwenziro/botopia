@@ -1,0 +1,258 @@
+/* Stats Components
+ * -------------------------------------
+ * Mendefinisikan gaya untuk berbagai komponen statistik dan info cards
+ */
+
+/* Base Stats Card */
+.c-stats-card {
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.c-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(var(--primary-400-rgb), 0.3);
+}
+
+/* Stats Card with highlight effect */
+.c-stats-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    rgba(var(--primary-500-rgb), 0.8), 
+    rgba(var(--primary-400-rgb), 0.4), 
+    rgba(var(--primary-500-rgb), 0.8)
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.c-stats-card:hover::after {
+  opacity: 1;
+}
+
+/* Stats Card Icon */
+.c-stats-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  background-color: rgba(var(--primary-500-rgb), 0.15);
+  color: var(--primary-400);
+  transition: all 0.3s ease;
+}
+
+.c-stats-card:hover .c-stats-card__icon {
+  transform: scale(1.05);
+  background-color: rgba(var(--primary-500-rgb), 0.25);
+}
+
+/* Stats Card Content */
+.c-stats-card__content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stats Card Title */
+.c-stats-card__title {
+  font-size: 0.875rem;
+  color: var(--slate-400);
+  margin: 0 0 var(--space-2) 0;
+  font-weight: 500;
+}
+
+/* Stats Card Value */
+.c-stats-card__value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+/* Stats Card Description */
+.c-stats-card__description {
+  font-size: 0.75rem;
+  color: var(--slate-500);
+  margin-top: var(--space-1);
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Stats Card Variants */
+.c-stats-card--primary .c-stats-card__icon {
+  background-color: rgba(var(--primary-500-rgb), 0.15);
+  color: var(--primary-400);
+}
+
+.c-stats-card--success .c-stats-card__icon {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: rgb(16, 185, 129);
+}
+
+.c-stats-card--warning .c-stats-card__icon {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: rgb(245, 158, 11);
+}
+
+.c-stats-card--info .c-stats-card__icon {
+  background-color: rgba(var(--primary-500-rgb), 0.15);
+  color: var(--info);
+}
+
+/* Modified color for commands card - New distinct color */
+.c-stats-card--commands .c-stats-card__icon {
+  background-color: rgba(139, 92, 246, 0.2); /* Purple color */
+  color: rgb(139, 92, 246); /* Purple text */
+}
+
+/* Stats Grid Layout */
+.c-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .c-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .c-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Stat Highlight Card */
+.c-stats-highlight {
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.c-stats-highlight__title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--slate-300);
+  margin-bottom: var(--space-2);
+}
+
+.c-stats-highlight__value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: var(--space-1);
+}
+
+.c-stats-highlight__subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-400);
+}
+
+.c-stats-highlight__icon {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  font-size: 3rem;
+  opacity: 0.2;
+  color: var(--white);
+}
+
+/* Stats Trend Indicator */
+.c-stats-trend {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.c-stats-trend__icon {
+  margin-right: var(--space-1);
+  font-size: 0.75rem;
+}
+
+.c-stats-trend--up {
+  color: var(--success);
+}
+
+.c-stats-trend--down {
+  color: var(--danger);
+}
+
+/* Stats Comparison Card */
+.c-stats-comparison {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  margin-bottom: var(--space-4);
+}
+
+.c-stats-comparison__item {
+  text-align: center;
+}
+
+.c-stats-comparison__label {
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin-bottom: var(--space-1);
+}
+
+.c-stats-comparison__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--white);
+}
+
+/* Stats Progress Bar */
+.c-stats-progress {
+  margin-top: var(--space-2);
+}
+
+.c-stats-progress__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin-bottom: var(--space-1);
+}
+
+.c-stats-progress__bar {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(51, 65, 85, 0.5);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.c-stats-progress__value {
+  height: 100%;
+  background-color: var(--primary-500);
+  border-radius: var(--radius-full);
+}

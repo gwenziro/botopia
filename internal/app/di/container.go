@@ -193,9 +193,10 @@ func (c *Container) initControllers() {
 	c.dashboardController = web.NewDashboardController(
 		c.getStatsUseCase,
 		c.listCommandsUseCase,
+		c.financeService, // Tambahkan finance service
 	)
 
-	c.qrController = web.NewQRController(c.connectWhatsAppUseCase)
+	c.qrController = web.NewQRController(c.connectWhatsAppUseCase, c.getStatsUseCase)
 
 	c.authController = web.NewAuthController(
 		c.config.WebAuthUsername,

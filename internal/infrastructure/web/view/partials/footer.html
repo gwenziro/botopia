@@ -1,22 +1,21 @@
 <!-- Footer partial -->
-<footer class="glass border-t border-slate-700/30 py-4 px-6">
-    <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between">
-        <div class="text-center sm:text-left mb-3 sm:mb-0">
-            <p class="text-slate-400 text-sm">
-                &copy; 2024 Botopia - WhatsApp Bot. 
-                <span class="hidden sm:inline">Made with <i class="fas fa-heart text-primary-500 animate-pulse"></i> and Go.</span>
-            </p>
-        </div>
-        <div class="flex items-center space-x-4">
-            <a href="https://github.com/gwenziro/botopia" class="text-slate-400 hover:text-white transition-colors">
-                <i class="fab fa-github"></i>
-            </a>
-            <a href="#" class="text-slate-400 hover:text-white transition-colors">
-                <i class="fas fa-question-circle"></i>
-            </a>
-            <a href="#" class="text-slate-400 hover:text-white transition-colors">
-                <i class="fas fa-envelope"></i>
-            </a>
+<footer class="c-footer">
+    <div class="l-container">
+        <div class="c-footer__content">
+            <div class="c-footer__copyright">
+                &copy; <span id="current-year"></span> Botopia. All rights reserved.
+            </div>
+            <div class="c-footer__links">
+                <a href="https://github.com/gwenziro/botopia" target="_blank" class="c-footer__link" title="Lihat di GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <span class="c-footer__version">v1.0.0</span>
+            </div>
         </div>
     </div>
+    
+    <script>
+        // Set tahun dinamis
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 </footer>

@@ -1,130 +1,138 @@
 <!-- Debug info for view rendering -->
 <script>console.log('Commands page template rendering...');</script>
 
-<div x-data="commandsApp" x-init="initCommands()" class="container mx-auto px-4 py-8">
-    <div x-show="debug" class="bg-red-900/20 border border-red-700 p-3 mb-4 rounded-lg text-white text-sm">
-        <h3 class="font-bold">Debug Info</h3>
-        <p>Alpine.js available: <span x-text="typeof Alpine !== 'undefined'"></span></p>
-        <p>Commands count: <span x-text="commands.length"></span></p>
-        <p>Commands data loaded: <span x-text="!loading"></span></p>
-    </div>
-
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
-        <div>
-            <h1 class="text-2xl font-semibold text-white mb-2">Daftar Commands</h1>
-            <p class="text-slate-300">Daftar lengkap perintah yang tersedia dalam Botopia.</p>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row gap-3">
-            <!-- Filter kategori -->
-            <div class="relative">
-                <select x-model="categoryFilter" @change="filterCommands()" class="bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+<div x-data="commandsApp" x-init="initializeCommands()" class="p-commands">
+    <!-- Header with Filter Bar -->
+    <div class="c-card u-mb-6">
+        <div class="c-card__body">
+            <h1 class="c-card__title u-text-xl u-mb-4 u-flex u-items-center u-gap-2">
+                <i class="fas fa-terminal u-text-primary-400"></i>
+                Daftar Command
+            </h1>
+            
+            <!-- Filter Bar -->
+            <div class="p-command-filter">
+                <!-- Search Input -->
+                <div class="p-command-search">
+                    <i class="fas fa-search p-command-search__icon"></i>
+                    <input 
+                        type="text" 
+                        x-model="searchQuery" 
+                        placeholder="Cari command..."
+                        class="p-command-search__input c-input">
+                </div>
+                
+                <!-- Category Filter -->
+                <select 
+                    x-model="categoryFilter" 
+                    class="p-command-filter__select c-input c-select">
                     <option value="">Semua Kategori</option>
                     <template x-for="category in categories" :key="category">
                         <option :value="category" x-text="category"></option>
                     </template>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <i class="fas fa-chevron-down text-slate-400"></i>
-                </div>
-            </div>
-            
-            <!-- Search box -->
-            <div class="relative">
-                <input 
-                    type="text" 
-                    x-model="searchQuery" 
-                    @input="filterCommands()"
-                    placeholder="Cari command..." 
-                    class="bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 pl-9 focus:outline-none focus:ring-2 focus:ring-primary-500 w-full sm:w-auto"
-                >
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i class="fas fa-search text-slate-400"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading state -->
-    <template x-if="loading">
-        <div class="glass rounded-lg border border-slate-700/30 p-20 flex flex-col items-center justify-center">
-            <div class="loader-ring mb-4"></div>
-            <p class="text-slate-300">Memuat daftar commands...</p>
-        </div>
-    </template>
-
-    <!-- Commands List -->
-    <template x-if="!loading">
-        <div class="space-y-6">
-            <!-- Filter info -->
-            <div class="flex items-center justify-between text-sm">
-                <p class="text-slate-400" x-show="filteredCommands.length > 0">
-                    Menampilkan <span class="text-white font-medium" x-text="filteredCommands.length"></span> dari <span class="text-white font-medium" x-text="totalCommands"></span> commands
-                </p>
-                <p x-show="filteredCommands.length === 0" class="text-slate-400">
-                    Tidak ada command yang sesuai dengan filter
-                </p>
                 
-                <!-- Reset filters -->
-                <button 
-                    x-show="searchQuery || categoryFilter" 
-                    @click="resetFilters()" 
-                    class="text-primary-400 hover:text-primary-300 flex items-center gap-1"
-                >
-                    <i class="fas fa-times-circle"></i> Reset Filter
-                </button>
-            </div>
-            
-            <!-- Debug info -->
-            <div x-show="debug" class="glass rounded-lg border border-red-700/30 p-3 mb-4 text-sm">
-                <h3 class="font-bold mb-1 text-red-400">Debug Info</h3>
-                <p>Command Count: <span x-text="totalCommands"></span></p>
-                <p>Filtered Count: <span x-text="filteredCommands.length"></span></p>
-                <p>Categories: <span x-text="categories.join(', ')"></span></p>
-                <pre class="text-xs mt-2 bg-slate-900 p-2 rounded max-h-60 overflow-auto"><code x-text="JSON.stringify(commands, null, 2)"></code></pre>
-            </div>
-            
-            <!-- Command cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <template x-for="cmd in filteredCommands" :key="cmd.name">
-                    <div class="glass rounded-lg border border-slate-700/30 p-4 hover:border-primary-500/30 transition-all">
-                        <div class="flex items-start justify-between mb-3">
-                            <h3 class="text-lg font-medium text-white flex items-center gap-2">
-                                <span class="text-primary-400 font-mono">!</span><span x-text="cmd.name"></span>
-                            </h3>
-                            <span class="bg-slate-700/50 text-slate-300 text-xs px-2 py-1 rounded-full" x-text="cmd.category || 'Umum'"></span>
-                        </div>
-                        
-                        <p class="text-slate-300 mb-3" x-text="cmd.description"></p>
-                        
-                        <div class="border-t border-slate-700/50 pt-3 mt-3">
-                            <h4 class="text-sm font-medium text-slate-300 mb-1">Penggunaan:</h4>
-                            <div class="bg-slate-900/80 rounded px-3 py-2 font-mono text-sm text-green-400 overflow-x-auto">
-                                <code x-text="cmd.usage || ('!' + cmd.name)"></code>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-            
-            <!-- Empty state -->
-            <div x-show="filteredCommands.length === 0" class="glass rounded-lg border border-slate-700/30 p-16 flex flex-col items-center justify-center">
-                <div class="text-3xl text-slate-400 mb-4">
-                    <i class="fas fa-search"></i>
+                <!-- View Toggle -->
+                <div class="p-view-toggle">
+                    <button 
+                        @click="viewMode = 'grid'" 
+                        :class="{'p-view-toggle__btn': true, 'active': viewMode === 'grid'}"
+                        aria-label="Grid View">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button 
+                        @click="viewMode = 'list'" 
+                        :class="{'p-view-toggle__btn': true, 'active': viewMode === 'list'}"
+                        aria-label="List View">
+                        <i class="fas fa-list"></i>
+                    </button>
                 </div>
-                <p class="text-slate-300 text-center">Tidak ada command yang sesuai dengan kriteria pencarian.</p>
-                <button @click="resetFilters()" class="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white">
-                    Reset Filter
-                </button>
             </div>
         </div>
-    </template>
-
-    <!-- Mendefinisikan data commands dalam script tag untuk diakses oleh JavaScript -->
-    <script type="application/json" id="commands-data">{{ .CommandsJSON }}</script>
-    
-    <!-- Fallback debugging info -->
-    <div id="commands-raw-data" class="hidden">
-        <pre>{{ .CommandsJSON }}</pre>
     </div>
+    
+    <!-- Grid View -->
+    <div x-show="viewMode === 'grid' && !loading" class="p-command-grid">
+        <template x-for="command in filteredCommands" :key="command.name">
+            <div class="p-command-card">
+                <div class="p-command-card__header">
+                    <div class="p-command-card__icon">
+                        <i class="fas" :class="getCommandIcon(command.name)"></i>
+                    </div>
+                    <h3 class="p-command-card__title" x-text="command.name"></h3>
+                    <span class="p-command-card__category" x-text="command.category || 'General'"></span>
+                </div>
+                <div class="p-command-card__body">
+                    <p class="p-command-card__description" x-text="command.description"></p>
+                    <div class="p-command-card__usage">
+                        <p class="p-command-card__usage-title">Penggunaan:</p>
+                        <code class="p-command-card__usage-code" x-text="'!' + command.name + (command.usage ? ' ' + command.usage : '')"></code>
+                    </div>
+                </div>
+            </div>
+        </template>
+        
+        <!-- Empty State -->
+        <div x-show="filteredCommands.length === 0" class="p-commands-empty u-col-span-full">
+            <i class="fas fa-search p-commands-empty__icon"></i>
+            <h3 class="p-commands-empty__title">Tidak ada command yang ditemukan</h3>
+            <p class="p-commands-empty__text">Coba gunakan kata kunci atau filter lain</p>
+        </div>
+    </div>
+    
+    <!-- List View -->
+    <div x-show="viewMode === 'list' && !loading" class="c-card u-mb-6">
+        <div class="c-card__body u-p-0">
+            <table class="c-table c-table--hover u-w-full u-mb-0">
+                <thead>
+                    <tr>
+                        <th class="u-w-1/4">Command</th>
+                        <th class="u-w-1/2">Deskripsi</th>
+                        <th>Kategori</th>
+                        <th class="u-text-right">Penggunaan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="command in filteredCommands" :key="command.name">
+                        <tr>
+                            <td class="p-command-table__name">
+                                <div class="u-flex u-items-center u-gap-2">
+                                    <i class="fas" :class="getCommandIcon(command.name)"></i>
+                                    <span x-text="'!' + command.name"></span>
+                                </div>
+                            </td>
+                            <td class="p-command-table__description" x-text="command.description"></td>
+                            <td class="p-command-table__category" x-text="command.category || 'General'"></td>
+                            <td class="u-text-right">
+                                <code x-text="command.usage ? command.usage : '!'+ command.name"></code>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            
+            <!-- Empty State (List) -->
+            <div x-show="filteredCommands.length === 0" class="p-commands-empty">
+                <i class="fas fa-search p-commands-empty__icon"></i>
+                <h3 class="p-commands-empty__title">Tidak ada command yang ditemukan</h3>
+                <p class="p-commands-empty__text">Coba gunakan kata kunci atau filter lain</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div x-show="loading" class="c-card u-mb-6">
+        <div class="c-card__body u-flex u-flex-col u-items-center u-justify-center u-py-12">
+            <div class="u-w-16 u-h-16 u-border-4 u-border-t-4 u-border-primary-500 u-border-t-transparent u-rounded-full u-animate-spin"></div>
+            <p class="u-mt-4 u-text-slate-400">Memuat daftar command...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Mendefinisikan data commands dalam script tag untuk diakses oleh JavaScript -->
+<script type="application/json" id="commands-data">{{ .CommandsJSON }}</script>
+    
+<!-- Fallback debugging info -->
+<div id="commands-raw-data" class="hidden">
+    <pre>{{ .CommandsJSON }}</pre>
 </div>

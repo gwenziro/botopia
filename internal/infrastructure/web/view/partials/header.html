@@ -1,160 +1,38 @@
 <!-- Header partial -->
-<header class="header glass border-b border-slate-700/30">
-    <div class="flex justify-between items-center h-full py-3 px-6">
-        <!-- Left side: Mobile Menu Button & Page Title -->
-        <div class="flex items-center gap-4">
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-btn" class="lg:hidden text-white hover:text-primary-400 transition-colors">
-                <i class="fas fa-bars text-xl"></i>
+<header class="c-header">
+    <div class="c-header__container l-container">
+        <div class="c-header__left">
+            <button id="mobileSidebarToggle" class="c-header__menu-button c-btn c-btn--icon c-btn--ghost u-md-hidden">
+                <i class="fas fa-bars"></i>
             </button>
-            
-            <!-- Page title - dinamis berdasarkan halaman -->
-            <h1 class="text-xl font-semibold text-white hidden sm:block">
-                {{if eq .Page "dashboard"}}Dashboard{{else if eq .Page "qr"}}QR Code{{else if eq .Page "keuangan"}}Transaksi Keuangan{{else if eq .Page "kategori"}}Kategori{{else if eq .Page "laporan"}}Laporan{{else}}Botopia{{end}}
-            </h1>
+            <h1 class="c-header__title">{{.Title}}</h1>
         </div>
         
-        <!-- Right side: Actions & Connection Status -->
-        <div class="flex items-center space-x-4">
-            <!-- Connection Status -->
-            <div class="hidden sm:block">
-                {{if eq .Page "dashboard" "qr"}}
-                    <div x-data="{ isConnected: false }" x-init="
-                        fetch('/api/stats')
-                            .then(res => res.json())
-                            .then(data => isConnected = data.isConnected);
-                        setInterval(() => {
-                            fetch('/api/stats')
-                                .then(res => res.json())
-                                .then(data => isConnected = data.isConnected);
-                        }, 10000);
-                    ">
-                        <div x-show="isConnected" class="flex items-center gap-2">
-                            <span class="flex h-3 w-3">
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                </span>
-                            </span>
-                            <span class="text-green-500 text-xs font-medium">Terhubung</span>
-                        </div>
-                        <div x-show="!isConnected" class="flex items-center gap-2">
-                            <span class="flex h-3 w-3">
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                </span>
-                            </span>
-                            <span class="text-red-500 text-xs font-medium">Tidak Terhubung</span>
-                        </div>
-                    </div>
-                {{end}}
-            </div>
+        <div class="c-header__right">
+            <!-- Connection Status Badge -->
+            {{template "components/connection-status-badge" .}}
             
-            <!-- Header Actions -->
-            <div class="flex items-center space-x-3">
-                <!-- Notification Button -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" class="p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/30 transition-colors relative">
-                        <i class="fas fa-bell"></i>
-                        <span class="absolute top-0 right-0 h-4 w-4 bg-red-500 text-xs text-white rounded-full flex items-center justify-center">2</span>
-                    </button>
-                    
-                    <!-- Notifications Dropdown -->
-                    <div 
-                        x-show="open" 
-                        @click.away="open = false" 
-                        x-transition:enter="transition ease-out duration-200" 
-                        x-transition:enter-start="opacity-0 scale-95" 
-                        x-transition:enter-end="opacity-100 scale-100" 
-                        x-transition:leave="transition ease-in duration-150" 
-                        x-transition:leave-start="opacity-100 scale-100" 
-                        x-transition:leave-end="opacity-0 scale-95" 
-                        class="absolute right-0 z-50 mt-2 w-80 rounded-md glass border border-slate-700/30 py-1 shadow-lg"
-                        x-cloak
-                    >
-                        <div class="px-4 py-2 border-b border-slate-700/30">
-                            <h3 class="font-semibold text-white">Notifikasi</h3>
-                        </div>
-                        
-                        <div class="max-h-60 overflow-y-auto">
-                            <!-- Notification Item 1 -->
-                            <a href="#" class="flex px-4 py-3 hover:bg-slate-700/30 border-b border-slate-700/10">
-                                <div class="flex-shrink-0 mr-3">
-                                    <div class="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
-                                        <i class="fas fa-check"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-white">WhatsApp Terhubung</p>
-                                    <p class="text-xs text-slate-400">WhatsApp berhasil terhubung ke nomor +628123456789</p>
-                                    <p class="text-xs text-slate-500 mt-1">5 menit yang lalu</p>
-                                </div>
-                            </a>
-                            
-                            <!-- Notification Item 2 -->
-                            <a href="#" class="flex px-4 py-3 hover:bg-slate-700/30">
-                                <div class="flex-shrink-0 mr-3">
-                                    <div class="h-10 w-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-500">
-                                        <i class="fas fa-receipt"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-white">Transaksi Baru</p>
-                                    <p class="text-xs text-slate-400">Transaksi pengeluaran sebesar Rp150.000 telah dicatat</p>
-                                    <p class="text-xs text-slate-500 mt-1">1 jam yang lalu</p>
-                                </div>
-                            </a>
-                        </div>
-                        
-                        <div class="px-4 py-2 border-t border-slate-700/30 text-center">
-                            <a href="#" class="text-xs text-primary-400 hover:text-primary-300">Lihat Semua Notifikasi</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Settings Dropdown -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" class="p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-700/30 transition-colors">
+            <!-- Theme Toggle -->
+            <button id="darkModeToggle" class="c-btn c-btn--icon c-btn--ghost">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <!-- User Menu Dropdown -->
+            <div class="c-dropdown" x-data="{ open: false }">
+                <button @click="open = !open" class="c-btn c-btn--icon c-btn--ghost c-header__user-button">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div x-show="open" @click.away="open = false" class="c-dropdown__menu c-dropdown__menu--right">
+                    <a href="/konfigurasi" class="c-dropdown__item">
                         <i class="fas fa-cog"></i>
-                    </button>
-                    
-                    <div 
-                        x-show="open" 
-                        @click.away="open = false" 
-                        x-transition:enter="transition ease-out duration-200" 
-                        x-transition:enter-start="opacity-0 scale-95" 
-                        x-transition:enter-end="opacity-100 scale-100" 
-                        x-transition:leave="transition ease-in duration-150" 
-                        x-transition:leave-start="opacity-100 scale-100" 
-                        x-transition:leave-end="opacity-0 scale-95" 
-                        class="absolute right-0 z-50 mt-2 w-56 rounded-md glass border border-slate-700/30 py-1 shadow-lg"
-                        x-cloak
-                    >
-                        <div class="px-4 py-3 border-b border-slate-700/30">
-                            <p class="text-sm font-medium text-white">Pengaturan</p>
-                        </div>
-                        <a href="#" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700/30">
-                            <i class="fas fa-user-circle mr-2 text-primary-400"></i> Profil
-                        </a>
-                        <a href="#" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700/30">
-                            <i class="fas fa-palette mr-2 text-primary-400"></i> Tampilan
-                        </a>
-                        <a href="#" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700/30">
-                            <i class="fas fa-bell mr-2 text-primary-400"></i> Notifikasi
-                        </a>
-                        <div class="border-t border-slate-700/30 my-1"></div>
-                        <a href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-slate-700/30">
-                            <i class="fas fa-sign-out-alt mr-2"></i> Keluar
-                        </a>
-                    </div>
+                        <span>Pengaturan</span>
+                    </a>
+                    <div class="c-dropdown__divider"></div>
+                    <a href="/logout" class="c-dropdown__item c-dropdown__item--danger">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
                 </div>
-                
-                <!-- Profile Button -->
-                <a href="#" class="flex items-center gap-2 py-1 px-2 rounded-full hover:bg-slate-700/30 transition-all">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-700 to-primary-500 flex items-center justify-center text-white">
-                        <i class="fas fa-user text-sm"></i>
-                    </div>
-                    <span class="hidden md:block text-sm text-slate-300">Admin</span>
-                </a>
             </div>
         </div>
     </div>

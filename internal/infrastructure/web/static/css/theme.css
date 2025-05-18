@@ -604,9 +604,6 @@ body {
 
 /* Main content area adjustments for sticky header */
 @media (min-width: 1024px) {
-  .flex-1 {
-    margin-left: 260px;
-  }
   .main-content {
     margin-left: 260px;
     transition: all 0.3s ease;
