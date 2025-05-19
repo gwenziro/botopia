@@ -104,7 +104,6 @@
     </div>
     
     <!-- Base Scripts -->
-    <!-- <script src="/static/js/alpine.min.js"></script> --> <!-- Hapus atau komentar ini jika menggunakan CDN di head -->
     <script src="/static/js/toast.js"></script>
     <script src="/static/js/main.js"></script>
     <script src="/static/js/sidebar-controller.js"></script>
@@ -126,42 +125,17 @@
     {{ if eq .Page "data-master" }}
     <script src="/static/js/data-master/data-master-app.js"></script>
     {{ end }}
-    
-    <!-- Tambahkan script untuk halaman contacts -->
+
     {{ if eq .Page "contacts" }}
     <script src="/static/js/contacts/contacts-app.js"></script>
     {{ end }}
     
-    <!-- Tambahkan script untuk halaman commands dengan defer untuk memastikan DOM sudah dimuat -->
     {{ if eq .Page "commands" }}
     <script src="/static/js/commands/commands-app.js"></script>
-    <script>
-        // Tambahkan debugging info
-        console.log('Page type detected as: {{ .Page }}');
-        console.log('Alpine availability check:', typeof Alpine !== 'undefined' ? 'Available' : 'Not available');
-        
-        // Helper function
-        function checkCommandsAppReadiness() {
-            setTimeout(() => {
-                const el = document.querySelector('[x-data="commandsApp"]');
-                console.log('Commands app element found:', el ? 'Yes' : 'No');
-                if (!el && typeof Alpine !== 'undefined') {
-                    console.warn('Element with x-data="commandsApp" not found, but Alpine.js is available');
-                    console.log('Trying to retrieve commands data directly');
-                    
-                    // Coba cetak data commands yang ada di script tag
-                    const dataEl = document.getElementById('commands-data');
-                    if (dataEl) {
-                        console.log('Raw commands data available. Length:', dataEl.textContent.trim().length);
-                    } else {
-                        console.warn('Commands data element not found');
-                    }
-                }
-            }, 500);
-        }
-        
-        document.addEventListener('DOMContentLoaded', checkCommandsAppReadiness);
-    </script>
+    {{ end }}
+
+    {{ if eq .Page "config" }}
+    <script src="/static/js/configuration/config-app.js"></script>
     {{ end }}
 </body>
 </html>
