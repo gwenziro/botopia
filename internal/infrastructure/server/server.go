@@ -165,7 +165,7 @@ func (s *Server) setupAuthenticatedRoutes(
 	s.app.Get("/", authMiddleware, dashboard.HandleIndex)
 	s.app.Get("/dashboard", authMiddleware, dashboard.HandleDashboard)
 	s.app.Get("/qr", authMiddleware, qr.HandleQRPage)
-	s.app.Get("/konfigurasi", authMiddleware, config.HandleConfigPage)
+	s.app.Get("/config", authMiddleware, config.HandleConfigPage)
 
 	// API routes
 	api := s.app.Group("/api", authMiddleware)
@@ -221,7 +221,7 @@ func (s *Server) setupUnauthenticatedRoutes(
 	s.app.Get("/", dashboard.HandleIndex)
 	s.app.Get("/dashboard", dashboard.HandleDashboard)
 	s.app.Get("/connectivity", connectivity.HandleConnectivityPage) // Updated path from /qr to /connectivity
-	s.app.Get("/konfigurasi", config.HandleConfigPage)
+	s.app.Get("/config", config.HandleConfigPage)
 	s.app.Get("/data-master", dataMaster.HandleDataMasterPage)
 	s.app.Get("/contacts", contact.HandleContactPage)
 

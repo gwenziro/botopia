@@ -11,7 +11,7 @@
             </button>
         </div>
     </div>
-    
+
     <!-- Connection Status Container -->
     <div class="p-connection-container">
         <!-- WhatsApp Connection Status -->
@@ -20,18 +20,19 @@
                 <i class="fas fa-plug p-status-card-container__icon"></i>
                 <h3 class="p-status-card-container__title">Status WhatsApp</h3>
             </div>
-            
+
             <div class="p-status-card-container__body">
                 <div class="p-status-card">
-                    <div class="p-status-card__icon" :class="isConnected ? 'p-status-card__icon--success' : 'p-status-card__icon--danger'">
+                    <div class="p-status-card__icon"
+                        :class="isConnected ? 'p-status-card__icon--success' : 'p-status-card__icon--danger'">
                         <i class="fab fa-whatsapp"></i>
                     </div>
                     <div class="p-status-card__content">
                         <h4 class="p-status-card__title">WhatsApp</h4>
                         <p class="p-status-card__description" x-text="isConnected ? 'Terhubung' : 'Tidak terhubung'"></p>
                         <div x-show="isConnected" class="p-status-card__details">
-                            <p><strong>Nomor Terhubung:</strong> <span x-text="connectedPhone || '-'"></span></p>
-                            <p><strong>Waktu Aktif:</strong> <span x-text="formatUptime(stats.uptime)"></span></p>
+                            <p><strong>Nomor Kontak:</strong> <span x-text="connectedPhone || '-'"></span></p>
+                            <p><strong>Nama Akun:</strong> <span x-text="name || 'WhatsApp User'"></span></p>
                         </div>
                     </div>
                     <div class="p-status-card__action">
@@ -42,14 +43,14 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Google API Connection Status -->
         <div class="p-status-card-container">
             <div class="p-status-card-container__header">
                 <i class="fas fa-cloud p-status-card-container__icon"></i>
                 <h3 class="p-status-card-container__title">Status Google API</h3>
             </div>
-            
+
             <div class="p-status-card-container__body">
                 <div class="p-status-card">
                     <div class="p-status-card__icon" :class="isGoogleConnected ? 'p-status-card__icon--success' : 'p-status-card__icon--danger'">
@@ -59,44 +60,52 @@
                         <h4 class="p-status-card__title">Google API</h4>
                         <p class="p-status-card__description" x-text="isGoogleConnected ? 'Terhubung' : 'Tidak terhubung'"></p>
                         <div x-show="isGoogleConnected" class="p-status-card__details">
-                            <p>
-                                <strong>Spreadsheet:</strong> 
-                                <a :href="spreadsheetUrl" target="_blank" class="p-status-link">
-                                    Buka Spreadsheet <i class="fas fa-external-link-alt"></i>
-                                </a>
-                            </p>
+                            <p><strong>Spreadsheet:</strong> <a :href="spreadsheetUrl" target="_blank" class="p-status-link">
+                                Buka Spreadsheet <i class="fas fa-external-link-alt"></i>
+                            </a></p>
+                            <p><strong>Drive Folder:</strong> <a :href="driveFolderUrl" target="_blank" class="p-status-link">
+                                Buka Folder Drive <i class="fas fa-external-link-alt"></i>
+                            </a></p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Bot Settings -->
     <div class="p-config-section">
         <div class="p-config-section__header">
             <i class="fas fa-robot p-config-section__icon"></i>
             <h3 class="p-config-section__title">Pengaturan Bot</h3>
         </div>
-        
+
         <div class="p-config-section__body">
             <div class="p-config-grid">
                 <!-- Command Prefix Options -->
                 <div class="p-config-input">
                     <label class="p-config-input__label">Prefix Command</label>
                     <div class="p-command-prefix">
-                        <div class="p-command-prefix__option" :class="{'p-command-prefix__option--selected': config.commandPrefix === '!'}" @click="setCommandPrefix('!')">
-                            <input type="radio" id="prefix-exclamation" name="command-prefix" :checked="config.commandPrefix === '!'">
-                            <label for="prefix-exclamation">Tanda Seru (!)</label>
+                        <div class="p-command-prefix__option" 
+                             :class="{'p-command-prefix__option--selected': config.commandPrefix === '!'}"
+                             @click="setCommandPrefix('!')">
+                            <span class="p-command-prefix__symbol">!</span>
+                            <input type="radio" id="prefix-exclamation" name="command-prefix"
+                                :checked="config.commandPrefix === '!'">
+                            <label for="prefix-exclamation">Tanda Seru</label>
                         </div>
-                        <div class="p-command-prefix__option" :class="{'p-command-prefix__option--selected': config.commandPrefix === '#'}" @click="setCommandPrefix('#')">
-                            <input type="radio" id="prefix-hash" name="command-prefix" :checked="config.commandPrefix === '#'">
-                            <label for="prefix-hash">Tagar (#)</label>
+                        <div class="p-command-prefix__option"
+                             :class="{'p-command-prefix__option--selected': config.commandPrefix === '#'}"
+                             @click="setCommandPrefix('#')">
+                            <span class="p-command-prefix__symbol">#</span>
+                            <input type="radio" id="prefix-hash" name="command-prefix"
+                                :checked="config.commandPrefix === '#'">
+                            <label for="prefix-hash">Tanda Pagar</label>
                         </div>
                     </div>
                     <p class="p-config-input__help">Karakter awalan untuk menjalankan command (contoh: !panduan atau #panduan)</p>
                 </div>
-                
+
                 <div class="p-config-input">
                     <label class="p-config-input__label" for="log-level">Level Log</label>
                     <div class="p-config-input__wrapper">
@@ -113,38 +122,41 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Google Sheets Config -->
     <div class="p-config-section">
         <div class="p-config-section__header">
             <i class="fas fa-table p-config-section__icon"></i>
             <h3 class="p-config-section__title">Konfigurasi Google Sheets</h3>
         </div>
-        
+
         <div class="p-config-section__body">
             <div class="p-config-grid">
                 <div class="p-config-input">
                     <label class="p-config-input__label" for="spreadsheet-id">Spreadsheet ID</label>
                     <div class="p-config-input__wrapper">
-                        <input type="text" id="spreadsheet-id" class="p-config-input__field" x-model="config.spreadsheetId">
+                        <input type="text" id="spreadsheet-id" class="p-config-input__field"
+                            x-model="config.spreadsheetId">
                         <i class="fas fa-table p-config-input__icon"></i>
                     </div>
                     <p class="p-config-input__help">ID Google Spreadsheet untuk menyimpan data keuangan</p>
                 </div>
-                
+
                 <div class="p-config-input">
                     <label class="p-config-input__label" for="drive-folder-id">Drive Folder ID</label>
                     <div class="p-config-input__wrapper">
-                        <input type="text" id="drive-folder-id" class="p-config-input__field" x-model="config.driveFolderId">
+                        <input type="text" id="drive-folder-id" class="p-config-input__field"
+                            x-model="config.driveFolderId">
                         <i class="fas fa-folder p-config-input__icon"></i>
                     </div>
                     <p class="p-config-input__help">ID folder Google Drive untuk menyimpan bukti transaksi</p>
                 </div>
-                
+
                 <div class="p-config-input">
                     <label class="p-config-input__label" for="credentials-file">Credential File</label>
                     <div class="p-config-input__wrapper">
-                        <input type="text" id="credentials-file" class="p-config-input__field" x-model="config.credentialsFile">
+                        <input type="text" id="credentials-file" class="p-config-input__field"
+                            x-model="config.credentialsFile">
                         <i class="fas fa-key p-config-input__icon"></i>
                     </div>
                     <p class="p-config-input__help">Path ke file credentials Service Account</p>
@@ -152,25 +164,26 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Web Server Config -->
     <div class="p-config-section">
         <div class="p-config-section__header">
             <i class="fas fa-server p-config-section__icon"></i>
             <h3 class="p-config-section__title">Konfigurasi Web Server</h3>
         </div>
-        
+
         <div class="p-config-section__body">
             <div class="p-config-grid">
                 <div class="p-config-input">
                     <label class="p-config-input__label" for="web-port">Port</label>
                     <div class="p-config-input__wrapper">
-                        <input type="number" id="web-port" class="p-config-input__field" x-model.number="config.webPort">
+                        <input type="number" id="web-port" class="p-config-input__field"
+                            x-model.number="config.webPort">
                         <i class="fas fa-hashtag p-config-input__icon"></i>
                     </div>
                     <p class="p-config-input__help">Port untuk web server (default: 8080)</p>
                 </div>
-                
+
                 <div class="p-config-input">
                     <label class="p-config-input__label" for="web-host">Host</label>
                     <div class="p-config-input__wrapper">
