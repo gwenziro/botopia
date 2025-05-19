@@ -30,9 +30,20 @@
   display: flex;
   align-items: center;
   margin-bottom: var(--space-4);
-  flex-shrink: 0; /* Pastikan logo tidak mengecil */
+  flex-shrink: 0;
   height: var(--header-height);
   border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+}
+
+/* Kontainer Utama Saat Sidebar Collapsed */
+.sidebar-collapsed .l-content-with-sidebar {
+  width: calc(100% - var(--sidebar-collapsed-width));
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+body:not(.sidebar-collapsed) .l-content-with-sidebar {
+  width: calc(100% - var(--sidebar-width));
+  margin-left: var(--sidebar-width);
 }
 
 /* Logo Icon */
@@ -116,6 +127,7 @@
   opacity: 0;
   height: 0;
   overflow: hidden;
+  display: none;
   margin: 0;
   padding: 0;
 }
@@ -142,6 +154,14 @@
 .l-sidebar__item.active {
   color: var(--white);
   background-color: rgba(var(--primary-500-rgb), 0.15);
+  border-left: 4px solid var(--primary-400);
+  padding-left: calc(var(--space-4) - 4px);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.l-sidebar__item.active .l-sidebar__item-icon {
+  background-color: rgba(var(--primary-500-rgb), 0.2);
+  color: var(--primary-400);
 }
 
 /* Item Icon */
@@ -162,7 +182,6 @@
 .l-sidebar__item.active .l-sidebar__item-icon {
   background-color: rgba(var(--primary-500-rgb), 0.2);
   color: var(--primary-400);
-  margin-right: 0;
 }
 
 /* Item Text */
@@ -177,6 +196,7 @@
   opacity: 0;
   width: 0;
   overflow: hidden;
+  display: none;
 }
 
 /* Item tooltip - shown when sidebar is collapsed */
@@ -283,26 +303,5 @@
   .l-sidebar-backdrop.active {
     opacity: 1;
     pointer-events: auto;
-  }
-}
-
-/* Main Content Positioning with Sidebar */
-.l-content-with-sidebar {
-  margin-left: var(--sidebar-width);
-  transition: margin-left var(--transition-normal);
-  min-height: 100vh;
-}
-
-.l-content-with-sidebar.sidebar-collapsed {
-  margin-left: var(--sidebar-collapsed-width);
-}
-
-@media (max-width: 768px) {
-  .l-content-with-sidebar {
-    margin-left: 0;
-  }
-
-  .l-content-with-sidebar.sidebar-collapsed {
-    margin-left: 0;
   }
 }
