@@ -9,6 +9,7 @@ document.addEventListener('alpine:init', () => {
         isLoading: false,
         
         init() {
+            console.log('Initializing connection status badge');
             this.checkConnectionStatus();
             
             // Set polling interval untuk update status otomatis
@@ -23,9 +24,12 @@ document.addEventListener('alpine:init', () => {
                 }
             });
             
-            // Cleanup on component destroy
+            // Clean up interval when component is destroyed
             this.$cleanup = () => {
-                clearInterval(this.checkInterval);
+                if (this.checkInterval) {
+                    clearInterval(this.checkInterval);
+                    this.checkInterval = null;
+                }
             };
         },
         
@@ -57,7 +61,6 @@ document.addEventListener('alpine:init', () => {
                 })
                 .catch(error => {
                     console.error('Error checking connection status:', error);
-                    this.isConnected = false;
                     this.isLoading = false;
                 });
         }

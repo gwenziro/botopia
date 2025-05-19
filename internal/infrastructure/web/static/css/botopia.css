@@ -24,6 +24,7 @@
 @import './components/_stats.css';
 @import './components/_icons.css';
 @import './components/_toast.css';
+@import './components/_badges.css';
 
 /* Utilities */
 @import './utilities/_spacing.css';

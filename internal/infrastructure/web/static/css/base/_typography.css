@@ -4,6 +4,11 @@
  * dan kelas utilitas terkait tipografi
  */
 
+/* Enable smooth scrolling */
+html, body {
+  scroll-behavior: smooth;
+}
+
 /* Base Typography */
 body {
   font-size: 16px;

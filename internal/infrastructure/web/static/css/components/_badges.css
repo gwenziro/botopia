@@ -22,12 +22,16 @@
   color: var(--success);
   background-color: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
 }
 
 .c-connection-badge--disconnected {
   color: var(--danger);
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
 }
 
 .c-connection-badge--connected:hover {

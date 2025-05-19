@@ -48,7 +48,9 @@
 
 /* Button Color Variants */
 .c-btn--primary {
-  background-color: var(--primary-600); /* Menggunakan primary-600 untuk lebih kontras */
+  background-color: var(
+    --primary-600
+  ); /* Menggunakan primary-600 untuk lebih kontras */
   color: var(--white);
   border-color: var(--primary-700);
 }
@@ -137,6 +139,8 @@
 .c-btn--ghost {
   background-color: transparent;
   color: var(--slate-300);
+  height: 40px;
+  width: 40px;
 }
 
 .c-btn--ghost:hover {

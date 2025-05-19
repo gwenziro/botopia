@@ -2,7 +2,7 @@
 <header class="c-header">
     <div class="c-header__container l-container">
         <div class="c-header__left">
-            <button id="mobileSidebarToggle" class="c-header__menu-button c-btn c-btn--icon c-btn--ghost u-md-hidden">
+            <button id="mobileSidebarToggle" class="c-header__menu-button c-btn--icon c-btn--ghost u-md-hidden">
                 <i class="fas fa-bars"></i>
             </button>
             <h1 class="c-header__title">{{.Title}}</h1>
@@ -21,7 +21,7 @@
             
             <!-- User Menu Dropdown -->
             <div class="c-dropdown" x-data="{ open: false }">
-                <button @click="open = !open" class="c-btn c-btn--icon c-btn--ghost c-header__user-button">
+                <button @click="open = !open" class="c-btn c-btn--icon c-header__user-button">
                     <i class="fas fa-user-circle"></i>
                 </button>
                 <div x-show="open" @click.away="open = false" class="c-dropdown__menu c-dropdown__menu--right">

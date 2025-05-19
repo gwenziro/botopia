@@ -196,8 +196,6 @@ document.addEventListener('alpine:init', () => {
             fetch('/api/config/status')
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Google services status:", data);
-                    
                     // Update Google services status
                     this.googleServices.isConfigured = data.googleApi?.configured || false;
                     this.googleServices.sheets.isConnected = data.googleApi?.sheets || false;

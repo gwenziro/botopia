@@ -22,10 +22,11 @@ document.addEventListener('alpine:init', () => {
             this.loadInitialData();
             this.startPolling();
             
-            // Cleanup when component is destroyed
-            this.$once('$destroy', () => {
+            // Cleanup when component is destroyed - menggunakan $cleanup bukan $once
+            this.$cleanup = () => {
+                console.log('Cleaning up connectivity app resources');
                 this.stopPolling();
-            });
+            };
         },
         
         loadInitialData() {
