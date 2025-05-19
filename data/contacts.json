@@ -5,7 +5,25 @@
     "name": "Rayhan",
     "notes": "",
     "createdAt": "2025-05-17T07:34:28.5917977+07:00",
-    "updatedAt": "2025-05-17T07:34:28.6718443+07:00",
+    "updatedAt": "2025-05-19T16:07:46.9071732+07:00",
+    "isActive": true
+  },
+  {
+    "id": "",
+    "phone": "+621277666000",
+    "name": "Shifa",
+    "notes": "Sengku",
+    "createdAt": "2025-05-19T16:03:40.6211048+07:00",
+    "updatedAt": "2025-05-19T16:03:40.6211048+07:00",
+    "isActive": true
+  },
+  {
+    "id": "",
+    "phone": "+6281277666000",
+    "name": "Shifa",
+    "notes": "Sengkuu",
+    "createdAt": "2025-05-19T16:04:26.8906508+07:00",
+    "updatedAt": "2025-05-19T16:04:26.8912929+07:00",
     "isActive": true
   }
 ]

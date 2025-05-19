@@ -1,278 +1,266 @@
-<div class="p-contacts" x-data="contactApp" x-init="initialize">
+<div class="p-contacts" x-data="contactsApp" x-init="initialize">
     <!-- Page Header -->
-    <header class="p-contacts__header">
-        <div class="p-page-title">
+    <div class="p-contacts-header">
+        <div class="p-contacts-header__title">
             <i class="fas fa-address-book u-text-primary-400"></i>
-            <span>Kontak & Whitelist</span>
+            <h2>Kontak & Whitelist</h2>
         </div>
-        <p class="p-contacts__description">
-            Kelola kontak dan pengaturan whitelist untuk menentukan pengguna yang dapat berinteraksi dengan bot.
-        </p>
-    </header>
-
-    <!-- Dashboard Cards -->
-    <div class="c-stats-grid">
-        <!-- Total Contacts Card -->
-        <div class="c-stats-card c-stats-card--primary">
-            <div class="c-stats-card__icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="c-stats-card__content">
-                <div class="c-stats-card__title">Total Kontak</div>
-                <div class="c-stats-card__value" x-text="contacts.length"></div>
-            </div>
+        <div class="p-contacts-header__actions">
+            <button class="c-button c-button--primary c-button--with-icon" @click="openAddModal">
+                <i class="fas fa-plus"></i>
+                <span>Tambah Kontak</span>
+            </button>
         </div>
-
-        <!-- Whitelisted Contacts Card -->
-        <div class="c-stats-card c-stats-card--success">
-            <div class="c-stats-card__icon">
-                <i class="fas fa-check-circle"></i>
+    </div>
+    
+    <!-- Whitelist Toggle Card -->
+    <div class="c-status-card" :class="{'c-status-card--active': useWhitelist, 'c-status-card--inactive': !useWhitelist}">
+        <div class="c-status-card__content">
+            <div class="c-status-card__icon">
+                <i class="fas" :class="useWhitelist ? 'fa-shield-alt' : 'fa-shield-alt'"></i>
             </div>
-            <div class="c-stats-card__content">
-                <div class="c-stats-card__title">Kontak di Whitelist</div>
-                <div class="c-stats-card__value" x-text="whitelistedContacts.length"></div>
-            </div>
-        </div>
-
-        <!-- Whitelist Mode Card -->
-        <div class="c-stats-card" :class="useWhitelist ? 'c-stats-card--success' : 'c-stats-card--warning'">
-            <div class="c-stats-card__icon">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <div class="c-stats-card__content">
-                <div class="c-stats-card__title">Mode Whitelist</div>
-                <div class="c-stats-card__value" x-text="useWhitelist ? 'Aktif' : 'Nonaktif'"></div>
+            <div class="c-status-card__info">
+                <h3 class="c-status-card__title">
+                    Mode Whitelist <span x-text="useWhitelist ? 'Aktif' : 'Nonaktif'" class="c-status-badge" :class="{'c-status-badge--active': useWhitelist, 'c-status-badge--inactive': !useWhitelist}"></span>
+                </h3>
+                <p class="c-status-card__description">
+                    <template x-if="useWhitelist">
+                        Bot hanya akan merespon pesan dari kontak yang masuk dalam daftar whitelist.
+                    </template>
+                    <template x-if="!useWhitelist">
+                        Bot akan merespon semua pesan tanpa memperhatikan whitelist.
+                    </template>
+                </p>
             </div>
         </div>
-
-        <!-- Whitelist Toggle Card -->
-        <div class="c-stats-card">
-            <div class="c-stats-card__icon">
-                <i class="fas fa-toggle-on"></i>
+        <div class="c-status-card__action">
+            <button class="c-toggle-button" @click="toggleWhitelist" :class="{'c-toggle-button--active': useWhitelist}">
+                <span class="c-toggle-button__slider"></span>
+                <span class="c-toggle-button__text" x-text="useWhitelist ? 'Aktif' : 'Nonaktif'"></span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="p-contacts-toolbar">
+        <div class="p-contacts-search">
+            <i class="fas fa-search p-contacts-search__icon"></i>
+            <input type="text" x-model="searchQuery" class="p-contacts-search__input" placeholder="Cari kontak...">
+            <button class="p-contacts-search__clear" x-show="searchQuery" @click="resetSearch">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-contacts-filter">
+            <select class="c-select" x-model="filterType">
+                <option value="all">Semua Kontak</option>
+                <option value="whitelist">Hanya Whitelist</option>
+                <option value="regular">Non-Whitelist</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div class="c-loading" x-show="loading">
+        <div class="c-loading__spinner"></div>
+        <p class="c-loading__text">Memuat daftar kontak...</p>
+    </div>
+    
+    <!-- Contacts List -->
+    <div class="p-contacts-list" x-show="!loading">
+        <!-- Empty State -->
+        <template x-if="filteredContacts.length === 0">
+            <div class="p-empty-state">
+                <div class="p-empty-state__icon">
+                    <i class="fas fa-address-card"></i>
+                </div>
+                <h3 class="p-empty-state__title">Tidak ada kontak</h3>
+                <p class="p-empty-state__text">
+                    <template x-if="searchQuery">
+                        Tidak ada kontak yang cocok dengan pencarian Anda.
+                    </template>
+                    <template x-if="!searchQuery">
+                        Belum ada kontak yang tersimpan. Tambahkan kontak untuk mulai menggunakan fitur whitelist.
+                    </template>
+                </p>
+                <template x-if="searchQuery">
+                    <button class="c-button c-button--secondary c-button--sm" @click="resetSearch">
+                        <i class="fas fa-times"></i> Reset Pencarian
+                    </button>
+                </template>
             </div>
-            <div class="c-stats-card__content">
-                <div class="c-stats-card__title">Aktifkan/Nonaktifkan Whitelist</div>
-                <div class="c-stats-card__value">
-                    <button @click="toggleWhitelist" class="c-button" 
-                        :class="useWhitelist ? 'c-button--danger' : 'c-button--success'">
-                        <span x-text="useWhitelist ? 'Nonaktifkan Whitelist' : 'Aktifkan Whitelist'"></span>
+        </template>
+        
+        <!-- Contact Cards -->
+        <template x-for="contact in filteredContacts" :key="contact.phone">
+            <div class="c-contact-card" :class="{'c-contact-card--whitelisted': contact.whitelisted}">
+                <div class="c-contact-card__avatar">
+                    <template x-if="contact.whitelisted">
+                        <div class="c-contact-card__badge">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </template>
+                    <span x-text="getInitials(contact.name)"></span>
+                </div>
+                <div class="c-contact-card__content">
+                    <h3 class="c-contact-card__name" x-text="contact.name"></h3>
+                    <p class="c-contact-card__phone" x-text="formatPhone(contact.phone)"></p>
+                    <template x-if="contact.notes">
+                        <p class="c-contact-card__notes" x-text="contact.notes"></p>
+                    </template>
+                </div>
+                <div class="c-contact-card__actions">
+                    <button class="c-icon-btn" @click="toggleWhitelistStatus(contact)" :title="contact.whitelisted ? 'Hapus dari Whitelist' : 'Tambah ke Whitelist'">
+                        <i class="fas" :class="contact.whitelisted ? 'fa-shield-alt c-icon--success' : 'fa-shield-alt c-icon--muted'"></i>
+                    </button>
+                    <button class="c-icon-btn" @click="openEditModal(contact)" title="Edit Kontak">
+                        <i class="fas fa-edit c-icon--primary"></i>
+                    </button>
+                    <button class="c-icon-btn" @click="openDeleteModal(contact)" title="Hapus Kontak">
+                        <i class="fas fa-trash-alt c-icon--danger"></i>
                     </button>
                 </div>
             </div>
-        </div>
+        </template>
     </div>
-
-    <!-- Contacts Management -->
-    <div class="p-contacts__content c-card">
-        <div class="c-card__header u-justify-between">
-            <div class="c-card__title">
-                <i class="fas fa-address-book mr-2"></i> Daftar Kontak
-            </div>
-            <div class="c-button-group">
-                <button @click="openAddModal" class="c-button c-button--primary">
-                    <i class="fas fa-plus"></i> Tambah Kontak
-                </button>
-            </div>
-        </div>
-        <div class="c-card__body">
-            <!-- Search and Filter Bar -->
-            <div class="p-contacts__search-bar">
-                <div class="p-contacts__search">
-                    <i class="fas fa-search p-contacts__search-icon"></i>
-                    <input type="text" x-model="searchQuery" placeholder="Cari kontak..." 
-                        class="p-contacts__search-input">
-                </div>
-            </div>
-
-            <!-- Loading State -->
-            <div x-show="loading" class="p-loading">
-                <div class="p-loading__spinner"></div>
-                <div class="p-loading__text">Memuat data kontak...</div>
-            </div>
-
-            <!-- Contact Table -->
-            <div x-show="!loading && filteredContacts.length > 0" class="c-table-responsive">
-                <table class="c-table c-table--hover">
-                    <thead>
-                        <tr>
-                            <th>Nama</th>
-                            <th>Nomor Telepon</th>
-                            <th>Status Whitelist</th>
-                            <th class="c-table-actions">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="contact in filteredContacts" :key="contact.id">
-                            <tr>
-                                <td x-text="contact.name"></td>
-                                <td x-text="contact.phone"></td>
-                                <td>
-                                    <span class="p-contacts__status" :class="contact.whitelisted ? 
-                                        'p-contacts__status--active' : 'p-contacts__status--inactive'">
-                                        <i class="fas" :class="contact.whitelisted ? 
-                                            'fa-check-circle' : 'fa-times-circle'"></i>
-                                        <span x-text="contact.whitelisted ? 'Di Whitelist' : 'Tidak Di Whitelist'"></span>
-                                    </span>
-                                </td>
-                                <td class="c-table-actions">
-                                    <div class="c-button-group c-button-group--sm">
-                                        <button @click="toggleWhitelistStatus(contact)" class="c-icon-btn" 
-                                            :class="contact.whitelisted ? 'c-icon-btn--danger' : 'c-icon-btn--primary'"
-                                            :title="contact.whitelisted ? 'Hapus dari whitelist' : 'Tambahkan ke whitelist'">
-                                            <i class="fas" :class="contact.whitelisted ? 
-                                                'fa-user-minus' : 'fa-user-plus'"></i>
-                                        </button>
-                                        <button @click="openEditModal(contact)" class="c-icon-btn c-icon-btn--primary" 
-                                            title="Edit kontak">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button @click="openDeleteModal(contact)" class="c-icon-btn c-icon-btn--danger" 
-                                            title="Hapus kontak">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Empty State -->
-            <div x-show="!loading && filteredContacts.length === 0" class="p-contacts__empty">
-                <div class="p-contacts__empty-icon">
-                    <i class="fas fa-address-card"></i>
-                </div>
-                <h3 class="p-contacts__empty-title">Tidak ada kontak ditemukan</h3>
-                <p class="p-contacts__empty-text">
-                    <template x-if="searchQuery">
-                        Tidak ada kontak yang cocok dengan kata kunci pencarian Anda. Coba dengan kata kunci lain atau tambahkan kontak baru.
-                    </template>
-                    <template x-if="!searchQuery">
-                        Anda belum memiliki kontak yang terdaftar. Tambahkan kontak baru untuk memulai.
-                    </template>
-                </p>
-                <button @click="openAddModal" class="c-button c-button--primary">
-                    <i class="fas fa-plus"></i> Tambah Kontak
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Whitelist Description Card -->
-    <div class="p-contacts__info c-card">
-        <div class="c-card__header">
-            <div class="c-card__title">
-                <i class="fas fa-shield-alt mr-2"></i> Tentang Whitelist
-            </div>
-        </div>
-        <div class="c-card__body">
-            <div class="p-contacts__info-content">
-                <h4 class="p-contacts__info-title">Apa itu Whitelist?</h4>
-                <p class="p-contacts__info-text">
-                    Whitelist adalah daftar kontak yang diizinkan untuk berinteraksi dengan bot. Saat mode whitelist aktif, 
-                    hanya kontak yang ada di daftar whitelist yang dapat menggunakan perintah bot. Ini berguna untuk 
-                    membatasi akses ke bot hanya untuk orang-orang tertentu.
-                </p>
-                
-                <h4 class="p-contacts__info-title">Cara Kerja Whitelist</h4>
-                <ul class="p-contacts__info-list">
-                    <li>
-                        <strong>Mode Whitelist Aktif:</strong> Hanya kontak yang ada di daftar whitelist yang dapat 
-                        menggunakan perintah bot.
-                    </li>
-                    <li>
-                        <strong>Mode Whitelist Nonaktif:</strong> Semua kontak dapat menggunakan perintah bot.
-                    </li>
-                    <li>
-                        <strong>Tambah/Hapus dari Whitelist:</strong> Gunakan tombol toggle di samping setiap kontak 
-                        untuk menambahkan atau menghapus kontak dari whitelist.
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
+    
     <!-- Add Contact Modal -->
-    <div x-show="showAddModal" class="c-modal" x-transition:enter="c-modal--animate-in" 
-        x-transition:leave="c-modal--animate-out" style="display: none;">
-        <div class="c-modal__backdrop" @click="showAddModal = false"></div>
+    <div class="c-modal" :class="{'c-modal--active': showAddModal}">
+        <div class="c-modal__overlay" @click="showAddModal = false"></div>
         <div class="c-modal__container">
             <div class="c-modal__header">
-                <h3 class="c-modal__title">Tambah Kontak Baru</h3>
-                <button @click="showAddModal = false" class="c-modal__close">
+                <div class="c-modal__title-group">
+                    <i class="fas fa-user-plus c-modal__icon"></i>
+                    <h3 class="c-modal__title">Tambah Kontak Baru</h3>
+                </div>
+                <button class="c-modal__close" @click="showAddModal = false">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="c-modal__body">
-                <div class="c-form-group">
-                    <label class="c-form-label">Nama</label>
-                    <input type="text" x-model="newContact.name" class="c-form-input" placeholder="Masukkan nama kontak">
-                </div>
-                <div class="c-form-group">
-                    <label class="c-form-label">Nomor Telepon</label>
-                    <input type="text" x-model="newContact.phone" class="c-form-input" placeholder="Contoh: +6281234567890">
-                    <small class="c-form-help">Format: +62 atau 08 diikuti nomor telepon</small>
-                </div>
-                <div class="c-form-group">
-                    <label class="c-form-switch">
-                        <input type="checkbox" x-model="newContact.whitelisted">
-                        <span class="c-form-switch__slider"></span>
-                        <span class="c-form-switch__label">Tambahkan ke whitelist</span>
-                    </label>
-                </div>
-            </div>
-            <div class="c-modal__footer">
-                <button @click="showAddModal = false" class="c-button c-button--outline">Batal</button>
-                <button @click="addContact" class="c-button c-button--primary">Simpan</button>
+                <form @submit.prevent="addContact" class="c-form">
+                    <div class="c-form-group">
+                        <label class="c-form-label" for="contact-name">
+                            <i class="fas fa-user c-form-icon"></i> Nama
+                        </label>
+                        <input type="text" id="contact-name" class="c-form-input" 
+                               x-model="newContact.name" placeholder="Nama kontak" required>
+                    </div>
+                    
+                    <div class="c-form-group">
+                        <label class="c-form-label" for="contact-phone">
+                            <i class="fas fa-phone c-form-icon"></i> Nomor Telepon
+                        </label>
+                        <div class="c-form-input-group">
+                            <div class="c-form-input-prefix">+</div>
+                            <input type="text" id="contact-phone" class="c-form-input c-form-input--with-prefix" 
+                                   x-model="newContact.phone" placeholder="628123456789" required>
+                        </div>
+                        <small class="c-form-help">Masukkan nomor tanpa spasi (contoh: 628123456789)</small>
+                    </div>
+                    
+                    <div class="c-form-group">
+                        <label class="c-form-label" for="contact-notes">
+                            <i class="fas fa-sticky-note c-form-icon"></i> Catatan (opsional)
+                        </label>
+                        <textarea id="contact-notes" class="c-form-textarea" 
+                                  x-model="newContact.notes" placeholder="Tambahkan catatan..."></textarea>
+                    </div>
+                    
+                    <div class="c-form-group">
+                        <div class="c-form-switch">
+                            <input type="checkbox" id="contact-whitelist" class="c-form-switch__input" x-model="newContact.whitelisted">
+                            <label for="contact-whitelist" class="c-form-switch__label">
+                                <span class="c-form-switch__slider"></span>
+                                <span class="c-form-switch__text">Tambahkan ke whitelist</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="c-form-footer">
+                        <button type="button" class="c-button c-button--secondary" @click="showAddModal = false">Batal</button>
+                        <button type="submit" class="c-button c-button--primary">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
+    
     <!-- Edit Contact Modal -->
-    <div x-show="showEditModal" class="c-modal" x-transition:enter="c-modal--animate-in" 
-        x-transition:leave="c-modal--animate-out" style="display: none;">
-        <div class="c-modal__backdrop" @click="showEditModal = false"></div>
+    <div class="c-modal" :class="{'c-modal--active': showEditModal}">
+        <div class="c-modal__overlay" @click="showEditModal = false"></div>
         <div class="c-modal__container">
             <div class="c-modal__header">
-                <h3 class="c-modal__title">Edit Kontak</h3>
-                <button @click="showEditModal = false" class="c-modal__close">
+                <div class="c-modal__title-group">
+                    <i class="fas fa-user-edit c-modal__icon"></i>
+                    <h3 class="c-modal__title">Edit Kontak</h3>
+                </div>
+                <button class="c-modal__close" @click="showEditModal = false">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="c-modal__body">
-                <div class="c-form-group">
-                    <label class="c-form-label">Nama</label>
-                    <input type="text" x-model="newContact.name" class="c-form-input" placeholder="Masukkan nama kontak">
-                </div>
-                <div class="c-form-group">
-                    <label class="c-form-label">Nomor Telepon</label>
-                    <input type="text" x-model="newContact.phone" class="c-form-input" placeholder="Contoh: +6281234567890" disabled>
-                    <small class="c-form-help">Nomor telepon tidak dapat diubah</small>
-                </div>
-                <div class="c-form-group">
-                    <label class="c-form-switch">
-                        <input type="checkbox" x-model="newContact.whitelisted">
-                        <span class="c-form-switch__slider"></span>
-                        <span class="c-form-switch__label" x-text="newContact.whitelisted ? 'Tambahkan ke whitelist' : 'Hapus dari whitelist'"></span>
-                    </label>
-                </div>
-            </div>
-            <div class="c-modal__footer">
-                <button @click="showEditModal = false" class="c-button c-button--outline">Batal</button>
-                <button @click="updateContact" class="c-button c-button--primary">Simpan</button>
+                <form @submit.prevent="updateContact" class="c-form">
+                    <div class="c-form-group">
+                        <label class="c-form-label" for="edit-contact-name">
+                            <i class="fas fa-user c-form-icon"></i> Nama
+                        </label>
+                        <input type="text" id="edit-contact-name" class="c-form-input" 
+                               x-model="editContact.name" placeholder="Nama kontak" required>
+                    </div>
+                    
+                    <div class="c-form-group">
+                        <label class="c-form-label" for="edit-contact-phone">
+                            <i class="fas fa-phone c-form-icon"></i> Nomor Telepon
+                        </label>
+                        <div class="c-form-input-group">
+                            <div class="c-form-input-prefix">+</div>
+                            <input type="text" id="edit-contact-phone" class="c-form-input c-form-input--with-prefix" 
+                                   x-model="editContact.phone" placeholder="628123456789" disabled>
+                        </div>
+                        <small class="c-form-help">Nomor telepon tidak dapat diubah</small>
+                    </div>
+                    
+                    <div class="c-form-group">
+                        <label class="c-form-label" for="edit-contact-notes">
+                            <i class="fas fa-sticky-note c-form-icon"></i> Catatan (opsional)
+                        </label>
+                        <textarea id="edit-contact-notes" class="c-form-textarea" 
+                                  x-model="editContact.notes" placeholder="Tambahkan catatan..."></textarea>
+                    </div>
+                    
+                    <div class="c-form-group">
+                        <div class="c-form-switch">
+                            <input type="checkbox" id="edit-contact-whitelist" class="c-form-switch__input" x-model="editContact.whitelisted">
+                            <label for="edit-contact-whitelist" class="c-form-switch__label">
+                                <span class="c-form-switch__slider"></span>
+                                <span class="c-form-switch__text">Tambahkan ke whitelist</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="c-form-footer">
+                        <button type="button" class="c-button c-button--secondary" @click="showEditModal = false">Batal</button>
+                        <button type="submit" class="c-button c-button--primary">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
+    
     <!-- Delete Contact Modal -->
-    <div x-show="showDeleteModal" class="c-modal" x-transition:enter="c-modal--animate-in" 
-        x-transition:leave="c-modal--animate-out" style="display: none;">
-        <div class="c-modal__backdrop" @click="showDeleteModal = false"></div>
+    <div class="c-modal" :class="{'c-modal--active': showDeleteModal}">
+        <div class="c-modal__overlay" @click="showDeleteModal = false"></div>
         <div class="c-modal__container">
             <div class="c-modal__header">
-                <h3 class="c-modal__title">Hapus Kontak</h3>
-                <button @click="showDeleteModal = false" class="c-modal__close">
+                <div class="c-modal__title-group">
+                    <i class="fas fa-trash-alt c-modal__icon c-modal__icon--danger"></i>
+                    <h3 class="c-modal__title">Hapus Kontak</h3>
+                </div>
+                <button class="c-modal__close" @click="showDeleteModal = false">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -280,14 +268,17 @@
                 <div class="c-alert c-alert--warning">
                     <i class="fas fa-exclamation-triangle c-alert__icon"></i>
                     <div class="c-alert__content">
-                        <p>Apakah Anda yakin ingin menghapus kontak <strong x-text="currentContact?.name"></strong>?</p>
+                        <p>Apakah Anda yakin ingin menghapus kontak <strong x-text="deleteContact.name"></strong>?</p>
                         <p>Tindakan ini tidak dapat dibatalkan.</p>
                     </div>
                 </div>
-            </div>
-            <div class="c-modal__footer">
-                <button @click="showDeleteModal = false" class="c-button c-button--outline">Batal</button>
-                <button @click="deleteContact" class="c-button c-button--danger">Hapus</button>
+                
+                <div class="c-form-footer u-mt-6">
+                    <button type="button" class="c-button c-button--secondary" @click="showDeleteModal = false">Batal</button>
+                    <button type="button" class="c-button c-button--danger" @click="deleteContact">
+                        <i class="fas fa-trash-alt"></i> Hapus
+                    </button>
+                </div>
             </div>
         </div>
     </div>

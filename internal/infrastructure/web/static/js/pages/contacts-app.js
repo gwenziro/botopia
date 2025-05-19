@@ -3,25 +3,39 @@
  * Menangani fungsionalitas halaman kontak dan whitelist
  */
 document.addEventListener('alpine:init', () => {
-    Alpine.data('contactApp', () => ({
+    Alpine.data('contactsApp', () => ({
         contacts: [],
-        whitelistedContacts: [],
-        searchQuery: '',
         filteredContacts: [],
+        searchQuery: '',
+        filterType: 'all',
         useWhitelist: false,
         loading: true,
-        currentContact: null,
+        
+        // Modal states
         showAddModal: false,
         showEditModal: false,
         showDeleteModal: false,
+        
+        // Form models
         newContact: {
             name: '',
             phone: '',
+            notes: '',
             whitelisted: false
+        },
+        editContact: {
+            phone: '',
+            name: '',
+            notes: '',
+            whitelisted: false
+        },
+        deleteContact: {
+            phone: '',
+            name: ''
         },
         
         initialize() {
-            console.log('Initializing contact app');
+            console.log('Initializing contacts app');
             
             // Load contacts
             this.fetchContacts();
@@ -29,8 +43,9 @@ document.addEventListener('alpine:init', () => {
             // Fetch whitelist settings
             this.fetchWhitelistSettings();
             
-            // Watch for search queries
-            this.$watch('searchQuery', () => this.filterContacts());
+            // Watch for search queries and filter changes
+            this.$watch('searchQuery', () => this.applyFilters());
+            this.$watch('filterType', () => this.applyFilters());
         },
         
         fetchContacts() {
@@ -46,44 +61,20 @@ document.addEventListener('alpine:init', () => {
                 .then(data => {
                     if (Array.isArray(data.contacts)) {
                         this.contacts = data.contacts;
-                        this.filteredContacts = [...this.contacts];
+                        this.applyFilters();
                     } else {
-                        // Fallback jika struktur response tidak sesuai ekspektasi
+                        console.error('Expected contacts array but got:', data);
                         this.contacts = [];
                         this.filteredContacts = [];
-                        console.warn('Unexpected API response format', data);
                     }
                     this.loading = false;
                 })
                 .catch(error => {
                     console.error('Error fetching contacts:', error);
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'Gagal memuat daftar kontak');
-                    }
+                    this.showErrorToast('Gagal memuat daftar kontak');
                     this.contacts = [];
                     this.filteredContacts = [];
                     this.loading = false;
-                });
-                
-            // Fetch whitelisted contacts separately
-            fetch('/api/contacts/whitelist')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (Array.isArray(data.contacts)) {
-                        this.whitelistedContacts = data.contacts;
-                    } else {
-                        this.whitelistedContacts = [];
-                        console.warn('Unexpected API response format for whitelist', data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching whitelisted contacts:', error);
-                    this.whitelistedContacts = [];
                 });
         },
         
@@ -97,22 +88,55 @@ document.addEventListener('alpine:init', () => {
                 })
                 .then(data => {
                     this.useWhitelist = data.enabled;
+                    console.log('Whitelist status:', this.useWhitelist);
                 })
                 .catch(error => {
                     console.error('Error fetching whitelist settings:', error);
-                    // Default ke false jika gagal
-                    this.useWhitelist = false;
                 });
         },
         
+        applyFilters() {
+            // Apply search filter
+            let filtered = this.contacts;
+            
+            if (this.searchQuery) {
+                const query = this.searchQuery.toLowerCase();
+                filtered = filtered.filter(contact => 
+                    contact.name.toLowerCase().includes(query) || 
+                    contact.phone.toLowerCase().includes(query) ||
+                    (contact.notes && contact.notes.toLowerCase().includes(query))
+                );
+            }
+            
+            // Apply type filter
+            if (this.filterType === 'whitelist') {
+                filtered = filtered.filter(contact => contact.whitelisted);
+            } else if (this.filterType === 'regular') {
+                filtered = filtered.filter(contact => !contact.whitelisted);
+            }
+            
+            this.filteredContacts = filtered;
+        },
+        
+        resetSearch() {
+            this.searchQuery = '';
+            this.filterType = 'all';
+        },
+        
         toggleWhitelist() {
+            const newState = !this.useWhitelist;
+            
+            // Nonaktifkan tombol saat proses API
+            const toggleButton = document.querySelector('.c-toggle-button');
+            if (toggleButton) toggleButton.disabled = true;
+            
             fetch('/api/whitelist/toggle', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    enabled: !this.useWhitelist
+                    enabled: newState
                 })
             })
                 .then(response => {
@@ -123,81 +147,79 @@ document.addEventListener('alpine:init', () => {
                 })
                 .then(data => {
                     if (data.success) {
+                        // Update state setelah API berhasil
                         this.useWhitelist = data.enabled;
                         
-                        if (typeof showToast === 'function') {
-                            showToast(
-                                'success', 
-                                `Mode whitelist ${this.useWhitelist ? 'diaktifkan' : 'dinonaktifkan'}`
-                            );
+                        // Gunakan jenis toast berbeda berdasarkan status whitelist
+                        if (this.useWhitelist) {
+                            // Aktif - gunakan toast success
+                            this.showSuccessToast(`Mode whitelist diaktifkan`);
+                        } else {
+                            // Nonaktif - gunakan toast warning
+                            this.showWarningToast(`Mode whitelist dinonaktifkan`);
                         }
                     } else {
-                        throw new Error(data.error || 'Failed to toggle whitelist');
+                        throw new Error(data.error || 'Unknown error');
                     }
                 })
                 .catch(error => {
                     console.error('Error toggling whitelist:', error);
-                    
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'Gagal mengubah pengaturan whitelist');
-                    }
+                    this.showErrorToast('Gagal mengubah pengaturan whitelist');
+                })
+                .finally(() => {
+                    // Re-enable tombol
+                    if (toggleButton) toggleButton.disabled = false;
                 });
         },
         
-        filterContacts() {
-            if (!this.searchQuery.trim()) {
-                this.filteredContacts = [...this.contacts];
-                return;
-            }
-            
-            const query = this.searchQuery.toLowerCase();
-            this.filteredContacts = this.contacts.filter(contact =>
-                contact.name.toLowerCase().includes(query) || 
-                contact.phone.toLowerCase().includes(query)
-            );
-        },
-        
-        resetForm() {
+        // Modal control functions
+        openAddModal() {
             this.newContact = {
                 name: '',
                 phone: '',
-                whitelisted: false,
-                notes: ''
+                notes: '',
+                whitelisted: false
             };
-        },
-        
-        openAddModal() {
-            this.resetForm();
             this.showAddModal = true;
         },
         
         openEditModal(contact) {
-            this.currentContact = contact;
-            this.newContact = {
-                name: contact.name,
+            this.editContact = {
                 phone: contact.phone,
-                whitelisted: contact.whitelisted,
-                notes: contact.notes || ''
+                name: contact.name,
+                notes: contact.notes || '',
+                whitelisted: contact.whitelisted
             };
             this.showEditModal = true;
         },
         
         openDeleteModal(contact) {
-            this.currentContact = contact;
+            this.deleteContact = {
+                phone: contact.phone,
+                name: contact.name
+            };
             this.showDeleteModal = true;
         },
         
+        // CRUD operations
         addContact() {
-            // Validasi format nomor telepon
+            // Validate phone format
             if (!this.validatePhone(this.newContact.phone)) {
-                if (typeof showToast === 'function') {
-                    showToast('error', 'Format nomor telepon tidak valid');
-                }
+                this.showErrorToast('Format nomor telepon tidak valid');
                 return;
             }
             
-            // Normalisasi format telepon
-            const phone = this.normalizePhone(this.newContact.phone);
+            // Validate required fields
+            if (!this.newContact.name || !this.newContact.phone) {
+                this.showErrorToast('Nama dan nomor telepon wajib diisi');
+                return;
+            }
+            
+            // Show loading state on button
+            const submitBtn = document.activeElement;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
             
             fetch('/api/contacts/add', {
                 method: 'POST',
@@ -206,8 +228,8 @@ document.addEventListener('alpine:init', () => {
                 },
                 body: JSON.stringify({
                     name: this.newContact.name,
-                    phone: phone,
-                    notes: this.newContact.notes || '',
+                    phone: this.newContact.phone,
+                    notes: this.newContact.notes,
                     isActive: this.newContact.whitelisted
                 })
             })
@@ -219,32 +241,36 @@ document.addEventListener('alpine:init', () => {
                 })
                 .then(data => {
                     if (data.success) {
-                        if (typeof showToast === 'function') {
-                            showToast('success', 'Kontak berhasil ditambahkan');
-                        }
-                        
+                        this.showSuccessToast('Kontak berhasil ditambahkan');
                         this.showAddModal = false;
-                        this.fetchContacts(); // Reload contacts
+                        this.fetchContacts(); // Refresh the list
                     } else {
-                        throw new Error(data.error || 'Failed to add contact');
+                        throw new Error(data.error || 'Unknown error');
                     }
                 })
                 .catch(error => {
                     console.error('Error adding contact:', error);
-                    
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'Gagal menambahkan kontak: ' + error.message);
-                    }
+                    this.showErrorToast('Gagal menambahkan kontak');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 });
         },
         
         updateContact() {
-            if (!this.currentContact) {
-                if (typeof showToast === 'function') {
-                    showToast('error', 'Data kontak tidak valid');
-                }
+            // Validate required fields
+            if (!this.editContact.name) {
+                this.showErrorToast('Nama kontak wajib diisi');
                 return;
             }
+            
+            // Show loading state
+            const submitBtn = document.activeElement;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
             
             fetch('/api/contacts/update', {
                 method: 'POST',
@@ -252,10 +278,10 @@ document.addEventListener('alpine:init', () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    phone: this.currentContact.phone,
-                    name: this.newContact.name,
-                    notes: this.newContact.notes || '',
-                    isActive: this.newContact.whitelisted
+                    phone: this.editContact.phone,
+                    name: this.editContact.name,
+                    notes: this.editContact.notes,
+                    isActive: this.editContact.whitelisted
                 })
             })
                 .then(response => {
@@ -266,32 +292,30 @@ document.addEventListener('alpine:init', () => {
                 })
                 .then(data => {
                     if (data.success) {
-                        if (typeof showToast === 'function') {
-                            showToast('success', 'Kontak berhasil diperbarui');
-                        }
-                        
+                        this.showSuccessToast('Kontak berhasil diperbarui');
                         this.showEditModal = false;
-                        this.fetchContacts(); // Reload contacts
+                        this.fetchContacts(); // Refresh the list
                     } else {
-                        throw new Error(data.error || 'Failed to update contact');
+                        throw new Error(data.error || 'Unknown error');
                     }
                 })
                 .catch(error => {
                     console.error('Error updating contact:', error);
-                    
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'Gagal memperbarui kontak: ' + error.message);
-                    }
+                    this.showErrorToast('Gagal memperbarui kontak');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 });
         },
         
         deleteContact() {
-            if (!this.currentContact) {
-                if (typeof showToast === 'function') {
-                    showToast('error', 'Data kontak tidak valid');
-                }
-                return;
-            }
+            // Show loading state
+            const deleteBtn = document.activeElement;
+            const originalText = deleteBtn.innerHTML;
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghapus...';
             
             fetch('/api/contacts/delete', {
                 method: 'POST',
@@ -299,7 +323,7 @@ document.addEventListener('alpine:init', () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    phone: this.currentContact.phone
+                    phone: this.deleteContact.phone
                 })
             })
                 .then(response => {
@@ -310,26 +334,32 @@ document.addEventListener('alpine:init', () => {
                 })
                 .then(data => {
                     if (data.success) {
-                        if (typeof showToast === 'function') {
-                            showToast('success', 'Kontak berhasil dihapus');
-                        }
-                        
+                        this.showSuccessToast('Kontak berhasil dihapus');
                         this.showDeleteModal = false;
-                        this.fetchContacts(); // Reload contacts
+                        this.fetchContacts(); // Refresh the list
                     } else {
-                        throw new Error(data.error || 'Failed to delete contact');
+                        throw new Error(data.error || 'Unknown error');
                     }
                 })
                 .catch(error => {
                     console.error('Error deleting contact:', error);
-                    
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'Gagal menghapus kontak: ' + error.message);
-                    }
+                    this.showErrorToast('Gagal menghapus kontak');
+                })
+                .finally(() => {
+                    // Reset button state
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = originalText;
                 });
         },
         
         toggleWhitelistStatus(contact) {
+            const newStatus = !contact.whitelisted;
+            const contactEl = event.target.closest('.c-contact-card');
+            
+            if (contactEl) {
+                contactEl.classList.add('c-contact-card--updating');
+            }
+            
             fetch('/api/whitelist/status', {
                 method: 'POST',
                 headers: {
@@ -337,7 +367,7 @@ document.addEventListener('alpine:init', () => {
                 },
                 body: JSON.stringify({
                     phone: contact.phone,
-                    isActive: !contact.whitelisted
+                    isActive: newStatus
                 })
             })
                 .then(response => {
@@ -348,59 +378,86 @@ document.addEventListener('alpine:init', () => {
                 })
                 .then(data => {
                     if (data.success) {
-                        // Update contact in local array
-                        this.contacts = this.contacts.map(c => {
+                        // Update local state
+                        const updatedContacts = this.contacts.map(c => {
                             if (c.phone === contact.phone) {
-                                return { ...c, whitelisted: !c.whitelisted };
+                                return { ...c, whitelisted: newStatus };
                             }
                             return c;
                         });
                         
-                        // Update filtered contacts too
-                        this.filteredContacts = this.filteredContacts.map(c => {
-                            if (c.phone === contact.phone) {
-                                return { ...c, whitelisted: !c.whitelisted };
-                            }
-                            return c;
-                        });
+                        this.contacts = updatedContacts;
+                        this.applyFilters();
                         
-                        // Update whitelisted contacts list
-                        this.fetchContacts();
-                        
-                        if (typeof showToast === 'function') {
-                            const actionText = !contact.whitelisted ? 
-                                'ditambahkan ke' : 'dihapus dari';
-                            showToast('success', `Kontak ${actionText} whitelist`);
-                        }
+                        const actionText = newStatus ? 'ditambahkan ke' : 'dihapus dari';
+                        this.showSuccessToast(`Kontak ${actionText} whitelist`);
                     } else {
-                        throw new Error(data.error || 'Failed to update whitelist status');
+                        throw new Error(data.error || 'Unknown error');
                     }
                 })
                 .catch(error => {
                     console.error('Error updating whitelist status:', error);
-                    
-                    if (typeof showToast === 'function') {
-                        showToast('error', 'Gagal mengubah status whitelist');
+                    this.showErrorToast('Gagal mengubah status whitelist');
+                })
+                .finally(() => {
+                    if (contactEl) {
+                        contactEl.classList.remove('c-contact-card--updating');
                     }
                 });
         },
         
+        // Helper functions
         validatePhone(phone) {
-            // Validasi format nomor telepon, menerima +62, 62, atau 08
-            return /^(\+?62|0)[0-9]{9,13}$/.test(phone);
+            // Allow numbers with optional + prefix
+            return /^(\+)?[0-9]+$/.test(phone);
         },
         
-        normalizePhone(phone) {
-            // Normalisasi format nomor telepon
-            if (phone.startsWith('0')) {
-                return '+62' + phone.substring(1);
+        getInitials(name) {
+            if (!name) return '?';
+            
+            const parts = name.trim().split(' ');
+            if (parts.length === 1) {
+                return parts[0].charAt(0).toUpperCase();
             }
             
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        },
+        
+        formatPhone(phone) {
+            if (!phone) return '-';
+            
+            // Format as international number if not already formatted
             if (phone.startsWith('62')) {
                 return '+' + phone;
             }
             
             return phone;
+        },
+        
+        // Toast notifications
+        showSuccessToast(message) {
+            if (typeof showToast === 'function') {
+                showToast('success', message);
+            } else {
+                alert(message);
+            }
+        },
+        
+        showErrorToast(message) {
+            if (typeof showToast === 'function') {
+                showToast('error', message);
+            } else {
+                alert('Error: ' + message);
+            }
+        },
+
+        // Tambahkan metode toast warning
+        showWarningToast(message) {
+            if (typeof showToast === 'function') {
+                showToast('warning', message);
+            } else {
+                alert(message);
+            }
         }
     }));
 });
