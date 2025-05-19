@@ -1,163 +1,184 @@
-<div x-data="configApp" x-init="initialize()" class="space-y-8">
-    <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold text-white">Konfigurasi Sistem</h1>
-        <div class="flex gap-2">
-            <button @click="saveConfig" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-all flex items-center gap-2">
+<div class="p-config" x-data="configApp" x-init="initialize()">
+    <!-- Config Header -->
+    <div class="p-config-header">
+        <div class="p-config-header__title">
+            <i class="fas fa-cogs"></i>
+            <h2>Konfigurasi Sistem</h2>
+        </div>
+        <div class="p-config-header__actions">
+            <button class="c-save-button" @click="saveConfig">
                 <i class="fas fa-save"></i> Simpan Perubahan
             </button>
         </div>
     </div>
     
-    <!-- Connection Status -->
-    <div class="glass rounded-lg p-6 border border-slate-700/30">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <i class="fas fa-plug text-primary-400"></i> Status Koneksi
-        </h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="stats-card-icon bg-slate-700/50" :class="isConnected ? 'text-green-400' : 'text-red-400'">
-                        <i class="fas" :class="isConnected ? 'fa-check' : 'fa-times'"></i>
+    <!-- Connection Status Container -->
+    <div class="p-connection-container">
+        <!-- WhatsApp Connection Status -->
+        <div class="p-status-card-container">
+            <div class="p-status-card-container__header">
+                <i class="fas fa-plug p-status-card-container__icon"></i>
+                <h3 class="p-status-card-container__title">Status WhatsApp</h3>
+            </div>
+            
+            <div class="p-status-card-container__body">
+                <div class="p-status-card">
+                    <div class="p-status-card__icon" :class="isConnected ? 'p-status-card__icon--success' : 'p-status-card__icon--danger'">
+                        <i class="fab fa-whatsapp"></i>
                     </div>
-                    <div>
-                        <h3 class="font-medium text-white">WhatsApp</h3>
-                        <p class="text-sm text-slate-400" x-text="isConnected ? 'Terhubung' : 'Tidak terhubung'"></p>
+                    <div class="p-status-card__content">
+                        <h4 class="p-status-card__title">WhatsApp</h4>
+                        <p class="p-status-card__description" x-text="isConnected ? 'Terhubung' : 'Tidak terhubung'"></p>
+                        <div x-show="isConnected" class="p-status-card__details">
+                            <p><strong>Nomor Terhubung:</strong> <span x-text="connectedPhone || '-'"></span></p>
+                            <p><strong>Waktu Aktif:</strong> <span x-text="formatUptime(stats.uptime)"></span></p>
+                        </div>
                     </div>
-                    <div class="ml-auto">
-                        <a href="/qr" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-lg transition-all flex items-center gap-1">
+                    <div class="p-status-card__action">
+                        <a href="/connectivity" class="c-qr-link">
                             <i class="fas fa-qrcode"></i> QR Code
                         </a>
                     </div>
                 </div>
-                <div x-show="isConnected" class="text-sm text-slate-300">
-                    <p><strong>Nomor Terhubung:</strong> <span x-text="connectedPhone || '-'"></span></p>
-                    <p><strong>Waktu Aktif:</strong> <span x-text="formatUptime(stats.uptime)"></span></p>
-                </div>
+            </div>
+        </div>
+        
+        <!-- Google API Connection Status -->
+        <div class="p-status-card-container">
+            <div class="p-status-card-container__header">
+                <i class="fas fa-cloud p-status-card-container__icon"></i>
+                <h3 class="p-status-card-container__title">Status Google API</h3>
             </div>
             
-            <div>
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="stats-card-icon bg-slate-700/50" :class="isGoogleConnected ? 'text-green-400' : 'text-red-400'">
-                        <i class="fab" :class="isGoogleConnected ? 'fa-google' : 'fa-google'"></i>
+            <div class="p-status-card-container__body">
+                <div class="p-status-card">
+                    <div class="p-status-card__icon" :class="isGoogleConnected ? 'p-status-card__icon--success' : 'p-status-card__icon--danger'">
+                        <i class="fab fa-google"></i>
                     </div>
-                    <div>
-                        <h3 class="font-medium text-white">Google API</h3>
-                        <p class="text-sm text-slate-400" x-text="isGoogleConnected ? 'Terhubung' : 'Tidak terhubung'"></p>
+                    <div class="p-status-card__content">
+                        <h4 class="p-status-card__title">Google API</h4>
+                        <p class="p-status-card__description" x-text="isGoogleConnected ? 'Terhubung' : 'Tidak terhubung'"></p>
+                        <div x-show="isGoogleConnected" class="p-status-card__details">
+                            <p>
+                                <strong>Spreadsheet:</strong> 
+                                <a :href="spreadsheetUrl" target="_blank" class="p-status-link">
+                                    Buka Spreadsheet <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <div x-show="isGoogleConnected" class="text-sm text-slate-300">
-                    <p><strong>Spreadsheet:</strong> <a :href="spreadsheetUrl" target="_blank" class="text-primary-400 hover:text-primary-300">Buka Spreadsheet</a></p>
                 </div>
             </div>
         </div>
     </div>
     
     <!-- Bot Settings -->
-    <div class="glass rounded-lg p-6 border border-slate-700/30">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <i class="fas fa-robot text-primary-400"></i> Pengaturan Bot
-        </h2>
+    <div class="p-config-section">
+        <div class="p-config-section__header">
+            <i class="fas fa-robot p-config-section__icon"></i>
+            <h3 class="p-config-section__title">Pengaturan Bot</h3>
+        </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Prefix Command</label>
-                <div class="relative">
-                    <input type="text" x-model="config.commandPrefix" class="w-full rounded-lg bg-slate-800/50 border border-slate-700/50 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-                    <div class="absolute right-2 top-2 text-slate-500">
-                        <i class="fas fa-terminal"></i>
+        <div class="p-config-section__body">
+            <div class="p-config-grid">
+                <!-- Command Prefix Options -->
+                <div class="p-config-input">
+                    <label class="p-config-input__label">Prefix Command</label>
+                    <div class="p-command-prefix">
+                        <div class="p-command-prefix__option" :class="{'p-command-prefix__option--selected': config.commandPrefix === '!'}" @click="setCommandPrefix('!')">
+                            <input type="radio" id="prefix-exclamation" name="command-prefix" :checked="config.commandPrefix === '!'">
+                            <label for="prefix-exclamation">Tanda Seru (!)</label>
+                        </div>
+                        <div class="p-command-prefix__option" :class="{'p-command-prefix__option--selected': config.commandPrefix === '#'}" @click="setCommandPrefix('#')">
+                            <input type="radio" id="prefix-hash" name="command-prefix" :checked="config.commandPrefix === '#'">
+                            <label for="prefix-hash">Tagar (#)</label>
+                        </div>
                     </div>
+                    <p class="p-config-input__help">Karakter awalan untuk menjalankan command (contoh: !panduan atau #panduan)</p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">Karakter awalan untuk menjalankan command (biasanya '!')</p>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Level Log</label>
-                <div class="relative">
-                    <select x-model="config.logLevel" class="w-full rounded-lg bg-slate-800/50 border border-slate-700/50 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent appearance-none">
-                        <option value="DEBUG">DEBUG</option>
-                        <option value="INFO">INFO</option>
-                        <option value="WARN">WARN</option>
-                        <option value="ERROR">ERROR</option>
-                    </select>
-                    <div class="absolute right-2 top-2 text-slate-500">
-                        <i class="fas fa-chevron-down"></i>
+                
+                <div class="p-config-input">
+                    <label class="p-config-input__label" for="log-level">Level Log</label>
+                    <div class="p-config-input__wrapper">
+                        <select id="log-level" class="p-config-input__field p-config-select" x-model="config.logLevel">
+                            <option value="DEBUG">DEBUG</option>
+                            <option value="INFO">INFO</option>
+                            <option value="WARN">WARN</option>
+                            <option value="ERROR">ERROR</option>
+                        </select>
+                        <i class="fas fa-chevron-down p-config-input__icon"></i>
                     </div>
+                    <p class="p-config-input__help">Level detail log yang dihasilkan oleh sistem</p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">Level detail log yang dihasilkan oleh sistem</p>
             </div>
         </div>
     </div>
     
     <!-- Google Sheets Config -->
-    <div class="glass rounded-lg p-6 border border-slate-700/30">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <i class="fas fa-table text-primary-400"></i> Konfigurasi Google Sheets
-        </h2>
+    <div class="p-config-section">
+        <div class="p-config-section__header">
+            <i class="fas fa-table p-config-section__icon"></i>
+            <h3 class="p-config-section__title">Konfigurasi Google Sheets</h3>
+        </div>
         
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Spreadsheet ID</label>
-                <div class="relative">
-                    <input type="text" x-model="config.spreadsheetId" class="w-full rounded-lg bg-slate-800/50 border border-slate-700/50 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-                    <div class="absolute right-2 top-2 text-slate-500">
-                        <i class="fas fa-table"></i>
+        <div class="p-config-section__body">
+            <div class="p-config-grid">
+                <div class="p-config-input">
+                    <label class="p-config-input__label" for="spreadsheet-id">Spreadsheet ID</label>
+                    <div class="p-config-input__wrapper">
+                        <input type="text" id="spreadsheet-id" class="p-config-input__field" x-model="config.spreadsheetId">
+                        <i class="fas fa-table p-config-input__icon"></i>
                     </div>
+                    <p class="p-config-input__help">ID Google Spreadsheet untuk menyimpan data keuangan</p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">ID Google Spreadsheet untuk menyimpan data keuangan</p>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Drive Folder ID</label>
-                <div class="relative">
-                    <input type="text" x-model="config.driveFolderId" class="w-full rounded-lg bg-slate-800/50 border border-slate-700/50 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-                    <div class="absolute right-2 top-2 text-slate-500">
-                        <i class="fas fa-folder"></i>
+                
+                <div class="p-config-input">
+                    <label class="p-config-input__label" for="drive-folder-id">Drive Folder ID</label>
+                    <div class="p-config-input__wrapper">
+                        <input type="text" id="drive-folder-id" class="p-config-input__field" x-model="config.driveFolderId">
+                        <i class="fas fa-folder p-config-input__icon"></i>
                     </div>
+                    <p class="p-config-input__help">ID folder Google Drive untuk menyimpan bukti transaksi</p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">ID folder Google Drive untuk menyimpan bukti transaksi</p>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Credential File</label>
-                <div class="relative">
-                    <input type="text" x-model="config.credentialsFile" class="w-full rounded-lg bg-slate-800/50 border border-slate-700/50 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-                    <div class="absolute right-2 top-2 text-slate-500">
-                        <i class="fas fa-key"></i>
+                
+                <div class="p-config-input">
+                    <label class="p-config-input__label" for="credentials-file">Credential File</label>
+                    <div class="p-config-input__wrapper">
+                        <input type="text" id="credentials-file" class="p-config-input__field" x-model="config.credentialsFile">
+                        <i class="fas fa-key p-config-input__icon"></i>
                     </div>
+                    <p class="p-config-input__help">Path ke file credentials Service Account</p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">Path ke file credentials Service Account</p>
             </div>
         </div>
     </div>
     
     <!-- Web Server Config -->
-    <div class="glass rounded-lg p-6 border border-slate-700/30">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <i class="fas fa-server text-primary-400"></i> Konfigurasi Web Server
-        </h2>
+    <div class="p-config-section">
+        <div class="p-config-section__header">
+            <i class="fas fa-server p-config-section__icon"></i>
+            <h3 class="p-config-section__title">Konfigurasi Web Server</h3>
+        </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Port</label>
-                <div class="relative">
-                    <input type="number" x-model.number="config.webPort" class="w-full rounded-lg bg-slate-800/50 border border-slate-700/50 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-                    <div class="absolute right-2 top-2 text-slate-500">
-                        <i class="fas fa-hashtag"></i>
+        <div class="p-config-section__body">
+            <div class="p-config-grid">
+                <div class="p-config-input">
+                    <label class="p-config-input__label" for="web-port">Port</label>
+                    <div class="p-config-input__wrapper">
+                        <input type="number" id="web-port" class="p-config-input__field" x-model.number="config.webPort">
+                        <i class="fas fa-hashtag p-config-input__icon"></i>
                     </div>
+                    <p class="p-config-input__help">Port untuk web server (default: 8080)</p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">Port untuk web server (default: 8080)</p>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2">Host</label>
-                <div class="relative">
-                    <input type="text" x-model="config.webHost" class="w-full rounded-lg bg-slate-800/50 border border-slate-700/50 text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-                    <div class="absolute right-2 top-2 text-slate-500">
-                        <i class="fas fa-globe"></i>
+                
+                <div class="p-config-input">
+                    <label class="p-config-input__label" for="web-host">Host</label>
+                    <div class="p-config-input__wrapper">
+                        <input type="text" id="web-host" class="p-config-input__field" x-model="config.webHost">
+                        <i class="fas fa-globe p-config-input__icon"></i>
                     </div>
+                    <p class="p-config-input__help">Host untuk web server (default: 0.0.0.0)</p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">Host untuk web server (default: 0.0.0.0)</p>
             </div>
         </div>
     </div>

@@ -67,8 +67,62 @@ func (c *ConfigController) HandleGetConfig(ctx *fiber.Ctx) error {
 
 // HandleUpdateConfig menangani API untuk memperbarui konfigurasi
 func (c *ConfigController) HandleUpdateConfig(ctx *fiber.Ctx) error {
-	// Implementasi update config sesuai kebutuhan
-	return ctx.JSON(fiber.Map{"success": true})
+	var configInput struct {
+		CommandPrefix   string `json:"commandPrefix"`
+		LogLevel        string `json:"logLevel"`
+		WebPort         int    `json:"webPort"`
+		WebHost         string `json:"webHost"`
+		WebAuthEnabled  bool   `json:"webAuthEnabled"`
+		WebAuthUsername string `json:"webAuthUsername"`
+		WebAuthPassword string `json:"webAuthPassword,omitempty"`
+		GoogleSheets    struct {
+			SpreadsheetID   string `json:"spreadsheetID"`
+			DriveFolderID   string `json:"driveFolderID"`
+			CredentialsFile string `json:"credentialsFile"`
+		} `json:"googleSheets"`
+	}
+
+	if err := ctx.BodyParser(&configInput); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Invalid request format",
+		})
+	}
+
+	// Log received data for debugging
+	c.log.Info("Received config update: %+v", configInput)
+
+	// Validasi command prefix hanya terima ! atau #
+	if configInput.CommandPrefix != "!" && configInput.CommandPrefix != "#" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Command prefix hanya bisa '!' atau '#'",
+		})
+	}
+
+	// Update config values
+	c.config.CommandPrefix = configInput.CommandPrefix
+	c.config.LogLevel = configInput.LogLevel
+	c.config.WebPort = configInput.WebPort
+	c.config.WebHost = configInput.WebHost
+	c.config.WebAuthEnabled = configInput.WebAuthEnabled
+	c.config.WebAuthUsername = configInput.WebAuthUsername
+
+	if configInput.WebAuthPassword != "" && configInput.WebAuthPassword != "********" {
+		c.config.WebAuthPassword = configInput.WebAuthPassword
+	}
+
+	// Update Google Sheets Config
+	c.config.GoogleSheets.SpreadsheetID = configInput.GoogleSheets.SpreadsheetID
+	c.config.GoogleSheets.DriveFolderID = configInput.GoogleSheets.DriveFolderID
+	c.config.GoogleSheets.CredentialsFile = configInput.GoogleSheets.CredentialsFile
+
+	// TODO: Simpan perubahan konfigurasi ke file atau environment
+
+	return ctx.JSON(fiber.Map{
+		"success": true,
+		"message": "Configuration updated successfully",
+	})
 }
 
 // HandleGetConfigStatus returns configuration status as JSON
@@ -102,5 +156,10 @@ func (c *ConfigController) HandleGetConfigStatus(ctx *fiber.Ctx) error {
 		"spreadsheetId":  spreadsheetId,
 		"driveFolderUrl": driveFolderUrl,
 		"driveFolderId":  driveFolderId,
+		"systemStatus": fiber.Map{
+			"devMode":       c.config.DevMode,
+			"qrAutoRefresh": c.config.QRAutoRefresh,
+			"version":       "1.0.0", // Tambahkan versi statis untuk informasi sementara
+		},
 	})
 }

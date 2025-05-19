@@ -121,7 +121,7 @@
 
 /* Command Card */
 .p-command-card {
-  background-color: rgba(30, 41, 59, 0.4);
+  background-color: var(--card-bg);
   border: 1px solid rgba(51, 65, 85, 0.5);
   border-radius: var(--radius-lg);
   overflow: hidden;

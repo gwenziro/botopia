@@ -241,7 +241,7 @@
   gap: var(--space-4);
   margin-bottom: var(--space-5);
   align-items: center;
-  background-color: rgba(15, 23, 42, 0.2);
+  background-color: var(--card-bg);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   border: 1px solid rgba(51, 65, 85, 0.3);
@@ -339,7 +339,7 @@
 
 /* Contact Card */
 .c-contact-card {
-  background-color: rgba(15, 23, 42, 0.3);
+  background-color: var(--card-bg);
   border: 1px solid rgba(51, 65, 85, 0.8);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
