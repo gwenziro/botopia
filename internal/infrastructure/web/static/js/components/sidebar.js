@@ -3,7 +3,7 @@
  * Menangani interaksi dan state sidebar
  */
 document.addEventListener('alpine:init', () => {
-    Alpine.data('sidebarController', () => ({
+    Alpine.data('sidebar', () => ({
         isCollapsed: false,
         isMobileOpen: false,
         
