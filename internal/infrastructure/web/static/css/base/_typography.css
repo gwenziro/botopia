@@ -54,11 +54,6 @@ h6, .h6 {
   margin-bottom: 0.5rem;
 }
 
-/* Paragraphs and Body Text */
-p {
-  margin-bottom: 1rem;
-}
-
 small, .text-small {
   font-size: 0.875rem; /* 14px */
 }

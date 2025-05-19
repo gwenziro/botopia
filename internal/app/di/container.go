@@ -224,7 +224,7 @@ func (c *Container) initControllers() {
 	c.dataMasterController = web.NewDataMasterController(c.financeService)
 
 	// Tambahkan commands controller
-	c.commandsController = web.NewCommandsController(c.commandRepository)
+	c.commandsController = web.NewCommandsController(c.listCommandsUseCase)
 
 	c.log.Info("Controllers berhasil diinisialisasi")
 }

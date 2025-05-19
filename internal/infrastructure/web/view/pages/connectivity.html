@@ -19,6 +19,12 @@
                         WhatsApp Anda.</span>
                 </p>
             </div>
+            <div class="p-connectivity-card__header-action">
+                <button @click="disconnect()" class="c-btn c-btn--md c-btn--danger c-btn--with-icon">
+                    <i class="fas fa-power-off"></i>
+                    <span>Putuskan Koneksi</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -76,12 +82,12 @@
                                 <p class="p-connectivity-card__subtitle">Detail perangkat WhatsApp yang terhubung</p>
                             </div>
                         </div>
-                        <div class="p-connectivity-card__header-action">
+                        <!-- <div class="p-connectivity-card__header-action">
                             <button @click="disconnect()" class="c-btn c-btn--sm c-btn--danger c-btn--with-icon">
                                 <i class="fas fa-power-off"></i>
                                 <span>Putuskan Koneksi</span>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="p-connectivity-card__body">
                         <div class="p-connectivity-info-grid">

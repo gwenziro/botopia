@@ -1,159 +1,92 @@
 /**
- * Main JavaScript - Entry point
- * 
- * Menginisialisasi komponen-komponen dasar aplikasi
+ * Main JavaScript file for Botopia dashboard
  */
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Botopia app initialized');
-    
-    // Initialize Alpine.js components
-    if (typeof Alpine !== 'undefined') {
-        // Register Alpine.js data components for each page
-        
-        // Add event listener for dark mode toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('click', toggleDarkMode);
-        }
-        
-        // Initialize toast notification system
-        initializeToasts();
+    // Initialize mobile menu toggle functionality
+    const mobileMenuBtn = document.getElementById('mobile-menu-button');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content');
+
+    if (mobileMenuBtn && sidebar) {
+        mobileMenuBtn.addEventListener('click', function() {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                
+                // Add overlay on mobile
+                const overlay = document.createElement('div');
+                overlay.id = 'sidebar-overlay';
+                overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden';
+                overlay.addEventListener('click', closeSidebar);
+                document.body.appendChild(overlay);
+            } else {
+                closeSidebar();
+            }
+        });
     }
     
-    // Initialize sidebar
-    initializeSidebar();
+    // Function to close sidebar
+    function closeSidebar() {
+        if (sidebar) {
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('-translate-x-full');
+            
+            // Remove overlay
+            const overlay = document.getElementById('sidebar-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+    }
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        if (
+            sidebar && 
+            window.innerWidth < 1024 && 
+            !sidebar.contains(event.target) && 
+            !mobileMenuBtn.contains(event.target) &&
+            !sidebar.classList.contains('-translate-x-full')
+        ) {
+            closeSidebar();
+        }
+    });
+    
+    // Initialize current page in navigation
+    highlightCurrentPage();
+    
+    // Add scroll event listener for subtle header effects
+    const header = document.querySelector('.header');
+    if (header && mainContent) {
+        mainContent.addEventListener('scroll', function() {
+            if (mainContent.scrollTop > 10) {
+                header.classList.add('shadow-md');
+                header.style.backgroundColor = 'rgba(15, 23, 42, 0.8)';
+            } else {
+                header.classList.remove('shadow-md');
+                header.style.backgroundColor = '';
+            }
+        });
+    }
 });
 
-// Initialize toasts for non-Alpine.js context
-function initializeToasts() {
-    window.showToast = function(type, message, duration = 3000) {
-        // If the toast utility is already defined elsewhere, use that
-        if (typeof window.showToast === 'function' && 
-            window.showToast.toString().includes('p-toast-container')) {
-            return;
+function highlightCurrentPage() {
+    // Get current page from URL path
+    const path = window.location.pathname;
+    
+    // Find all nav links
+    const navLinks = document.querySelectorAll('#nav-links a');
+    
+    navLinks.forEach(link => {
+        // Remove active class from all links
+        link.classList.remove('bg-primary-600', 'active');
+        
+        // Add active class to current page link
+        if (
+            (path === '/' && link.getAttribute('href') === '/dashboard') ||
+            (link.getAttribute('href') === path)
+        ) {
+            link.classList.add('bg-primary-600', 'active');
         }
-        
-        // Otherwise implement a basic toast system
-        // Get or create toast container
-        let container = document.getElementById('toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'toast-container';
-            container.className = 'p-toast-container';
-            document.body.appendChild(container);
-        }
-        
-        // Create toast element
-        const toast = document.createElement('div');
-        toast.className = `p-toast p-toast--${type}`;
-        
-        // Add icon based on type
-        let icon = 'fa-info-circle';
-        switch (type) {
-            case 'success':
-                icon = 'fa-check-circle';
-                break;
-            case 'error':
-                icon = 'fa-circle-exclamation';
-                break;
-            case 'warning':
-                icon = 'fa-triangle-exclamation';
-                break;
-        }
-        
-        // Set content
-        toast.innerHTML = `
-            <div class="p-toast__icon">
-                <i class="fas ${icon}"></i>
-            </div>
-            <div class="p-toast__content">${message}</div>
-            <button class="p-toast__close" aria-label="Close">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        
-        // Add to container
-        container.appendChild(toast);
-        
-        // Add show class after a small delay for animation
-        setTimeout(() => {
-            toast.classList.add('p-toast--show');
-        }, 10);
-        
-        // Add click event for close button
-        const closeBtn = toast.querySelector('.p-toast__close');
-        closeBtn.addEventListener('click', () => {
-            closeToast(toast);
-        });
-        
-        // Auto close after duration
-        setTimeout(() => {
-            closeToast(toast);
-        }, duration);
-    };
-    
-    function closeToast(toast) {
-        // Add hide class for animation
-        toast.classList.add('p-toast--hide');
-        
-        // Remove after animation completes
-        toast.addEventListener('transitionend', () => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        });
-    }
-}
-
-// Initialize sidebar interactions
-function initializeSidebar() {
-    // Toggle sidebar collapse state
-    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-    const sidebar = document.querySelector('.l-sidebar');
-    const content = document.querySelector('.l-content-with-sidebar');
-    
-    if (sidebarToggleBtn && sidebar && content) {
-        sidebarToggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            content.classList.toggle('sidebar-collapsed');
-            
-            // Save state in localStorage
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-        });
-        
-        // Restore saved state
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed) {
-            sidebar.classList.add('collapsed');
-            content.classList.add('sidebar-collapsed');
-        }
-    }
-    
-    // Handle mobile sidebar toggle
-    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-    const sidebarBackdrop = document.querySelector('.l-sidebar-backdrop');
-    
-    if (mobileSidebarToggle && sidebar) {
-        mobileSidebarToggle.addEventListener('click', function() {
-            sidebar.classList.add('mobile-open');
-            if (sidebarBackdrop) {
-                sidebarBackdrop.classList.add('active');
-            }
-        });
-    }
-    
-    // Handle backdrop click to close sidebar
-    if (sidebarBackdrop) {
-        sidebarBackdrop.addEventListener('click', function() {
-            sidebar.classList.remove('mobile-open');
-            sidebarBackdrop.classList.remove('active');
-        });
-    }
-}
-
-// Dark mode toggle functionality
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('dark-mode');
-    const isDarkMode = document.documentElement.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode);
+    });
 }

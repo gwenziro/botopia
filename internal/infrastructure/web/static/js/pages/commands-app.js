@@ -15,7 +15,7 @@ document.addEventListener('alpine:init', () => {
         debug: false,
         
         initCommands() {
-            console.log('Initializing commands app from alpine:init');
+            console.log('Initializing commands app');
             
             // Coba ambil parameter filter dari URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -26,7 +26,7 @@ document.addEventListener('alpine:init', () => {
                 this.categoryFilter = urlParams.get('category');
             }
             
-            // Pantau perubahan filter untuk update URL
+            // Pantau perubahan filter untuk update URL dan filtered commands
             this.$watch('searchQuery', () => {
                 this.filterCommands();
                 this.updateUrlParams();
@@ -50,29 +50,22 @@ document.addEventListener('alpine:init', () => {
                 try {
                     console.log('Loading commands from embedded JSON data');
                     const jsonText = commandsDataElement.textContent.trim();
-                    console.log('JSON text length:', jsonText.length);
                     
-                    // PERBAIKAN: Handle double-encoded JSON - decode sekali untuk dapatkan inner JSON string
+                    // Handle double-encoded JSON dan JSON parsing dengan aman
                     let jsonData;
                     try {
-                        const outerParsed = JSON.parse(jsonText);
-                        console.log('First parse result (likely still a string):', typeof outerParsed);
+                        // Coba parse JSON
+                        jsonData = JSON.parse(jsonText);
                         
                         // Cek apakah hasil parsing pertama adalah string (double-encoded)
-                        if (typeof outerParsed === 'string') {
-                            // Parse lagi untuk mendapatkan object sebenarnya
-                            jsonData = JSON.parse(outerParsed);
-                            console.log('Second parse needed - final result:', typeof jsonData);
-                        } else {
-                            // Sudah dalam bentuk object
-                            jsonData = outerParsed;
+                        if (typeof jsonData === 'string') {
+                            jsonData = JSON.parse(jsonData);
                         }
                     } catch (innerError) {
-                        console.error('Error during JSON double-parsing:', innerError);
+                        console.error('Error during JSON parsing:', innerError);
                         jsonData = {};
                     }
                     
-                    console.log('Final parsed commands data:', jsonData);
                     this.processCommandsData(jsonData);
                     return;
                 } catch (error) {
@@ -90,7 +83,6 @@ document.addEventListener('alpine:init', () => {
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Received commands data from API:', data);
                     this.processCommandsData(data);
                 })
                 .catch(error => {
@@ -108,33 +100,48 @@ document.addEventListener('alpine:init', () => {
         },
         
         processCommandsData(data) {
-            console.log('Processing commands data');
-            
-            // PERBAIKAN: Verifikasi bahwa data adalah object sebelum diproses
+            // Validasi data
             if (!data || typeof data !== 'object') {
                 console.error('Invalid data format, expected object but got:', typeof data);
                 this.loading = false;
                 return;
             }
             
-            // Reset array commands terlebih dahulu
+            // Reset array commands
             this.commands = [];
             
-            // Konversi dari object ke array dengan cara yang benar
+            // Konversi dari object ke array
             Object.keys(data).forEach(key => {
                 const cmd = data[key];
                 if (cmd && typeof cmd === 'object') {
+                    // Tambahkan ikon berdasarkan kategori
+                    let icon = 'code';
+                    
+                    if (cmd.category) {
+                        switch(cmd.category.toLowerCase()) {
+                            case 'keuangan':
+                                icon = 'money-bill-wave';
+                                break;
+                            case 'help':
+                                icon = 'question-circle';
+                                break;
+                            case 'system':
+                                icon = 'cogs';
+                                break;
+                            default:
+                                icon = 'terminal';
+                        }
+                    }
+                    
                     this.commands.push({
                         name: key,
                         description: cmd.description || 'Tidak ada deskripsi',
                         category: cmd.category || 'Umum',
-                        usage: cmd.usage || `!${key}`
+                        usage: cmd.usage || `!${key}`,
+                        icon: icon
                     });
                 }
             });
-            
-            console.log('Commands array created:', this.commands);
-            console.log('Number of commands:', this.commands.length);
             
             // Sort by name
             this.commands.sort((a, b) => a.name.localeCompare(b.name));
@@ -149,7 +156,6 @@ document.addEventListener('alpine:init', () => {
             this.categories = Array.from(categorySet).sort();
             
             this.totalCommands = this.commands.length;
-            console.log(`Processed ${this.totalCommands} commands with ${this.categories.length} categories`);
             
             // Apply initial filters if any
             this.filterCommands();
@@ -158,8 +164,6 @@ document.addEventListener('alpine:init', () => {
         },
         
         filterCommands() {
-            console.log(`Filtering commands. Query: "${this.searchQuery}", Category: "${this.categoryFilter}"`);
-            
             // Filter berdasarkan search query dan kategori
             this.filteredCommands = this.commands.filter(cmd => {
                 const matchesSearch = !this.searchQuery || 
@@ -171,12 +175,9 @@ document.addEventListener('alpine:init', () => {
                     
                 return matchesSearch && matchesCategory;
             });
-            
-            console.log(`Filtered to ${this.filteredCommands.length} commands`);
         },
         
         resetFilters() {
-            console.log('Resetting filters');
             this.searchQuery = '';
             this.categoryFilter = '';
             this.filterCommands();
@@ -199,6 +200,17 @@ document.addEventListener('alpine:init', () => {
             }
             
             history.replaceState({}, '', url);
+        },
+        
+        getIconForCategory(category) {
+            if (!category) return 'terminal';
+            
+            switch(category.toLowerCase()) {
+                case 'keuangan': return 'money-bill-wave';
+                case 'help': return 'question-circle';
+                case 'system': return 'cogs';
+                default: return 'terminal';
+            }
         }
     }));
 });

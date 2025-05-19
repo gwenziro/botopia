@@ -6,7 +6,7 @@
 
 /* Container Utama */
 .p-connectivity {
-  padding: var(--space-6);
+  padding: var(--space-4);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -42,7 +42,7 @@
 }
 
 .p-connectivity-banner__status--connected {
-  border-left: 6px solid var(--success);
+  border-left: 8px solid var(--success);
 }
 
 .p-connectivity-banner__status--disconnected {

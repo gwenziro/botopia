@@ -37,8 +37,8 @@
 
 /* Logo Icon */
 .l-sidebar__logo-icon {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   background-color: rgba(var(--primary-500-rgb), 0.2);
   display: flex;
   align-items: center;
@@ -69,8 +69,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Hanya scroll vertikal */
-  overflow-x: hidden; /* Mencegah scroll horizontal */
+  overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: var(--space-4);
   scrollbar-width: thin;
   scrollbar-color: var(--slate-700) transparent;
@@ -123,11 +123,11 @@
 /* Navigation Item */
 .l-sidebar__item {
   display: flex;
+  gap: var(--space-3);
   align-items: center;
   padding: var(--space-3) var(--space-4);
   color: var(--slate-300);
   border-radius: var(--radius-md);
-  text-decoration: none;
   transition: all var(--transition-fast);
   margin-bottom: var(--space-2);
   position: relative;
@@ -154,7 +154,6 @@
   border-radius: var(--radius-md);
   background-color: rgba(255, 255, 255, 0.1);
   color: currentColor;
-  margin-right: var(--space-3);
   font-size: 14px;
   flex-shrink: 0;
   transition: all var(--transition-fast);
@@ -163,6 +162,7 @@
 .l-sidebar__item.active .l-sidebar__item-icon {
   background-color: rgba(var(--primary-500-rgb), 0.2);
   color: var(--primary-400);
+  margin-right: 0;
 }
 
 /* Item Text */
@@ -232,8 +232,8 @@
 
 /* Collapse Button */
 .l-sidebar__collapse-btn {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border: none;
   background-color: rgba(255, 255, 255, 0.1);
   color: var(--slate-400);

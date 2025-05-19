@@ -62,8 +62,9 @@
                 <div class="u-flex u-items-center u-gap-2">
                     <button 
                         @click="refreshData()" 
-                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        class="c-btn c-btn--icon c-btn--outline-primary p-refresh-btn"
                         aria-label="Refresh">
+                        <span>Refresh Data</span>
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -72,7 +73,7 @@
                 <div class="p-data-grid" x-show="getItems('expense-categories').length > 0">
                     <template x-for="(item, index) in getItems('expense-categories')" :key="index">
                         <div class="p-data-card">
-                            <h3 class="p-data-card__name" x-text="item"></h3>
+                            <span class="p-data-card__name" x-text="item"></span>
                         </div>
                     </template>
                 </div>
@@ -97,8 +98,9 @@
                 <div class="u-flex u-items-center u-gap-2">
                     <button 
                         @click="refreshData()" 
-                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        class="c-btn c-btn--icon c-btn--outline-primary p-refresh-btn"
                         aria-label="Refresh">
+                        <span>Refresh Data</span>
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -107,7 +109,7 @@
                 <div class="p-data-grid" x-show="getItems('income-categories').length > 0">
                     <template x-for="(item, index) in getItems('income-categories')" :key="index">
                         <div class="p-data-card">
-                            <h3 class="p-data-card__name" x-text="item"></h3>
+                            <span class="p-data-card__name" x-text="item"></span>
                         </div>
                     </template>
                 </div>
@@ -132,8 +134,9 @@
                 <div class="u-flex u-items-center u-gap-2">
                     <button 
                         @click="refreshData()" 
-                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        class="c-btn c-btn--icon c-btn--outline-primary p-refresh-btn"
                         aria-label="Refresh">
+                        <span>Refresh Data</span>
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -142,7 +145,7 @@
                 <div class="p-data-grid" x-show="getItems('payment-methods').length > 0">
                     <template x-for="(item, index) in getItems('payment-methods')" :key="index">
                         <div class="p-data-card">
-                            <h3 class="p-data-card__name" x-text="item"></h3>
+                            <span class="p-data-card__name" x-text="item"></span>
                         </div>
                     </template>
                 </div>
@@ -167,8 +170,9 @@
                 <div class="u-flex u-items-center u-gap-2">
                     <button 
                         @click="refreshData()" 
-                        class="c-btn c-btn--icon c-btn--outline-primary"
+                        class="c-btn c-btn--icon c-btn--outline-primary p-refresh-btn"
                         aria-label="Refresh">
+                        <span>Refresh Data</span>
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -177,7 +181,7 @@
                 <div class="p-data-grid" x-show="getItems('storage-media').length > 0">
                     <template x-for="(item, index) in getItems('storage-media')" :key="index">
                         <div class="p-data-card">
-                            <h3 class="p-data-card__name" x-text="item"></h3>
+                            <span class="p-data-card__name" x-text="item"></span>
                         </div>
                     </template>
                 </div>

@@ -1,179 +1,4 @@
-<div x-data="dashboardApp" x-init="initialize()" class="u-space-y-6">
-    <!-- Info Sections Container - Side by Side -->
-    <div class="p-dashboard-info-container">
-        <!-- WhatsApp Account Info Card -->
-        <div class="p-dashboard-info-card c-card h-full">
-            <div class="c-card__body">
-                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-4">
-                    <i class="fab fa-whatsapp u-text-primary-400"></i>
-                    Informasi Akun WhatsApp
-                </h2>
-                
-                <div class="p-connection-status">
-                    <div class="p-connection-status__content">
-                        <template x-if="isConnected">
-                            <div class="p-connection-info">
-                                <div class="p-connection-info__grid">
-                                    <!-- User Info Item -->
-                                    <div class="c-info-item">
-                                        <div class="c-info-item__icon">
-                                            <i class="fas fa-user u-text-primary-400"></i>
-                                        </div>
-                                        <div class="c-info-item__content">
-                                            <div class="c-info-item__label">Nama Akun</div>
-                                            <div class="c-info-item__value" 
-                                                 x-text="name !== 'WhatsApp User' ? name : (phone || 'WhatsApp User')"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Phone Number Item -->
-                                    <div class="c-info-item">
-                                        <div class="c-info-item__icon">
-                                            <i class="fas fa-phone u-text-primary-400"></i>
-                                        </div>
-                                        <div class="c-info-item__content">
-                                            <div class="c-info-item__label">Nomor Telepon</div>
-                                            <div class="c-info-item__value" x-text="formatPhone(phone) || '-'"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Connected Since Item -->
-                                    <div class="c-info-item">
-                                        <div class="c-info-item__icon">
-                                            <i class="fas fa-calendar-check u-text-primary-400"></i>
-                                        </div>
-                                        <div class="c-info-item__content">
-                                            <div class="c-info-item__label">Terhubung Sejak</div>
-                                            <div class="c-info-item__value" x-text="formatDate(connectedSince)"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Device ID Item -->
-                                    <div class="c-info-item">
-                                        <div class="c-info-item__icon">
-                                            <i class="fas fa-fingerprint u-text-primary-400"></i>
-                                        </div>
-                                        <div class="c-info-item__content">
-                                            <div class="c-info-item__label">ID Perangkat</div>
-                                            <div class="c-info-item__value" x-text="deviceDetails?.deviceId || '-'"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                        
-                        <!-- Disconnected Info -->
-                        <div class="p-connection-not-connected" x-show="!isConnected">
-                            <div class="p-connection-not-connected__icon">
-                                <i class="fas fa-plug-circle-xmark"></i>
-                            </div>
-                            <div class="p-connection-not-connected__message">
-                                Tidak terhubung ke WhatsApp
-                            </div>
-                            <div class="p-connection-not-connected__action">
-                                <a href="/connectivity" class="c-btn c-btn--primary u-flex u-items-center u-gap-2">
-                                    <i class="fas fa-qrcode"></i> Scan QR Code
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Google Service Info Card - Updated layout -->
-        <div class="p-dashboard-info-card c-card">
-            <div class="c-card__body">
-                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-4">
-                    <i class="fab fa-google u-text-primary-400"></i>
-                    Informasi Layanan Google
-                </h2>
-                
-                <div class="p-google-services">
-                    <div class="p-google-services__content">
-                        <template x-if="googleServices.isConfigured">
-                            <div class="p-google-info">
-                                <!-- Google Sheets Item -->
-                                <div class="c-service-item">
-                                    <div class="c-service-item__header">
-                                        <div class="c-service-item__header-left">
-                                            <div class="c-service-item__icon">
-                                                <i class="fas fa-table u-text-primary-400"></i>
-                                            </div>
-                                            <div class="c-service-item__title-container">
-                                                <h3 class="c-service-item__title">
-                                                    Google Sheets
-                                                    <span x-show="googleServices.sheets.isConnected" class="c-service-item__status c-service-item__status--active">
-                                                        <i class="fas fa-check-circle"></i>
-                                                    </span>
-                                                    <span x-show="!googleServices.sheets.isConnected" class="c-service-item__status c-service-item__status--inactive">
-                                                        <i class="fas fa-times-circle"></i>
-                                                    </span>
-                                                </h3>
-                                                <div class="c-service-item__id" x-show="googleServices.sheets.id" x-text="googleServices.sheets.id"></div>
-                                            </div>
-                                        </div>
-                                        <div class="c-service-item__action" x-show="googleServices.sheets.isConnected && googleServices.sheets.url && googleServices.sheets.url !== '#'">
-                                            <a :href="googleServices.sheets.url" 
-                                               target="_blank" 
-                                               class="c-btn c-btn--sm c-btn--primary">
-                                                <i class="fas fa-external-link-alt"></i> Buka
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Google Drive Item -->
-                                <div class="c-service-item">
-                                    <div class="c-service-item__header">
-                                        <div class="c-service-item__header-left">
-                                            <div class="c-service-item__icon">
-                                                <i class="fab fa-google-drive u-text-primary-400"></i>
-                                            </div>
-                                            <div class="c-service-item__title-container">
-                                                <h3 class="c-service-item__title">
-                                                    Google Drive
-                                                    <span x-show="googleServices.drive.isConnected" class="c-service-item__status c-service-item__status--active">
-                                                        <i class="fas fa-check-circle"></i>
-                                                    </span>
-                                                    <span x-show="!googleServices.drive.isConnected" class="c-service-item__status c-service-item__status--inactive">
-                                                        <i class="fas fa-times-circle"></i>
-                                                    </span>
-                                                </h3>
-                                                <div class="c-service-item__id" x-show="googleServices.drive.id" x-text="googleServices.drive.id"></div>
-                                            </div>
-                                        </div>
-                                        <div class="c-service-item__action" x-show="googleServices.drive.isConnected && googleServices.drive.url && googleServices.drive.url !== '#'">
-                                            <a :href="googleServices.drive.url" 
-                                               target="_blank" 
-                                               class="c-btn c-btn--sm c-btn--primary">
-                                                <i class="fas fa-external-link-alt"></i> Buka
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                        
-                        <!-- Not Configured Info -->
-                        <div class="p-google-not-configured" x-show="!googleServices.isConfigured">
-                            <div class="p-google-not-configured__icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="p-google-not-configured__message">
-                                Layanan Google belum dikonfigurasi
-                            </div>
-                            <div class="p-google-not-configured__action">
-                                <a href="/konfigurasi" class="c-btn c-btn--primary u-flex u-items-center u-gap-2">
-                                    <i class="fas fa-cog"></i> Konfigurasi
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div x-data="dashboardApp" x-init="initialize()" class="u-space-y-6 p-dashboard">
 
     <!-- Statistics Card -->
     <div class="c-card">
@@ -231,6 +56,190 @@
         </div>
     </div>
 
+    <!-- Info Sections Container - Side by Side -->
+    <div class="p-dashboard-info-container">
+        <!-- WhatsApp Account Info Card -->
+        <div class="p-dashboard-info-card c-card h-full">
+            <div class="c-card__body">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-4">
+                    <i class="fab fa-whatsapp u-text-primary-400"></i>
+                    Informasi Akun WhatsApp
+                </h2>
+
+                <div class="p-connection-status">
+                    <div class="p-connection-status__content">
+                        <template x-if="isConnected">
+                            <div class="p-connection-info">
+                                <div class="p-connection-info__grid">
+                                    <!-- User Info Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-user u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">Nama Akun</div>
+                                            <div class="c-info-item__value"
+                                                x-text="name !== 'WhatsApp User' ? name : (phone || 'WhatsApp User')">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Phone Number Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-phone u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">Nomor Telepon</div>
+                                            <div class="c-info-item__value" x-text="formatPhone(phone) || '-'"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Connected Since Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-calendar-check u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">Terhubung Sejak</div>
+                                            <div class="c-info-item__value" x-text="formatDate(connectedSince)"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Device ID Item -->
+                                    <div class="c-info-item">
+                                        <div class="c-info-item__icon">
+                                            <i class="fas fa-fingerprint u-text-primary-400"></i>
+                                        </div>
+                                        <div class="c-info-item__content">
+                                            <div class="c-info-item__label">ID Perangkat</div>
+                                            <div class="c-info-item__value" x-text="deviceDetails?.deviceId || '-'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Disconnected Info -->
+                        <div class="p-connection-not-connected" x-show="!isConnected">
+                            <div class="p-connection-not-connected__icon">
+                                <i class="fas fa-plug-circle-xmark"></i>
+                            </div>
+                            <div class="p-connection-not-connected__message">
+                                Tidak terhubung ke WhatsApp
+                            </div>
+                            <div class="p-connection-not-connected__action">
+                                <a href="/connectivity" class="c-btn c-btn--primary u-flex u-items-center u-gap-2">
+                                    <i class="fas fa-qrcode"></i> Scan QR Code
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Service Info Card - Updated layout -->
+        <div class="p-dashboard-info-card c-card">
+            <div class="c-card__body">
+                <h2 class="c-card__title u-flex u-items-center u-gap-2 u-mb-4">
+                    <i class="fab fa-google u-text-primary-400"></i>
+                    Informasi Layanan Google
+                </h2>
+
+                <div class="p-google-services">
+                    <div class="p-google-services__content">
+                        <template x-if="googleServices.isConfigured">
+                            <div class="p-google-info">
+                                <!-- Google Sheets Item -->
+                                <div class="c-service-item">
+                                    <div class="c-service-item__header">
+                                        <div class="c-service-item__header-left">
+                                            <div class="c-service-item__icon">
+                                                <i class="fas fa-table u-text-primary-400"></i>
+                                            </div>
+                                            <div class="c-service-item__title-container">
+                                                <h3 class="c-service-item__title">
+                                                    Google Sheets
+                                                    <span x-show="googleServices.sheets.isConnected"
+                                                        class="c-service-item__status c-service-item__status--active">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </span>
+                                                    <span x-show="!googleServices.sheets.isConnected"
+                                                        class="c-service-item__status c-service-item__status--inactive">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </span>
+                                                </h3>
+                                                <div class="c-service-item__id" x-show="googleServices.sheets.id"
+                                                    x-text="googleServices.sheets.id"></div>
+                                            </div>
+                                        </div>
+                                        <div class="c-service-item__action"
+                                            x-show="googleServices.sheets.isConnected && googleServices.sheets.url && googleServices.sheets.url !== '#'">
+                                            <a :href="googleServices.sheets.url" target="_blank"
+                                                class="c-btn c-btn--sm c-btn--primary">
+                                                <i class="fas fa-external-link-alt"></i> Buka
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Google Drive Item -->
+                                <div class="c-service-item">
+                                    <div class="c-service-item__header">
+                                        <div class="c-service-item__header-left">
+                                            <div class="c-service-item__icon">
+                                                <i class="fab fa-google-drive u-text-primary-400"></i>
+                                            </div>
+                                            <div class="c-service-item__title-container">
+                                                <h3 class="c-service-item__title">
+                                                    Google Drive
+                                                    <span x-show="googleServices.drive.isConnected"
+                                                        class="c-service-item__status c-service-item__status--active">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </span>
+                                                    <span x-show="!googleServices.drive.isConnected"
+                                                        class="c-service-item__status c-service-item__status--inactive">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </span>
+                                                </h3>
+                                                <div class="c-service-item__id" x-show="googleServices.drive.id"
+                                                    x-text="googleServices.drive.id"></div>
+                                            </div>
+                                        </div>
+                                        <div class="c-service-item__action"
+                                            x-show="googleServices.drive.isConnected && googleServices.drive.url && googleServices.drive.url !== '#'">
+                                            <a :href="googleServices.drive.url" target="_blank"
+                                                class="c-btn c-btn--sm c-btn--primary">
+                                                <i class="fas fa-external-link-alt"></i> Buka
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Not Configured Info -->
+                        <div class="p-google-not-configured" x-show="!googleServices.isConfigured">
+                            <div class="p-google-not-configured__icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="p-google-not-configured__message">
+                                Layanan Google belum dikonfigurasi
+                            </div>
+                            <div class="p-google-not-configured__action">
+                                <a href="/konfigurasi" class="c-btn c-btn--primary u-flex u-items-center u-gap-2">
+                                    <i class="fas fa-cog"></i> Konfigurasi
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Commands List Section - RESTORED -->
     <div class="c-card">
         <div class="c-card__body">
@@ -244,7 +253,7 @@
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
-            
+
             <!-- Command List with Dynamic Icons -->
             <div class="p-commands-list" x-show="Object.keys(commands).length > 0">
                 <template x-for="(command, name) in commands" :key="name">
@@ -259,7 +268,7 @@
                     </div>
                 </template>
             </div>
-            
+
             <div class="p-commands-empty" x-show="Object.keys(commands).length === 0">
                 <div class="p-commands-empty__icon">
                     <i class="fas fa-code"></i>
