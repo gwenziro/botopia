@@ -132,6 +132,11 @@ document.addEventListener('alpine:init', () => {
                             
                             // Speed up polling when waiting for scan
                             this.adjustPollingInterval(3000);
+                        } else if (data.retry) {
+                            // Server asks for retry
+                            this.retryCount = 0;
+                            this.adjustPollingInterval(2000); // Poll more frequently
+                            console.log("Server requested retry: ", data.message || "QR not yet available");
                         } else {
                             // Increment retry counter
                             this.retryCount++;
@@ -153,6 +158,9 @@ document.addEventListener('alpine:init', () => {
                     if (this.retryCount > this.maxRetries) {
                         this.stopPolling();
                         this.showNotification('error', 'Terjadi error saat mengambil data. Silakan refresh halaman');
+                    } else {
+                        // Adjust polling interval on error to prevent flooding
+                        this.adjustPollingInterval(5000 + (this.retryCount * 1000));
                     }
                     
                     this.isLoading = false;
@@ -253,10 +261,30 @@ document.addEventListener('alpine:init', () => {
             return phone;
         },
         
-        getQRImageURL() {
-            if (!this.qrCode) return '';
-            const encodedQR = encodeURIComponent(this.qrCode);
-            return `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodedQR}&choe=UTF-8`;
+        renderQR() {
+            if (!this.qrCode) return;
+            
+            // Bersihkan container terlebih dahulu
+            const qrContainer = this.$refs.qrContainer;
+            if (!qrContainer) return;
+            
+            qrContainer.innerHTML = '';
+            
+            // Gunakan library QRCode untuk membuat QR code
+            if (typeof QRCode !== 'undefined') {
+                QRCode.toCanvas(qrContainer, this.qrCode, {
+                    width: 300,
+                    margin: 0,
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    }
+                }, function(error) {
+                    if (error) console.error('Error generating QR code:', error);
+                });
+            } else {
+                console.error('QRCode library not available');
+            }
         }
     }));
 });

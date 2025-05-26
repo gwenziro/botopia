@@ -1,6 +1,8 @@
 package web
 
 import (
+	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -86,19 +88,42 @@ func (c *ConnectivityController) HandleGetQR(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// Create a channel for QR code
+	// Mulai koneksi jika belum terhubung dan belum mencoba terhubung
+	if !c.connectUseCase.IsConnecting() {
+		go func() {
+			_, err := c.connectUseCase.Execute(context.Background())
+			if err != nil {
+				log.Printf("Error starting connection: %v", err)
+			}
+		}()
+	}
+
+	// Dapatkan QR code yang sudah tersedia (jika ada)
+	qrCode := c.connectUseCase.GetCurrentQR()
+	if qrCode != "" {
+		return ctx.JSON(fiber.Map{
+			"qrCode":          qrCode,
+			"connectionState": false,
+		})
+	}
+
+	// Create a channel for QR code dengan buffer
 	qrChan := c.connectUseCase.GetQRChannel()
 
-	// Wait for QR code with timeout
+	// Kurangi timeout dari 15 detik menjadi 5 detik
 	select {
 	case <-ctx.Context().Done():
 		return ctx.Status(http.StatusRequestTimeout).JSON(fiber.Map{
-			"error": "QR code generation timed out",
+			"error":           "QR code generation timed out",
+			"connectionState": false,
+			"retry":           true,
 		})
 	case qrCode := <-qrChan:
 		if qrCode == "" {
 			return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to get QR code",
+				"error":           "QR code unavailable",
+				"connectionState": false,
+				"retry":           true,
 			})
 		}
 
@@ -106,9 +131,11 @@ func (c *ConnectivityController) HandleGetQR(ctx *fiber.Ctx) error {
 			"qrCode":          qrCode,
 			"connectionState": false,
 		})
-	case <-time.After(15 * time.Second):
-		return ctx.Status(http.StatusRequestTimeout).JSON(fiber.Map{
-			"error": "QR code generation timed out after 15 seconds",
+	case <-time.After(5 * time.Second):
+		return ctx.JSON(fiber.Map{
+			"connectionState": false,
+			"retry":           true,
+			"message":         "QR code not yet available, please retry",
 		})
 	}
 }
